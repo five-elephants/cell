@@ -6,30 +6,23 @@
 
 namespace ast {
 
-	template<typename Left, typename Right>
-	class Op_plus : public Binary<Left,Right> {
-		public:
-			Op_plus(Left& left, Right& right)
-				:	Binary<Left,Right>(left, right) {
-			}
-	};
-
-	template<typename Left, typename Right>
-	Op_plus<Left,Right> make_op_plus(Left&& left, Right&& right) {
-		return Op_plus<Left,Right>(left, right);
+#define BINOP(name) \
+	class Op_ ## name : public Binary {  \
+		public:  \
+			Op_ ## name (Node_if& left, Node_if& right, gen::Generator_if& g)  \
+				:	Binary(left, right, g) {  \
+			}  \
+	\
+			virtual void visit() {  \
+				get_generator().op_ ## name(*this);  \
+			}  \
 	}
-	
-	template<typename Left, typename Right>
-	class Op_minus : public Binary<Left,Right> {
-		public:
-			Op_minus(Left& left, Right& right)
-				:	Binary<Left,Right>(left, right) {
-			}
-	};
 
-	template<typename Left, typename Right>
-	Op_minus<Left,Right> make_op_minus(Left&& left, Right&& right) {
-		return Op_minus<Left,Right>(left, right);
-	}
+	BINOP(plus);
+	BINOP(minus);
+	BINOP(mult);
+	BINOP(div);
 
 }
+
+#undef BINOP

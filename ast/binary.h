@@ -1,26 +1,35 @@
 #pragma once
 
-#include "ast/node_if.h"
+#include "ast/node_base.h"
+#include "gen/generator_if.h"
 
 namespace ast {
 
-	template<typename Left, typename Right>
-	class Binary : public Node_if {
+	class Binary : public Node_base {
 		public:
-			Binary(Left& left, Right& right)
-		 		:	m_left(left),
+			Binary(Node_if& left, Node_if& right, gen::Generator_if& generator)
+		 		:	Node_base(generator),
+					m_left(left),
 					m_right(right) {
 			}
 
 			virtual ~Binary() {
 			}
 
-			Left const& left() const { return m_left; }
-			Right const& right() const { return m_right; }
+			virtual void set_generator(gen::Generator_if& g) {
+				Node_base::set_generator(g);
+				m_left.set_generator(g);
+				m_right.set_generator(g);
+			}
+
+			Node_if& left() { return m_left; }
+			Node_if const& left() const { return m_left; }
+			Node_if& right() { return m_right; }
+			Node_if const& right() const { return m_right; }
 
 		private:
-			Left& m_left;
-			Right& m_right;
+			Node_if& m_left;
+			Node_if& m_right;
 	};
 
 

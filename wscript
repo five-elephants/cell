@@ -10,8 +10,16 @@ def configure(conf):
     conf.check_tool('bison flex')
 
 def build(bld):
+    core_src = """
+      gen/gen_text.cpp
+      ast/node_base.cpp
+      ast/var_assign.cpp
+      ast/module_def.cpp
+      ast/function_def.cpp
+    """
+
     bld.program(
-        source = 'test_gen_text.cpp',
+        source = 'test_gen_text.cpp ' + core_src,
         target = 'test_gen_text',
         includes = '.',
         cxxflags = '-std=c++11',
