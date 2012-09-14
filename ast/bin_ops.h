@@ -9,8 +9,8 @@ namespace ast {
 #define BINOP(name) \
 	class Op_ ## name : public Binary {  \
 		public:  \
-			Op_ ## name (Node_if& left, Node_if& right, gen::Generator_if& g)  \
-				:	Binary(left, right, g) {  \
+			Op_ ## name (Node_if& left, Node_if& right)  \
+				:	Binary(left, right) {  \
 			}  \
 	\
 			virtual void visit() {  \

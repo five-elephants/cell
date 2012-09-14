@@ -8,8 +8,7 @@ namespace ast {
 		public:
 			Var_assign(Node_if& identifier,
 					Node_if& type,
-					Node_if& expression,
-					gen::Generator_if& generator);
+					Node_if& expression);
 			virtual ~Var_assign() {}
 
 			virtual void set_generator(gen::Generator_if& g); 

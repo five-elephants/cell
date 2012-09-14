@@ -7,8 +7,8 @@ namespace ast {
 
 	class Identifier : public Node_base {
 		public:
-			Identifier(std::string const& txt, gen::Generator_if& generator)
-				: Node_base(generator),
+			Identifier(std::string const& txt)
+				: Node_base(),
 					m_identifier(txt) {
 			}
 

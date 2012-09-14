@@ -6,10 +6,9 @@ namespace ast {
 
 	Var_assign::Var_assign(Node_if& identifier,
 			Node_if& type,
-			Node_if& expression,
-			gen::Generator_if& generator)
+			Node_if& expression)
 		:	
-			Node_base(generator),
+			Node_base(),
 			m_identifier(identifier),
 			m_type(type),
 			m_expression(expression) {

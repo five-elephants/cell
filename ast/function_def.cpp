@@ -2,8 +2,8 @@
 
 namespace ast {
 
-	Function_def::Function_def(Node_if& identifier, gen::Generator_if& generator)
-		:	Node_base(generator),
+	Function_def::Function_def(Node_if& identifier)
+		:	Node_base(),
 			m_identifier(identifier) {
 	}
 

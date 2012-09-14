@@ -7,8 +7,8 @@ namespace ast {
 
 	class Module_def : public Node_base {
 		public:
-			Module_def(Node_if& identifier, gen::Generator_if& generator)
-				:	Node_base(generator),
+			Module_def(Node_if& identifier)
+				:	Node_base(),
 		 			m_identifier(identifier) {
 			}
 

@@ -7,8 +7,8 @@ namespace ast {
 
 	class Binary : public Node_base {
 		public:
-			Binary(Node_if& left, Node_if& right, gen::Generator_if& generator)
-		 		:	Node_base(generator),
+			Binary(Node_if& left, Node_if& right)
+		 		:	Node_base(),
 					m_left(left),
 					m_right(right) {
 			}

@@ -6,7 +6,9 @@ namespace ast {
 
 	class Node_base : public Node_if {
 		public:
-			Node_base(gen::Generator_if& generator);
+			static gen::Generator_if& default_generator;
+
+			Node_base();
 			virtual ~Node_base() {};
 
 			virtual void set_generator(gen::Generator_if& gen);

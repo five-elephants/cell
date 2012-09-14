@@ -8,7 +8,7 @@ namespace ast {
 
 	class Function_def : public Node_base {
 		public:
-			Function_def(Node_if& identifier, gen::Generator_if& generator);
+			Function_def(Node_if& identifier);
 			virtual ~Function_def() {}
 
 			virtual void set_generator(gen::Generator_if& g);

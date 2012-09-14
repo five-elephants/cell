@@ -10,8 +10,8 @@ namespace ast {
 	template<typename T>
 	class Literal_base : public Node_base {
 		public:
-			Literal_base(T const& value, gen::Generator_if& generator)
-				:	Node_base(generator),
+			Literal_base(T const& value)
+				:	Node_base(),
 					m_value(value) {
 			}
 			virtual ~Literal_base() {};
@@ -26,8 +26,8 @@ namespace ast {
 	template<typename T>
 	class Literal : public Literal_base<T> {
 		public:
-			Literal(T const& value, gen::Generator_if& generator)
-				:	Literal_base<T>(value, generator) {
+			Literal(T const& value)
+				:	Literal_base<T>(value) {
 			}
 			virtual ~Literal() {};
 
@@ -39,8 +39,8 @@ namespace ast {
 	template<>
 	class Literal<int> : public Literal_base<int> {
 		public:
-			Literal<int>(int const& value, gen::Generator_if& generator)
-				:	Literal_base<int>(value, generator) {
+			Literal<int>(int const& value)
+				:	Literal_base<int>(value) {
 			}
 			virtual ~Literal<int>() {};
 
