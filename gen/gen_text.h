@@ -18,7 +18,7 @@ namespace gen {
 			virtual void op_mult(ast::Op_mult& op);
 			virtual void op_div(ast::Op_div& op);
 			virtual void int_literal(ast::Literal<int>& lit);
-			virtual void var_assign(ast::Var_assign& a);
+			virtual void variable_def(ast::Variable_def& a);
 			virtual void identifier(ast::Identifier& id);
 			virtual void module_begin(ast::Module_def& mod);
 			virtual void module_end(ast::Module_def& mod);

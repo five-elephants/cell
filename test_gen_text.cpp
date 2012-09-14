@@ -20,12 +20,12 @@ int main() {
 	auto var_id = ast::Identifier("var_name");
 	auto type_id = ast::Identifier("int");
 	auto var_exp = ast::Op_plus(a, c);
-	auto var_assign = ast::Var_assign(var_id, type_id, var_exp);
+	auto var_assign = ast::Variable_def(var_id, type_id, var_exp);
 
 	auto func_id = ast::Identifier("func_name");
-	auto param_0 = ast::Var_assign(var_id, type_id, var_exp);
-	auto param_1 = ast::Var_assign(var_id, type_id, var_exp);
-	auto func_body_0 = ast::Var_assign(var_id, type_id, var_exp);
+	auto param_0 = ast::Variable_def(var_id, type_id, var_exp);
+	auto param_1 = ast::Variable_def(var_id, type_id, var_exp);
+	auto func_body_0 = ast::Variable_def(var_id, type_id, var_exp);
 	auto func_def = ast::Function_def(func_id);
 
 	func_def.append_parameter(param_0);

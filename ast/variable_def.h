@@ -4,12 +4,12 @@
 
 namespace ast {
 
-	class Var_assign : public Node_base {
+	class Variable_def : public Node_base {
 		public:
-			Var_assign(Node_if& identifier,
+			Variable_def(Node_if& identifier,
 					Node_if& type,
 					Node_if& expression);
-			virtual ~Var_assign() {}
+			virtual ~Variable_def() {}
 
 			virtual void set_generator(gen::Generator_if& g); 
 			virtual void visit();

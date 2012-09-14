@@ -48,7 +48,7 @@ namespace gen {
 
 
 	void
-	Text_generator::var_assign(ast::Var_assign& a) {
+	Text_generator::variable_def(ast::Variable_def& a) {
 		indent();
 		m_out << "(var ";
 		a.identifier().visit();

@@ -7,7 +7,7 @@ namespace ast {
 	class Op_mult;
 	class Op_div;
 	template<typename T> class Literal;
-	class Var_assign;
+	class Variable_def;
 	class Identifier;
 	class Module_def;
 	class Function_def;
@@ -26,7 +26,7 @@ namespace gen {
 			virtual void int_literal(ast::Literal<int>& lit) = 0;
 
 			// variables
-			virtual void var_assign(ast::Var_assign& a) = 0;
+			virtual void variable_def(ast::Variable_def& a) = 0;
 
 			// identifiers
 			virtual void identifier(ast::Identifier& id) = 0;

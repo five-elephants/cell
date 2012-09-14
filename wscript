@@ -13,7 +13,7 @@ def build(bld):
     core_src = """
       gen/gen_text.cpp
       ast/node_base.cpp
-      ast/var_assign.cpp
+      ast/variable_def.cpp
       ast/module_def.cpp
       ast/function_def.cpp
     """
