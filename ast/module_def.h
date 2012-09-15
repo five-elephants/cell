@@ -18,6 +18,7 @@ namespace ast {
 			virtual void visit();
 
 			void append(Node_if& node);
+			void append(std::vector<Node_if*> const& nodes);
 
 			Node_if& identifier() { return m_identifier; }
 

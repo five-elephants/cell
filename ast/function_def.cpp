@@ -1,10 +1,14 @@
 #include "ast/function_def.h"
 
+#include <iterator>
+#include <algorithm>
+
 namespace ast {
 
-	Function_def::Function_def(Node_if& identifier)
+	Function_def::Function_def(Node_if& identifier, Node_if& return_type)
 		:	Node_base(),
-			m_identifier(identifier) {
+			m_identifier(identifier),
+ 			m_return_type(return_type) {
 	}
 
 
@@ -39,10 +43,20 @@ namespace ast {
 		m_parameters.push_back(&node);
 	}
 
+	void
+	Function_def::append_parameter(std::vector<Node_if*> const& nodes) {
+		std::copy(begin(nodes), end(nodes), std::back_inserter(m_parameters));
+	}
+
 	
 	void
 	Function_def::append_body(Node_if& node) {
 		m_body.push_back(&node);
+	}
+
+	void
+	Function_def::append_body(std::vector<Node_if*> const& nodes) {
+		std::copy(begin(nodes), end(nodes), std::back_inserter(m_body));
 	}
 
 }

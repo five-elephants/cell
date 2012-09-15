@@ -1,6 +1,9 @@
 #include "ast/module_def.h"
 
 #include "gen/generator_if.h"
+#include <algorithm>
+#include <iterator>
+
 
 namespace ast {
 
@@ -28,6 +31,11 @@ namespace ast {
 	void
 	Module_def::append(Node_if& node) {
 		m_elements.push_back(&node);
+	}
+
+	void
+	Module_def::append(std::vector<Node_if*> const& nodes) {
+		std::copy(begin(nodes), end(nodes), std::back_inserter(m_elements));
 	}
 
 }

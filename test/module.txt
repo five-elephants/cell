@@ -1,4 +1,7 @@
 mod test_module = {
-	1 + 2 * 3 / 4 + 5
-	4*2
+	var a = 5 : int
+
+	def f(a, b, c) : int = {
+		var b = 10 + a : int
+	}
 }

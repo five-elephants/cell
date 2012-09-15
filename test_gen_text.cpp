@@ -26,7 +26,7 @@ int main() {
 	auto param_0 = ast::Variable_def(var_id, type_id, var_exp);
 	auto param_1 = ast::Variable_def(var_id, type_id, var_exp);
 	auto func_body_0 = ast::Variable_def(var_id, type_id, var_exp);
-	auto func_def = ast::Function_def(func_id);
+	auto func_def = ast::Function_def(func_id, type_id);
 
 	func_def.append_parameter(param_0);
 	func_def.append_parameter(param_1);

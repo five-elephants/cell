@@ -5,10 +5,14 @@
 
 %code requires {
 	#include <string>
+	#include <vector>
 	class Parse_driver;
 	namespace ast {
 		class Node_if;
 		class Module_def;
+		class Function_def;
+
+		typedef std::vector<Node_if*> Node_list;
 	}
 }
 
@@ -30,6 +34,8 @@
 	std::string* sval;
 	ast::Node_if* node;
 	ast::Module_def* mod;
+	ast::Function_def* func;
+	ast::Node_list* list;
 };
 
 %code {
@@ -41,14 +47,25 @@
 %token        ASSIGN                  "="
 %token        CURL_OPEN               "{"
 %token        CURL_CLOSE              "}"
+%token        PAREN_OPEN              "("
+%token        PAREN_CLOSE             ")"
 %token        VAR                     "var"
+%token        DEF                     "def"
 %token        MOD                     "mod"
 %token        COLON                   ":"
+%token        COMMA                   ","
 %token <sval> IDENTIFIER              "identifier"
 %token <ival> NUMBER                  "number"
 
 %type <mod> module
+%type <list> module_body
 %type <node> module_item
+%type <func> func
+%type <list> func_params
+%type <node> func_param
+%type <list> func_body
+%type <node> func_item
+%type <node> var_def
 %type <node> exp
 %type <node> identifier
 
@@ -78,18 +95,36 @@
 %left '+' '-';
 %left '*' '/';
 
-unit: module { driver.ast_root(*$1); };
-module: module "}" { $$ = $1; }
-	| module module_item { $$ = $1; $1->append(*$2); }
-	| "mod" identifier "=" "{" { $$ = new ast::Module_def(*$2); };
-module_item: exp  { $$ = $1; };
-exp: exp '+' exp   { $$ = new ast::Op_plus(*$1, *$3); }
-	| exp '-' exp    { $$ = new ast::Op_minus(*$1, *$3); }
-	| exp '*' exp    { $$ = new ast::Op_mult(*$1, *$3); }
-	| exp '/' exp    { $$ = new ast::Op_div(*$1, *$3); }
-	| identifier     { $$ = $1; }
-	| "number"       { $$ = new ast::Literal<int>($1); };
-identifier: "identifier"  { $$ = new ast::Identifier(*$1); delete $1; };
+unit: module                     { driver.ast_root(*$1); };
+module: "mod" identifier "=" CURL_OPEN module_body CURL_CLOSE
+			                           { $$ = new ast::Module_def(*$2); $$->append(*$5); };
+module_body: module_body module_item
+					                       { $$ = $1; $1->push_back($2); }
+	|                              { $$ = new ast::Node_list; };
+module_item: var_def             { $$ = $1; }
+	| func                         { $$ = $1; };
+
+func: "def" identifier "(" func_params ")" ":" identifier "=" CURL_OPEN func_body CURL_CLOSE
+		                             { $$ = new ast::Function_def(*$2, *$7); 
+																	 $$->append_body(*$10);
+		                               $$->append_parameter(*$4); };
+func_params: func_params COMMA func_param
+																 { $$ = $1; $1->push_back($3); }
+  | func_param                   { $$ = new ast::Node_list; $$->push_back($1); };
+func_param: identifier           { $$ = $1; };
+func_body: func_body func_item   { $$ = $1; $1->push_back($2); }
+	|                              { $$ = new ast::Node_list; };
+func_item: var_def               { $$ = $1; }; 
+
+var_def: "var" identifier "=" exp ":" identifier  
+			                           { $$ = new ast::Variable_def(*$2, *$6, *$4); };
+exp: exp '+' exp                 { $$ = new ast::Op_plus(*$1, *$3); }
+	| exp '-' exp                  { $$ = new ast::Op_minus(*$1, *$3); }
+	| exp '*' exp                  { $$ = new ast::Op_mult(*$1, *$3); }
+	| exp '/' exp                  { $$ = new ast::Op_div(*$1, *$3); }
+	| identifier                   { $$ = $1; }
+	| "number"                     { $$ = new ast::Literal<int>($1); };
+identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; };
 
 %%
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 namespace gen {
 	class Generator_if;
 }
@@ -11,6 +13,7 @@ namespace ast {
 			virtual void set_generator(gen::Generator_if& gen) = 0;
 			virtual gen::Generator_if& get_generator() = 0;
 	};
+
 }
 
 

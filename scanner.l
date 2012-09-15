@@ -42,12 +42,16 @@ blank  [ \t]
 %}
 
 "mod"       return token::MOD;
+"def"       return token::DEF;
 "var"       return token::VAR;
 [-+*/]      return yy::Parser::token_type(yytext[0]);
 "="         return token::ASSIGN;
 "{"         return token::CURL_OPEN;
 "}"         return token::CURL_CLOSE;
+"("         return token::PAREN_OPEN;
+")"         return token::PAREN_CLOSE;
 ":"         return token::COLON;
+","         return token::COMMA;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;
