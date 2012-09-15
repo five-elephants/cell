@@ -151,7 +151,8 @@ exp: exp '+' exp                 { $$ = new ast::Op_plus(*$1, *$3); }
 	| exp '*' exp                  { $$ = new ast::Op_mult(*$1, *$3); }
 	| exp '/' exp                  { $$ = new ast::Op_div(*$1, *$3); }
 	| identifier                   { $$ = $1; }
-	| "number"                     { $$ = new ast::Literal<int>($1); };
+	| "number"                     { $$ = new ast::Literal<int>($1); }
+  | func_call                    { $$ = $1; };
 identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; };
 
 %%
