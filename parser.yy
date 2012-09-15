@@ -108,13 +108,16 @@ module_item: var_def             { $$ = $1; }
 func: "def" identifier "(" func_params ")" ":" identifier "=" CURL_OPEN func_body CURL_CLOSE
 		                             { $$ = new ast::Function_def(*$2, *$7); 
 																	 $$->append_body(*$10);
-		                               $$->append_parameter(*$4); };
+		                               $$->append_parameter(*$4); }
 func_params: func_params_        { $$ = $1; }
 	| func_params_ COMMA           { $$ = $1; };
 func_params_: func_params_ COMMA func_param
 																 { $$ = $1; $1->push_back($3); }
   | func_param                   { $$ = new ast::Node_list; $$->push_back($1); };
-func_param: identifier           { $$ = $1; };
+func_param: identifier "=" exp ":" identifier
+					                       { $$ = new ast::Variable_def(*$1, *$5, *$3); }
+  | identifier ":" identifier    { auto v = new ast::Variable_def(*$1); v->type(*$3); $$ = v; }
+  | identifier "=" exp           { auto v = new ast::Variable_def(*$1); v->expression(*$3); $$ = v; };
 func_body: func_body func_item   { $$ = $1; $1->push_back($2); }
 	|                              { $$ = new ast::Node_list; };
 func_item: var_def               { $$ = $1; }; 
