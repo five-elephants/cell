@@ -6,6 +6,7 @@ namespace ast {
 
 	class Variable_def : public Node_base {
 		public:
+			Variable_def(Node_if& identifier);
 			Variable_def(Node_if& identifier,
 					Node_if& type,
 					Node_if& expression);
@@ -16,7 +17,9 @@ namespace ast {
 
 			Node_if& identifier() { return m_identifier; }
 			Node_if& type() { return m_type; }
+			void type(Node_if& node) { m_type = node; }
 			Node_if& expression() { return m_expression; }
+			void expression(Node_if& node) { m_expression = node; }
 
 		private:
 			Node_if& m_identifier;

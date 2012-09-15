@@ -1,7 +1,10 @@
 mod test_module = {
 	var a = 5 : int
 
-	def f(a, b, c) : int = {
+	def f(a, b, c,) : int = {
 		var b = 10 + a : int
+		var x
+		var y : float
+		var z = 89
 	}
 }

@@ -1,8 +1,20 @@
 #include "ast/variable_def.h"
 
 #include "gen/generator_if.h"
+#include "ast/identifier.h"
+#include "ast/empty_expression.h"
 
 namespace ast {
+	static Identifier default_type = Identifier("void");
+	static Empty_expression default_expression = Empty_expression();
+
+
+	Variable_def::Variable_def(Node_if& identifier)
+		:	Node_base(),
+			m_identifier(identifier),
+			m_type(default_type),
+			m_expression(default_expression) {
+	}
 
 	Variable_def::Variable_def(Node_if& identifier,
 			Node_if& type,
