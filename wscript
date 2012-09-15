@@ -18,6 +18,7 @@ def build(bld):
       ast/variable_def.cpp
       ast/module_def.cpp
       ast/function_def.cpp
+      ast/function_call.cpp
       parse_driver.cpp
     """
 

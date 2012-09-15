@@ -64,9 +64,12 @@
 %type <list> func_params
 %type <list> func_params_
 %type <node> func_param
-%type <list> func_body
-%type <node> func_item
 %type <node> var_def
+%type <list> statements
+%type <node> statement
+%type <node> func_call
+%type <list> exp_list
+%type <list> exp_list_
 %type <node> exp
 %type <node> identifier
 
@@ -105,22 +108,24 @@ module_body: module_body module_item
 module_item: var_def             { $$ = $1; }
 	| func                         { $$ = $1; };
 
-func: "def" identifier "(" func_params ")" ":" identifier "=" CURL_OPEN func_body CURL_CLOSE
+func: "def" identifier "(" func_params ")" ":" identifier "=" CURL_OPEN statements CURL_CLOSE
 		                             { $$ = new ast::Function_def(*$2, *$7); 
 																	 $$->append_body(*$10);
 		                               $$->append_parameter(*$4); }
+func: "def" identifier "(" func_params ")" "=" CURL_OPEN statements CURL_CLOSE
+		                             { $$ = new ast::Function_def(*$2); 
+																	 $$->append_body(*$8);
+		                               $$->append_parameter(*$4); }
 func_params: func_params_        { $$ = $1; }
 	| func_params_ COMMA           { $$ = $1; };
-func_params_: func_params_ COMMA func_param
+func_params_:                    { $$ = new ast::Node_list; }
+	| func_params_ COMMA func_param
 																 { $$ = $1; $1->push_back($3); }
   | func_param                   { $$ = new ast::Node_list; $$->push_back($1); };
 func_param: identifier "=" exp ":" identifier
 					                       { $$ = new ast::Variable_def(*$1, *$5, *$3); }
   | identifier ":" identifier    { auto v = new ast::Variable_def(*$1); v->type(*$3); $$ = v; }
   | identifier "=" exp           { auto v = new ast::Variable_def(*$1); v->expression(*$3); $$ = v; };
-func_body: func_body func_item   { $$ = $1; $1->push_back($2); }
-	|                              { $$ = new ast::Node_list; };
-func_item: var_def               { $$ = $1; }; 
 
 var_def: "var" identifier "=" exp ":" identifier  
 			                           { $$ = new ast::Variable_def(*$2, *$6, *$4); }
@@ -128,6 +133,19 @@ var_def: "var" identifier "=" exp ":" identifier
                                  { auto v = new ast::Variable_def(*$2); v->type(*$4); $$ = v; }
   | "var" identifier "=" exp     { auto v = new ast::Variable_def(*$2); v->expression(*$4); $$ = v; }
   | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; }
+
+statements: statements statement { $$ = $1; $1->push_back($2); }
+	|                              { $$ = new ast::Node_list; };
+statement: func_call             { $$ = $1; }
+	| var_def                      { $$ = $1; };
+
+func_call: identifier PAREN_OPEN exp_list PAREN_CLOSE
+				                         { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; };
+
+exp_list: exp_list_              { $$ = $1; }
+	| exp_list_ COMMA              { $$ = $1; };
+exp_list_: exp_list_ COMMA exp   { $$ = $1; $1->push_back($3); }
+	| exp                          { $$ = new ast::Node_list; $$->push_back($1); };
 exp: exp '+' exp                 { $$ = new ast::Op_plus(*$1, *$3); }
 	| exp '-' exp                  { $$ = new ast::Op_minus(*$1, *$3); }
 	| exp '*' exp                  { $$ = new ast::Op_mult(*$1, *$3); }

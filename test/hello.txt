@@ -6,6 +6,10 @@ mod my = {
     var b : int = 7
     return a + b + c
   }
+
+	def __init__() = {
+		hello(5)
+	}
 }
 
 /* EBNF

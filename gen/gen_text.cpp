@@ -89,6 +89,8 @@ namespace gen {
 		indent();
 		m_out << "(function ";
 		f.identifier().visit();
+		m_out << " return_type ";
+		f.return_type().visit();
 		m_out << " (parameters (\n";
 		++m_indent;
 	}
@@ -110,6 +112,7 @@ namespace gen {
 		m_out << "))\n";
 	}
 
+	
 
 	void
 	Text_generator::indent() const {

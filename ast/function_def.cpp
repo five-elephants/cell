@@ -1,9 +1,18 @@
 #include "ast/function_def.h"
 
+#include "ast/identifier.h"
 #include <iterator>
 #include <algorithm>
 
 namespace ast {
+
+	static Identifier default_return_type = Identifier("void");
+
+	Function_def::Function_def(Node_if& identifier)
+		:	Node_base(),
+			m_identifier(identifier),
+ 			m_return_type(default_return_type) {
+	}
 
 	Function_def::Function_def(Node_if& identifier, Node_if& return_type)
 		:	Node_base(),

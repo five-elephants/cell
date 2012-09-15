@@ -7,4 +7,8 @@ mod test_module = {
 		var y : float
 		var z = 89
 	}
+
+	def init() = {
+		f(1, 2, 3)
+	}
 }
