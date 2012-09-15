@@ -11,16 +11,26 @@ def configure(conf):
 
 def build(bld):
     core_src = """
+      scanner.l
+      parser.yy
       gen/gen_text.cpp
       ast/node_base.cpp
       ast/variable_def.cpp
       ast/module_def.cpp
       ast/function_def.cpp
+      parse_driver.cpp
     """
 
     bld.program(
         source = 'test_gen_text.cpp ' + core_src,
         target = 'test_gen_text',
+        includes = '.',
+        cxxflags = '-std=c++11',
+    )
+
+    bld.program(
+        source = 'frontend.cpp ' + core_src,
+        target = 'frontend',
         includes = '.',
         cxxflags = '-std=c++11',
     )

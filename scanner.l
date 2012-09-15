@@ -4,9 +4,13 @@
 #include <climits>
 #include <string>
 #include <sstream>
-#include "calc++-driver.h"
-#include "calc++-parser.tab.h"
+#include "parse_driver.h"
+#include "parser.tab.h"
 
+/* Work around an incompatibility in flex (at least versions
+   2.5.31 through 2.5.33): it generates code that does
+	 not conform to C89.  See Debian bug 333231
+	 <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=333231>.  */
 #undef yywrap
 #define yywrap() 1
 
@@ -34,12 +38,15 @@ blank  [ \t]
 [\n]+        yylloc->lines(yyleng); yylloc->step();
 
 %{
-	typedef yy::calcxx_parser::token token;
+	typedef yy::Parser::token token;
 %}
 
+"mod"       return token::MOD;
 "var"       return token::VAR;
-[-+*/]      return yy::calcxx_parser::token_type(yytext[0]);
+[-+*/]      return yy::Parser::token_type(yytext[0]);
 "="         return token::ASSIGN;
+"{"         return token::CURL_OPEN;
+"}"         return token::CURL_CLOSE;
 ":"         return token::COLON;
 {int}       {
 	std::stringstream strm(yytext);
@@ -53,18 +60,18 @@ blank  [ \t]
 
 
 void
-calcxx_driver::scan_begin() {
-	yy_flex_debug = trace_scanning;
-	if( file == "-" )
+Parse_driver::scan_begin() {
+	yy_flex_debug = m_trace_scanning;
+	if( m_filename == "-" )
 		yyin = stdin;
-	else if( !(yyin = fopen(file.c_str(), "r")) ) {
-		error(std::string("cannot open ") + file);
+	else if( !(yyin = fopen(m_filename.c_str(), "r")) ) {
+		error(std::string("cannot open ") + m_filename);
 		exit(1);
 	}
 }
 
 void
-calcxx_driver::scan_end() {
+Parse_driver::scan_end() {
 	fclose(yyin);
 }
 
