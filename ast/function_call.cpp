@@ -17,9 +17,10 @@ namespace ast {
 
 	void
 	Function_call::visit() {
-		m_identifier.visit();
-		for(auto i : m_expressions)
-			i->visit();
+		get_generator().function_call(*this);
+		//m_identifier.visit();
+		//for(auto i : m_expressions)
+			//i->visit();
 	}
 
 	void
@@ -30,9 +31,19 @@ namespace ast {
 			i->set_generator(g);
 	}
 
+	Node_if&
+	Function_call::identifier() {
+		return m_identifier;
+	}
+
 	void
 	Function_call::expressions(std::vector<Node_if*>& nodes) {
 		std::copy(begin(nodes), end(nodes), std::back_inserter(m_expressions));
+	}
+
+	std::vector<Node_if*>&
+	Function_call::expressions() {
+		return m_expressions;
 	}
 
 }

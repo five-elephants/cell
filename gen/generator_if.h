@@ -11,6 +11,7 @@ namespace ast {
 	class Identifier;
 	class Module_def;
 	class Function_def;
+	class Function_call;
 }
 
 namespace gen {
@@ -39,5 +40,6 @@ namespace gen {
 			virtual void function_begin(ast::Function_def& f) = 0;
 			virtual void function_body(ast::Function_def& f) = 0;
 			virtual void function_end(ast::Function_def& f) = 0;
+			virtual void function_call(ast::Function_call& f) = 0;
 	};
 }

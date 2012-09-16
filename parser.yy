@@ -85,17 +85,6 @@
 
 %start unit;
 
-// unit: statements { driver.set_statements($1); };
-// 
-// statements: statements statement { $$ = $1; $1->push_back($2); }
-// 		  | { $$ = new Statement_list(); };
-// 
-// statement: assignment { $$ = $1; }
-// 		 | exp { $$ = $1; };
-// 
-// assignment:
-// 	"var" "identifier" "=" exp ":" "identifier"          { $$ = new Assignment(driver, *$2, $4, $6); delete $2; delete $6; };
-
 %left '+' '-';
 %left '*' '/';
 

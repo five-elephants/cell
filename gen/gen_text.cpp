@@ -112,6 +112,18 @@ namespace gen {
 		m_out << "))\n";
 	}
 
+
+	void
+	Text_generator::function_call(ast::Function_call& f) {
+		indent();
+		f.identifier().visit();
+		m_out << "(";
+		for(auto i : f.expressions()) {
+			i->visit();
+			m_out << ", ";
+		}
+		m_out << ")";
+	}
 	
 
 	void

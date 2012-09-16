@@ -13,7 +13,9 @@ namespace ast {
 			virtual void visit();
 			virtual void set_generator(gen::Generator_if& g);
 
+			Node_if& identifier();
 			void expressions(std::vector<Node_if*>& nodes);
+			std::vector<Node_if*>& expressions();
 
 		private:
 			Node_if& m_identifier;
