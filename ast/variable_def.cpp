@@ -5,15 +5,14 @@
 #include "ast/empty_expression.h"
 
 namespace ast {
-	static Identifier default_type = Identifier("void");
-	static Empty_expression default_expression = Empty_expression();
-
 
 	Variable_def::Variable_def(Node_if& identifier)
 		:	Node_base(),
 			m_identifier(identifier),
-			m_type(default_type),
-			m_expression(default_expression) {
+			m_type(new Identifier("void")),
+			m_expression(new Empty_expression()),
+ 			m_is_type_owner(true),
+			m_is_expression_owner(true)	{
 	}
 
 	Variable_def::Variable_def(Node_if& identifier,
@@ -22,16 +21,24 @@ namespace ast {
 		:	
 			Node_base(),
 			m_identifier(identifier),
-			m_type(type),
-			m_expression(expression) {
+			m_type(&type),
+			m_expression(&expression) {
+	}
+
+	Variable_def::~Variable_def() {
+		if( m_is_expression_owner )
+			delete m_expression;
+
+		if( m_is_type_owner )
+			delete m_type;
 	}
 
 	void
 	Variable_def::set_generator(gen::Generator_if& g) {
 		Node_base::set_generator(g);
 		m_identifier.set_generator(g);
-		m_expression.set_generator(g);
-		m_type.set_generator(g);
+		m_expression->set_generator(g);
+		m_type->set_generator(g);
 	}
 
 

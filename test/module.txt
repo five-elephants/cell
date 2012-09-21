@@ -1,11 +1,13 @@
 mod test_module = {
 	var a = 5 : int
 
-	def f(a : int, b : int, c : int,) : int = {
+	def f(a : int,
+				b : int,
+				c : int,) : int = {
 		var b = 10 + a : int
 		var x
 		var y : float
-		var z = 89
+		var z = 89 
 	}
 
 	def init() = {

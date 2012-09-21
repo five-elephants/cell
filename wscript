@@ -33,7 +33,7 @@ def build(bld):
         source = 'frontend.cpp ' + core_src,
         target = 'frontend',
         includes = '.',
-        cxxflags = '-std=c++11',
+        cxxflags = '-std=c++11 -ggdb',
     )
 
     #bld.program(

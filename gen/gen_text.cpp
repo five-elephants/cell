@@ -54,8 +54,10 @@ namespace gen {
 		a.identifier().visit();
 		m_out << " : ";
 		a.type().visit();
-		m_out << " = ";
-		a.expression().visit();
+		if( !a.without_expression() ) {
+			m_out << " = ";
+			a.expression().visit();
+		}
 		m_out << ")\n";
 	}
 

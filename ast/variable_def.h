@@ -10,21 +10,33 @@ namespace ast {
 			Variable_def(Node_if& identifier,
 					Node_if& type,
 					Node_if& expression);
-			virtual ~Variable_def() {}
+			virtual ~Variable_def();
 
 			virtual void set_generator(gen::Generator_if& g); 
 			virtual void visit();
 
 			Node_if& identifier() { return m_identifier; }
-			Node_if& type() { return m_type; }
-			void type(Node_if& node) { m_type = node; }
-			Node_if& expression() { return m_expression; }
-			void expression(Node_if& node) { m_expression = node; }
+			Node_if& type() { return *m_type; }
+			void type(Node_if& node) { 
+				if( m_is_type_owner )
+					delete m_type;
+				m_type = &node;
+			}
+			Node_if& expression() { return *m_expression; }
+			void expression(Node_if& node) { 
+				if( m_is_expression_owner )
+					delete m_expression;
+				m_expression = &node;
+			}
+
+			bool without_expression() const { return m_is_expression_owner; }
 
 		private:
 			Node_if& m_identifier;
-			Node_if& m_type;
-			Node_if& m_expression;
+			Node_if* m_type;
+			bool m_is_type_owner = false;
+			Node_if* m_expression;
+			bool m_is_expression_owner = false;
 
 	};
 
