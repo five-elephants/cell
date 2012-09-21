@@ -44,6 +44,7 @@ blank  [ \t]
 "mod"       return token::MOD;
 "def"       return token::DEF;
 "var"       return token::VAR;
+"if"        return token::IF;
 [-+*/]      return yy::Parser::token_type(yytext[0]);
 "="         return token::ASSIGN;
 "{"         return token::CURL_OPEN;

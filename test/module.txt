@@ -11,6 +11,10 @@ mod test_module = {
 	}
 
 	def init() = {
-		f(1, 2, 3)
+		if( 1 ) {
+			f(1, 2, 3)
+		}
 	}
+
+	def test() = f(1, 5, 6)
 }

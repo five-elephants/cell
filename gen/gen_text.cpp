@@ -126,7 +126,37 @@ namespace gen {
 		}
 		m_out << ")";
 	}
-	
+
+
+	void
+	Text_generator::compound(ast::Compound& c) {
+		indent();
+		m_out << "(compound\n";
+		++m_indent;
+
+		for(auto i : c.statements()) {
+			i->visit();
+			m_out << "\n";
+		}
+
+		--m_indent;
+		indent();
+		m_out << ")\n";
+	}
+
+
+	void
+	Text_generator::if_statement(ast::If_statement& i) {
+		indent();
+		m_out << "(if (";
+		i.condition().visit();
+		m_out << ") \n";
+		++m_indent;
+		i.body().visit();
+		--m_indent;
+		indent();
+		m_out << ")\n";
+	}
 
 	void
 	Text_generator::indent() const {

@@ -52,6 +52,7 @@
 %token        VAR                     "var"
 %token        DEF                     "def"
 %token        MOD                     "mod"
+%token        IF                      "if"
 %token        COLON                   ":"
 %token        COMMA                   ","
 %token <sval> IDENTIFIER              "identifier"
@@ -72,6 +73,8 @@
 %type <list> exp_list_
 %type <node> exp
 %type <node> identifier
+%type <node> compound
+%type <node> if_statement
 
 
 %printer { debug_stream() << *$$; } "identifier"
@@ -97,13 +100,13 @@ module_body: module_body module_item
 module_item: var_def             { $$ = $1; }
 	| func                         { $$ = $1; };
 
-func: "def" identifier "(" func_params ")" ":" identifier "=" CURL_OPEN statements CURL_CLOSE
+func: "def" identifier "(" func_params ")" ":" identifier "=" statement
 		                             { $$ = new ast::Function_def(*$2, *$7); 
-																	 $$->append_body(*$10);
+																	 $$->append_body(*$9);
 		                               $$->append_parameter(*$4); }
-func: "def" identifier "(" func_params ")" "=" CURL_OPEN statements CURL_CLOSE
+func: "def" identifier "(" func_params ")" "=" statement
 		                             { $$ = new ast::Function_def(*$2); 
-																	 $$->append_body(*$8);
+																	 $$->append_body(*$7);
 		                               $$->append_parameter(*$4); }
 func_params: func_params_        { $$ = $1; }
 	| func_params_ COMMA           { $$ = $1; };
@@ -125,9 +128,15 @@ var_def: "var" identifier "=" exp ":" identifier
 
 statements: statements statement { $$ = $1; $1->push_back($2); }
 	|                              { $$ = new ast::Node_list; };
-statement: func_call             { $$ = $1; }
-	| var_def                      { $$ = $1; };
+statement: if_statement          { $$ = $1; }
+	| var_def                      { $$ = $1; }
+	| compound                     { $$ = $1; }
+  | func_call                    { $$ = $1; };
+compound: CURL_OPEN statements CURL_CLOSE
+									               { auto v = new ast::Compound(); v->statements(*$2); $$ = v; };
 
+if_statement: "if" PAREN_OPEN exp PAREN_CLOSE statement 
+						                     { $$ = new ast::If_statement(*$3, *$5); };
 func_call: identifier PAREN_OPEN exp_list PAREN_CLOSE
 				                         { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; };
 

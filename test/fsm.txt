@@ -1,0 +1,53 @@
+mod fsm = {
+	< sig clk : logic 
+	< sig reset : logic
+	< sig trigger : logic
+	> sig q : logic
+
+	enum State = {
+		IDLE, RUNNING, FINISHED
+	}
+
+	sig state = State::IDLE : State;
+
+	def state_trans() = {
+		if( reset ) {
+			state = State::IDLE;
+		} else if( clk ) {
+			state match {
+				case State::IDLE: {
+					if( trigger ) {
+						state = State::RUNNING
+					}
+				}
+
+				case State::RUNNING: {
+					state = State::FINISHED
+				}
+
+				case State::FINISHED: {
+					state = State::IDLE
+				}
+			}
+		}
+	}
+
+	sense(clk, reset) => state_trans()
+
+
+	def output() = {
+		q = state match {
+			case State::IDLE: '0'
+			case State::RUNNING: '1'
+			case State::FINISHED: '0'
+		}
+	}
+
+	auto_sense => output()
+
+
+	> def external_action()
+
+	sense(clk) => if( state == State::RUNNING ) external_action()
+
+}

@@ -26,7 +26,8 @@ namespace gen {
 			virtual void function_body(ast::Function_def& f);
 			virtual void function_end(ast::Function_def& f);
 			virtual void function_call(ast::Function_call& f);
-
+			virtual void compound(ast::Compound& c);
+			virtual void if_statement(ast::If_statement& i);
 
 		private:
 			std::ostream& m_out;

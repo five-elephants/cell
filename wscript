@@ -19,6 +19,8 @@ def build(bld):
       ast/module_def.cpp
       ast/function_def.cpp
       ast/function_call.cpp
+      ast/compound.cpp
+      ast/if_statement.cpp
       parse_driver.cpp
     """
 

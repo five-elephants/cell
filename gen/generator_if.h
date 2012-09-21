@@ -12,6 +12,8 @@ namespace ast {
 	class Module_def;
 	class Function_def;
 	class Function_call;
+	class Compound;
+	class If_statement;
 }
 
 namespace gen {
@@ -41,5 +43,9 @@ namespace gen {
 			virtual void function_body(ast::Function_def& f) = 0;
 			virtual void function_end(ast::Function_def& f) = 0;
 			virtual void function_call(ast::Function_call& f) = 0;
+
+			// statements
+			virtual void compound(ast::Compound& c) = 0;
+			virtual void if_statement(ast::If_statement& i) = 0;
 	};
 }
