@@ -10,3 +10,4 @@
 #include "ast/function_call.h"
 #include "ast/compound.h"
 #include "ast/if_statement.h"
+#include "ast/while_statement.h"

@@ -4,42 +4,27 @@
 
 namespace gen {
 
-	void
-	Text_generator::op_plus(ast::Op_plus& op) {
-		m_out << '(';
-	 	op.left().visit();
-	 	m_out	<< " + ";
-	 	op.right().visit();
-		m_out	<< ')';
+#define BINOP_OUT(x, str) \
+	void \
+	Text_generator::op_ ## x (ast::Op_ ## x & op) { \
+		m_out << '('; \
+	 	op.left().visit(); \
+	 	m_out	<< str; \
+	 	op.right().visit(); \
+		m_out	<< ')'; \
 	}
 
-	void
-	Text_generator::op_minus(ast::Op_minus& op) {
-		m_out << '(';
-	 	op.left().visit();
-	 	m_out	<< " - ";
-	 	op.right().visit();
-		m_out	<< ')';
-	}
 
-	void
-	Text_generator::op_mult(ast::Op_mult& op) {
-		m_out << '(';
-		op.left().visit();
-		m_out << " * ";
-		op.right().visit();
-		m_out << ')';
-	}
-
-	void
-	Text_generator::op_div(ast::Op_div& op) {
-		m_out << '(';
-		op.left().visit();
-		m_out << " / ";
-		op.right().visit();
-		m_out << ')';
-	}
-		
+  BINOP_OUT(plus, " + ")
+  BINOP_OUT(minus, " - ")
+  BINOP_OUT(mult, " * ")
+  BINOP_OUT(div, " / ")
+  BINOP_OUT(equal, " == ")
+  BINOP_OUT(not_equal, " != ")
+  BINOP_OUT(greater_then, " > ")
+  BINOP_OUT(lesser_then, " < ")
+  BINOP_OUT(greater_or_equal_then, " >= ")
+  BINOP_OUT(lesser_or_equal_then, " <= ")
 
 	void
 	Text_generator::int_literal(ast::Literal<int>& lit) {
@@ -155,8 +140,30 @@ namespace gen {
 		i.body().visit();
 		--m_indent;
 		indent();
+    
+    if( i.has_else_body() ) {
+      m_out << " else (";
+      ++m_indent;
+      i.else_body().visit();
+      m_out << ") \n";
+      --m_indent;
+      indent();
+    }
 		m_out << ")\n";
 	}
+
+  void
+  Text_generator::while_statement(ast::While_statement& w) {
+    indent();
+    m_out << "(while (";
+    w.expression().visit();
+    m_out << ") body (\n";
+    ++m_indent;
+    w.body().visit();
+    --m_indent;
+    indent();
+    m_out << ") \n";
+  }
 
 	void
 	Text_generator::indent() const {

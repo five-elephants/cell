@@ -24,6 +24,8 @@ namespace ast {
 	If_statement::set_generator(gen::Generator_if& g) {
 		m_condition.set_generator(g);
 		m_body.set_generator(g);
+    if( has_else_body() )
+      m_else_body->set_generator(g);
 	}
 
 }

@@ -14,6 +14,16 @@ mod test_module = {
 		if( 1 ) {
 			f(1, 2, 3)
 		}
+
+    if( test_func(x) ) {
+      do_something()
+    } else {
+      do_something_else()
+    }
+
+    while( i < 5 ) {
+      print("something")
+    }
 	}
 
 	def test() = f(1, 5, 6)

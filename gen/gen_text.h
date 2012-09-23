@@ -17,6 +17,13 @@ namespace gen {
 			virtual void op_minus(ast::Op_minus& op);
 			virtual void op_mult(ast::Op_mult& op);
 			virtual void op_div(ast::Op_div& op);
+      virtual void op_equal(ast::Op_equal& op);
+      virtual void op_not_equal(ast::Op_not_equal& op);
+      virtual void op_greater_then(ast::Op_greater_then& op);
+      virtual void op_lesser_then(ast::Op_lesser_then& op);
+      virtual void op_greater_or_equal_then(ast::Op_greater_or_equal_then& op);
+      virtual void op_lesser_or_equal_then(ast::Op_lesser_or_equal_then& op);
+
 			virtual void int_literal(ast::Literal<int>& lit);
 			virtual void variable_def(ast::Variable_def& a);
 			virtual void identifier(ast::Identifier& id);
@@ -28,6 +35,7 @@ namespace gen {
 			virtual void function_call(ast::Function_call& f);
 			virtual void compound(ast::Compound& c);
 			virtual void if_statement(ast::If_statement& i);
+      virtual void while_statement(ast::While_statement& w);
 
 		private:
 			std::ostream& m_out;

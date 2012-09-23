@@ -21,6 +21,7 @@ def build(bld):
       ast/function_call.cpp
       ast/compound.cpp
       ast/if_statement.cpp
+      ast/while_statement.cpp
       parse_driver.cpp
     """
 

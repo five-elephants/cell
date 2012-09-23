@@ -45,8 +45,14 @@ blank  [ \t]
 "def"       return token::DEF;
 "var"       return token::VAR;
 "if"        return token::IF;
-[-+*/]      return yy::Parser::token_type(yytext[0]);
+"else"      return token::ELSE;
+"while"     return token::WHILE;
+[-+*/<>]    return yy::Parser::token_type(yytext[0]);
 "="         return token::ASSIGN;
+"=="        return token::CMP_EQ;
+"!="        return token::CMP_NEQ;
+">="        return token::CMP_GT_EQ;
+"<="        return token::CMP_LT_EQ;
 "{"         return token::CURL_OPEN;
 "}"         return token::CURL_CLOSE;
 "("         return token::PAREN_OPEN;

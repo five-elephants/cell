@@ -6,6 +6,12 @@ namespace ast {
 	class Op_minus;
 	class Op_mult;
 	class Op_div;
+  class Op_equal;
+  class Op_not_equal;
+  class Op_greater_then;
+  class Op_lesser_then;
+  class Op_greater_or_equal_then;
+  class Op_lesser_or_equal_then;
 	template<typename T> class Literal;
 	class Variable_def;
 	class Identifier;
@@ -14,6 +20,7 @@ namespace ast {
 	class Function_call;
 	class Compound;
 	class If_statement;
+  class While_statement;
 }
 
 namespace gen {
@@ -24,6 +31,12 @@ namespace gen {
 			virtual void op_minus(ast::Op_minus& op) = 0;
 			virtual void op_mult(ast::Op_mult& op) = 0;
 			virtual void op_div(ast::Op_div& op) = 0;
+      virtual void op_equal(ast::Op_equal& op) = 0;
+      virtual void op_not_equal(ast::Op_not_equal& op) = 0;
+      virtual void op_greater_then(ast::Op_greater_then& op) = 0;
+      virtual void op_lesser_then(ast::Op_lesser_then& op) = 0;
+      virtual void op_greater_or_equal_then(ast::Op_greater_or_equal_then& op) = 0;
+      virtual void op_lesser_or_equal_then(ast::Op_lesser_or_equal_then& op) = 0;
 
 			// literals
 			virtual void int_literal(ast::Literal<int>& lit) = 0;
@@ -47,5 +60,6 @@ namespace gen {
 			// statements
 			virtual void compound(ast::Compound& c) = 0;
 			virtual void if_statement(ast::If_statement& i) = 0;
+      virtual void while_statement(ast::While_statement& i) = 0;
 	};
 }

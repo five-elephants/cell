@@ -44,6 +44,10 @@
 }
 
 %token        END        0            "end of file"
+%token        CMP_EQ                  "=="
+%token        CMP_NEQ                 "!="
+%token        CMP_GT_EQ               ">="
+%token        CMP_LT_EQ               "<="
 %token        ASSIGN                  "="
 %token        CURL_OPEN               "{"
 %token        CURL_CLOSE              "}"
@@ -53,6 +57,8 @@
 %token        DEF                     "def"
 %token        MOD                     "mod"
 %token        IF                      "if"
+%token        ELSE                    "else"
+%token        WHILE                   "while"
 %token        COLON                   ":"
 %token        COMMA                   ","
 %token <sval> IDENTIFIER              "identifier"
@@ -75,6 +81,7 @@
 %type <node> identifier
 %type <node> compound
 %type <node> if_statement
+%type <node> while_statement
 
 
 %printer { debug_stream() << *$$; } "identifier"
@@ -88,6 +95,7 @@
 
 %start unit;
 
+%left '<' '>';
 %left '+' '-';
 %left '*' '/';
 
@@ -129,6 +137,7 @@ var_def: "var" identifier "=" exp ":" identifier
 statements: statements statement { $$ = $1; $1->push_back($2); }
 	|                              { $$ = new ast::Node_list; };
 statement: if_statement          { $$ = $1; }
+  | while_statement              { $$ = $1; }
 	| var_def                      { $$ = $1; }
 	| compound                     { $$ = $1; }
   | func_call                    { $$ = $1; };
@@ -136,9 +145,15 @@ compound: CURL_OPEN statements CURL_CLOSE
 									               { auto v = new ast::Compound(); v->statements(*$2); $$ = v; };
 
 if_statement: "if" PAREN_OPEN exp PAREN_CLOSE statement 
-						                     { $$ = new ast::If_statement(*$3, *$5); };
+						                     { $$ = new ast::If_statement(*$3, *$5); }
+  | "if" PAREN_OPEN exp PAREN_CLOSE statement "else" statement
+                                 { auto v = new ast::If_statement(*$3, *$5); v->else_body(*$7); $$ = v; };
+while_statement: "while" PAREN_OPEN exp PAREN_CLOSE statement
+                                 { $$ = new ast::While_statement(*$3, *$5); };
 func_call: identifier PAREN_OPEN exp_list PAREN_CLOSE
-				                         { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; };
+				                         { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; }
+  | identifier PAREN_OPEN PAREN_CLOSE
+				                         { auto v = new ast::Function_call(*$1); $$ = v; };
 
 exp_list: exp_list_              { $$ = $1; }
 	| exp_list_ COMMA              { $$ = $1; };
@@ -148,6 +163,12 @@ exp: exp '+' exp                 { $$ = new ast::Op_plus(*$1, *$3); }
 	| exp '-' exp                  { $$ = new ast::Op_minus(*$1, *$3); }
 	| exp '*' exp                  { $$ = new ast::Op_mult(*$1, *$3); }
 	| exp '/' exp                  { $$ = new ast::Op_div(*$1, *$3); }
+  | exp '<' exp                  { $$ = new ast::Op_lesser_then(*$1, *$3); }
+  | exp '>' exp                  { $$ = new ast::Op_greater_then(*$1, *$3); }
+  | exp "==" exp                 { $$ = new ast::Op_equal(*$1, *$3); }
+  | exp "!=" exp                 { $$ = new ast::Op_not_equal(*$1, *$3); }
+  | exp ">=" exp                 { $$ = new ast::Op_greater_or_equal_then(*$1, *$3); }
+  | exp "<=" exp                 { $$ = new ast::Op_lesser_or_equal_then(*$1, *$3); }
 	| identifier                   { $$ = $1; }
 	| "number"                     { $$ = new ast::Literal<int>($1); }
   | func_call                    { $$ = $1; };
