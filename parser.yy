@@ -53,6 +53,7 @@
 %token        CURL_CLOSE              "}"
 %token        PAREN_OPEN              "("
 %token        PAREN_CLOSE             ")"
+%token        QUOTE                   "\""
 %token        VAR                     "var"
 %token        DEF                     "def"
 %token        MOD                     "mod"
@@ -63,6 +64,7 @@
 %token        COMMA                   ","
 %token <sval> IDENTIFIER              "identifier"
 %token <ival> NUMBER                  "number"
+%token <sval> BITSTRING               "bitstring"
 
 %type <mod> module
 %type <list> module_body
@@ -171,6 +173,7 @@ exp: exp '+' exp                 { $$ = new ast::Op_plus(*$1, *$3); }
   | exp "<=" exp                 { $$ = new ast::Op_lesser_or_equal_then(*$1, *$3); }
 	| identifier                   { $$ = $1; }
 	| "number"                     { $$ = new ast::Literal<int>($1); }
+  | "bitstring"                  { $$ = new ast::Bitstring_literal(*$1); }
   | func_call                    { $$ = $1; };
 identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; };
 

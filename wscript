@@ -22,6 +22,7 @@ def build(bld):
       ast/compound.cpp
       ast/if_statement.cpp
       ast/while_statement.cpp
+      ast/bitstring_literal.cpp
       parse_driver.cpp
     """
 

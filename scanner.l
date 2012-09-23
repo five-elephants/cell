@@ -20,9 +20,10 @@
 
 %option noyywrap nounput batch debug
 
-id     [a-zA-Z][a-zA-Z_0-9]*
-int    [0-9]+
-blank  [ \t]
+id         [a-zA-Z][a-zA-Z_0-9]*
+int        [0-9]+
+bitstring  \"[01_-]*\"
+blank      [ \t]
 
 %{
 #define YY_USER_ACTION yylloc->columns(yyleng);
@@ -57,12 +58,18 @@ blank  [ \t]
 "}"         return token::CURL_CLOSE;
 "("         return token::PAREN_OPEN;
 ")"         return token::PAREN_CLOSE;
+"\""        return token::QUOTE;
 ":"         return token::COLON;
 ","         return token::COMMA;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;
 	return token::NUMBER;
+}
+{bitstring} {
+  std::string str(yytext);
+  yylval->sval = new std::string(str.substr(1, str.size()-3));
+  return token::BITSTRING;
 }
 {id}       yylval->sval = new std::string(yytext); return token::IDENTIFIER;
 .          driver.error(*yylloc, "invalid character");

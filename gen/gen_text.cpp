@@ -31,6 +31,11 @@ namespace gen {
 		m_out << lit.value();
 	}
 
+  void
+  Text_generator::bitstring_literal(ast::Bitstring_literal& lit) {
+    m_out << "\"" << lit.bitstring() << "\"";
+  }
+
 
 	void
 	Text_generator::variable_def(ast::Variable_def& a) {

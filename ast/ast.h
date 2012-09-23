@@ -3,6 +3,7 @@
 #include "ast/empty_expression.h"
 #include "ast/bin_ops.h"
 #include "ast/literal.h"
+#include "ast/bitstring_literal.h"
 #include "ast/variable_def.h"
 #include "ast/identifier.h"
 #include "ast/module_def.h"

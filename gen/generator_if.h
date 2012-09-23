@@ -13,6 +13,7 @@ namespace ast {
   class Op_greater_or_equal_then;
   class Op_lesser_or_equal_then;
 	template<typename T> class Literal;
+  class Bitstring_literal;
 	class Variable_def;
 	class Identifier;
 	class Module_def;
@@ -40,6 +41,7 @@ namespace gen {
 
 			// literals
 			virtual void int_literal(ast::Literal<int>& lit) = 0;
+      virtual void bitstring_literal(ast::Bitstring_literal& lit) = 0;
 
 			// variables
 			virtual void variable_def(ast::Variable_def& a) = 0;

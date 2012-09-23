@@ -25,6 +25,7 @@ namespace gen {
       virtual void op_lesser_or_equal_then(ast::Op_lesser_or_equal_then& op);
 
 			virtual void int_literal(ast::Literal<int>& lit);
+      virtual void bitstring_literal(ast::Bitstring_literal& lit);
 			virtual void variable_def(ast::Variable_def& a);
 			virtual void identifier(ast::Identifier& id);
 			virtual void module_begin(ast::Module_def& mod);

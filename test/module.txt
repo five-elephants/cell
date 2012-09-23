@@ -8,6 +8,7 @@ mod test_module = {
 		var x
 		var y : float
 		var z = 89 
+    var u = "0101_1101" : logic
 	}
 
 	def init() = {
@@ -21,8 +22,15 @@ mod test_module = {
       do_something_else()
     }
 
+    if( true ) 
+      hey()
+    else if( blub() )
+      hey_hey()
+    else
+      hey_hey_hey()
+
     while( i < 5 ) {
-      print("something")
+      print("01_10_01_10")
     }
 	}
 
