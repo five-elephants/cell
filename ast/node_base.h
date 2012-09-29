@@ -15,7 +15,7 @@ namespace ast {
 			virtual gen::Generator_if& get_generator();
 
 		private:
-			gen::Generator_if& m_generator;
+			gen::Generator_if* m_generator;
 	};
 
 }

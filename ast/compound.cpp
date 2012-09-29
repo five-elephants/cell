@@ -19,6 +19,7 @@ namespace ast {
 
 	void
 	Compound::set_generator(gen::Generator_if& g) {
+    Node_base::set_generator(g);
 		for(auto i : m_statements)
 			i->set_generator(g);
 	}

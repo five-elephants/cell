@@ -22,6 +22,7 @@ namespace ast {
 
 	void
 	If_statement::set_generator(gen::Generator_if& g) {
+    Node_base::set_generator(g);
 		m_condition.set_generator(g);
 		m_body.set_generator(g);
     if( has_else_body() )

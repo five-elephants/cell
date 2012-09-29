@@ -19,7 +19,7 @@ namespace ast {
 
   void
   While_statement::set_generator(gen::Generator_if& g) {
-    set_generator(g);
+    Node_base::set_generator(g);
     m_expression.set_generator(g);
     m_body.set_generator(g);
   }

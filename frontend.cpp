@@ -2,19 +2,22 @@
 #include <stdexcept>
 
 #include "parse_driver.h"
+#include "gen/gen_cpp.h"
 
 int main(int argc, char* argv[]) {
 	using namespace std;
 
 	try {
 		Parse_driver driver;
+    gen::Cpp_generator cppgen(cout);
 
 		for(int i=1; i<argc; i++) {
-			cout << "Parsing " << argv[i] << ":\n";
+			//cout << "Parsing " << argv[i] << ":\n";
 			if( driver.parse(argv[i]) ) {
 				throw std::runtime_error("parse failed");
 			}
 
+      driver.ast_root().set_generator(cppgen);
 			driver.ast_root().visit();
 			cout << endl;
 		}	

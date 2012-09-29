@@ -14,6 +14,7 @@ def build(bld):
       scanner.l
       parser.yy
       gen/gen_text.cpp
+      gen/gen_cpp.cpp
       ast/node_base.cpp
       ast/variable_def.cpp
       ast/module_def.cpp

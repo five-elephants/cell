@@ -1,4 +1,4 @@
-#include "gen/gen_text.h"
+#include "gen/gen_cpp.h"
 
 #include "ast/ast.h"
 
@@ -6,7 +6,7 @@ namespace gen {
 
 #define BINOP_OUT(x, str) \
 	void \
-	Text_generator::op_ ## x (ast::Op_ ## x & op) { \
+	Cpp_generator::op_ ## x (ast::Op_ ## x & op) { \
 		m_out << '('; \
 	 	op.left().visit(); \
 	 	m_out	<< str; \
@@ -29,86 +29,86 @@ namespace gen {
 #undef BINOP_OUT
 
 	void
-	Text_generator::int_literal(ast::Literal<int>& lit) {
+	Cpp_generator::int_literal(ast::Literal<int>& lit) {
 		m_out << lit.value();
 	}
 
   void
-  Text_generator::bitstring_literal(ast::Bitstring_literal& lit) {
+  Cpp_generator::bitstring_literal(ast::Bitstring_literal& lit) {
     m_out << "\"" << lit.bitstring() << "\"";
   }
 
 
 	void
-	Text_generator::variable_def(ast::Variable_def& a) {
+	Cpp_generator::variable_def(ast::Variable_def& a) {
 		indent();
-		m_out << "(var ";
-		a.identifier().visit();
-		m_out << " : ";
-		a.type().visit();
-		if( !a.without_expression() ) {
-			m_out << " = ";
-			a.expression().visit();
-		}
-		m_out << ")\n";
+
+    a.type().visit();
+    m_out << ' ';
+    a.identifier().visit();
+
+    if( !a.without_expression() ) {
+      m_out << " = ";
+      a.expression().visit();
+    }
+    m_out << ";\n";
 	}
 
 
 	void
-	Text_generator::identifier(ast::Identifier& id) {
+	Cpp_generator::identifier(ast::Identifier& id) {
 		m_out << id.identifier();
 	}
 
 
 	void
-	Text_generator::module_begin(ast::Module_def& mod) {
+	Cpp_generator::module_begin(ast::Module_def& mod) {
 		indent();
-		m_out << "(mod ";
-		mod.identifier().visit();
-		m_out << " (\n";
+    m_out << "class ";
+    mod.identifier().visit();
+    m_out << " {\n";
 		++m_indent;
 	}
 
 
 	void
-	Text_generator::module_end(ast::Module_def& mod) {
+	Cpp_generator::module_end(ast::Module_def& mod) {
 		--m_indent;
 		indent();
-		m_out << ")\n";
+		m_out << "};\n";
 	}
 
 
 	void
-	Text_generator::function_begin(ast::Function_def& f) {
+	Cpp_generator::function_begin(ast::Function_def& f) {
 		indent();
-		m_out << "(function ";
-		f.identifier().visit();
-		m_out << " return_type ";
-		f.return_type().visit();
-		m_out << " (parameters (\n";
+    f.return_type().visit();
+    m_out << ' ';
+    f.identifier().visit();
+    m_out << '(';
 		++m_indent;
 	}
 
 
 	void
-	Text_generator::function_body(ast::Function_def& f) {
+	Cpp_generator::function_body(ast::Function_def& f) {
 		--m_indent;
 		indent();
-		m_out << ")) (body (\n";
+		m_out << ") {\n";
 		++m_indent;
 	}
 
 
 	void
-	Text_generator::function_end(ast::Function_def& f) {
+	Cpp_generator::function_end(ast::Function_def& f) {
 		--m_indent;
 		indent();
-		m_out << "))\n";
+		m_out << "}\n";
 	}
 
 
 	void
-	Text_generator::function_call(ast::Function_call& f) {
+	Cpp_generator::function_call(ast::Function_call& f) {
 		indent();
 		f.identifier().visit();
 		m_out << "(";
@@ -121,9 +121,9 @@ namespace gen {
 
 
 	void
-	Text_generator::compound(ast::Compound& c) {
+	Cpp_generator::compound(ast::Compound& c) {
 		indent();
-		m_out << "(compound\n";
+		m_out << "{\n";
 		++m_indent;
 
 		for(auto i : c.statements()) {
@@ -133,47 +133,49 @@ namespace gen {
 
 		--m_indent;
 		indent();
-		m_out << ")\n";
+		m_out << "}\n";
 	}
 
 
 	void
-	Text_generator::if_statement(ast::If_statement& i) {
+	Cpp_generator::if_statement(ast::If_statement& i) {
 		indent();
-		m_out << "(if (";
+		m_out << "if( ";
 		i.condition().visit();
-		m_out << ") \n";
+		m_out << " )\n";
 		++m_indent;
 		i.body().visit();
 		--m_indent;
 		indent();
     
     if( i.has_else_body() ) {
-      m_out << " else (";
+      m_out << " else\n";
       ++m_indent;
       i.else_body().visit();
-      m_out << ") \n";
+      m_out << "\n";
       --m_indent;
       indent();
+    } else {
+		  m_out << "\n";
+      indent();
     }
-		m_out << ")\n";
 	}
 
   void
-  Text_generator::while_statement(ast::While_statement& w) {
+  Cpp_generator::while_statement(ast::While_statement& w) {
     indent();
-    m_out << "(while (";
+    m_out << "while(";
     w.expression().visit();
-    m_out << ") body (\n";
+    m_out << ")\n";
     ++m_indent;
     w.body().visit();
     --m_indent;
     indent();
-    m_out << ") \n";
+    m_out << "\n";
   }
 
 	void
-	Text_generator::indent() const {
+	Cpp_generator::indent() const {
 		for(int i=0; i<m_indent; i++) {
 			m_out << "  ";
 		}

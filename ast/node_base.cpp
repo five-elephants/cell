@@ -11,17 +11,17 @@ namespace ast {
 
 
 	Node_base::Node_base()
-		:	m_generator(default_generator) {
+		:	m_generator(&default_generator) {
 	}
 
 	void
 	Node_base::set_generator(gen::Generator_if& generator) {
-		m_generator = generator;
+		m_generator = &generator;
 	}
 
 	gen::Generator_if&
 	Node_base::get_generator() {
-		return m_generator;
+		return *m_generator;
 	}
 
 }
