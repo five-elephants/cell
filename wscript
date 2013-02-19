@@ -4,10 +4,12 @@
 def options(opt):
     opt.load('compiler_cxx')
     opt.load('bison')
+    opt.load('boost')
 
 def configure(conf):
-    conf.load('compiler_cxx')
+    conf.load('compiler_cxx boost')
     conf.check_tool('bison flex')
+    conf.check_boost(lib='program_options')
 
 def build(bld):
     core_src = """
@@ -39,6 +41,7 @@ def build(bld):
         target = 'frontend',
         includes = '.',
         cxxflags = '-std=c++11 -ggdb',
+        use = 'BOOST',
     )
 
     #bld.program(
