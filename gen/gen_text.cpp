@@ -172,6 +172,19 @@ namespace gen {
     m_out << ") \n";
   }
 
+
+  void
+  Text_generator::comma_sep() {
+    m_out << ",";
+  }
+
+
+  void
+  Text_generator::line_sep() {
+    m_out << "\n";
+  }
+
+
 	void
 	Text_generator::indent() const {
 		for(int i=0; i<m_indent; i++) {

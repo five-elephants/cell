@@ -1,6 +1,7 @@
 #include "ast/function_def.h"
 
 #include "ast/identifier.h"
+#include "gen/util.h"
 #include <iterator>
 #include <algorithm>
 
@@ -36,12 +37,12 @@ namespace ast {
 	void
 	Function_def::visit() {
 		get_generator().function_begin(*this);
-		for(auto i=begin(m_parameters); i!=end(m_parameters); ++i)
-			(*i)->visit();
+    gen::join_nodes_comma(begin(m_parameters), end(m_parameters), get_generator());
 
 		get_generator().function_body(*this);
-		for(auto i=begin(m_body); i!=end(m_body); ++i)
-			(*i)->visit();
+    gen::join_nodes_line(begin(m_body), end(m_body), get_generator());
+		//for(auto i=begin(m_body); i!=end(m_body); ++i)
+			//(*i)->visit();
 
 		get_generator().function_end(*this);
 	}

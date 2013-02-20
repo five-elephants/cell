@@ -1,6 +1,7 @@
 #include "gen/gen_cpp.h"
 
 #include "ast/ast.h"
+#include "gen/util.h"
 
 namespace gen {
 
@@ -41,7 +42,7 @@ namespace gen {
 
 	void
 	Cpp_generator::variable_def(ast::Variable_def& a) {
-		indent();
+    //indent();
 
     a.type().visit();
     m_out << ' ';
@@ -51,7 +52,6 @@ namespace gen {
       m_out << " = ";
       a.expression().visit();
     }
-    m_out << ";\n";
 	}
 
 
@@ -85,7 +85,7 @@ namespace gen {
     f.return_type().visit();
     m_out << ' ';
     f.identifier().visit();
-    m_out << '(';
+    m_out << "(\n";
 		++m_indent;
 	}
 
@@ -126,10 +126,12 @@ namespace gen {
 		m_out << "{\n";
 		++m_indent;
 
-		for(auto i : c.statements()) {
-			i->visit();
-			m_out << "\n";
-		}
+    for(auto i : c.statements()) {
+      indent();
+      i->visit();
+      m_out << ";\n";
+    }
+    //join_nodes_line(begin(c.statements()), end(c.statements()), *this);
 
 		--m_indent;
 		indent();
@@ -174,12 +176,23 @@ namespace gen {
     m_out << "\n";
   }
 
+  
+  void
+  Cpp_generator::comma_sep() {
+    m_out << ",";
+  }
+
+
+  void
+  Cpp_generator::line_sep() {
+    m_out << ";\n";
+  }
+
 	void
 	Cpp_generator::indent() const {
 		for(int i=0; i<m_indent; i++) {
 			m_out << "  ";
 		}
 	}
-
-
+  
 }

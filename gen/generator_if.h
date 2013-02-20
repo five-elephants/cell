@@ -63,5 +63,9 @@ namespace gen {
 			virtual void compound(ast::Compound& c) = 0;
 			virtual void if_statement(ast::If_statement& i) = 0;
       virtual void while_statement(ast::While_statement& i) = 0;
+
+      // list separators
+      virtual void comma_sep() = 0;
+      virtual void line_sep() = 0;
 	};
 }

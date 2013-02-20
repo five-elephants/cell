@@ -38,6 +38,9 @@ namespace gen {
 			virtual void if_statement(ast::If_statement& i);
       virtual void while_statement(ast::While_statement& w);
 
+      virtual void comma_sep();
+      virtual void line_sep();
+
 		private:
 			std::ostream& m_out;
 			int m_indent;
