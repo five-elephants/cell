@@ -96,7 +96,7 @@
 			f.identifier().visit();
 			m_out << ", ";
 			f.return_type().visit();
-			m_out << ", ";
+			m_out << ", `param_list(";
 			++m_indent;
 		}
 
@@ -105,7 +105,7 @@
 			within_function_params = false;
 			--m_indent;
 			indent();
-			m_out << ", ";
+			m_out << ")', ";
 			++m_indent;
 		}
 
@@ -151,37 +151,37 @@
 		DEF_GENERATOR_FUNC(if_statement, If_statement, i) {
 			indent();
 			if( i.has_else_body() )
-				m_out << "if_else(";
+				m_out << "if_else_statement(`";
 			else
-				m_out << "if(";
+				m_out << "if_statement(`";
 
 			i.condition().visit();
-			m_out << ", ";
+			m_out << "', `";
 			++m_indent;
 			i.body().visit();
 			--m_indent;
 			indent();
 			
 			if( i.has_else_body() ) {
-				m_out << ", ";
+				m_out << "', `";
 				++m_indent;
 				i.else_body().visit();
 				--m_indent;
 				indent();
 			}
-			m_out << ")";
+			m_out << "')";
 		}
 
 		DEF_GENERATOR_FUNC(while_statement, While_statement, w) {
 			indent();
-			m_out << "while(";
+			m_out << "while_statement(`";
 			w.expression().visit();
-			m_out << ", ";
+			m_out << "', `";
 			++m_indent;
 			w.body().visit();
 			--m_indent;
 			indent();
-			m_out << ")";
+			m_out << "')";
 		}
 
 		
@@ -193,7 +193,7 @@
 
 		void
 		M4_generator::line_sep() {
-			m_out << ";\n";
+			m_out << "\n";
   }
 
 	void

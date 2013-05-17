@@ -8,5 +8,11 @@ mod test_module = {
 	}
 
 	def g(u : int, v : int) : int = {
+		if( u > v ) {
+		} else {
+		}
+
+		if( u == v ) {
+		}
 	}
 }
