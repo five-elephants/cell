@@ -17,6 +17,7 @@ def build(bld):
       parser.yy
       gen/gen_text.cpp
       gen/gen_cpp.cpp
+      gen/gen_m4.cpp
       ast/node_base.cpp
       ast/variable_def.cpp
       ast/module_def.cpp
