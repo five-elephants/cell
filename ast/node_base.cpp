@@ -1,12 +1,12 @@
 #include "ast/node_base.h"
 
 #include "gen/generator_if.h"
-#include "gen/gen_text.h"
+#include "gen/gen_m4.h"
 #include <iostream>
 
 namespace ast {
 
-	gen::Text_generator _default_generator(std::cout);
+	gen::M4_generator _default_generator(std::cout);
 	gen::Generator_if& Node_base::default_generator = _default_generator;
 
 

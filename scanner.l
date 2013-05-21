@@ -48,6 +48,7 @@ blank      [ \t]
 "if"        return token::IF;
 "else"      return token::ELSE;
 "while"     return token::WHILE;
+"return"    return token::RETURN;
 [-+*/<>]    return yy::Parser::token_type(yytext[0]);
 "="         return token::ASSIGN;
 "=="        return token::CMP_EQ;

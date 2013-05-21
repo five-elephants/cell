@@ -94,9 +94,9 @@
 			within_function_params = true;
 			m_out << "function_def(";
 			f.identifier().visit();
-			m_out << ", ";
+			m_out << ", type(`";
 			f.return_type().visit();
-			m_out << ", `param_list(";
+			m_out << "'), `param_list(";
 			++m_indent;
 		}
 
@@ -182,6 +182,13 @@
 			--m_indent;
 			indent();
 			m_out << "')";
+		}
+
+		void
+		M4_generator::generic_statement(std::string const& name, std::vector<ast::Node_if*>& objs) {
+			m_out << name << "(";
+			join_nodes_comma(begin(objs), end(objs), *this);
+			m_out << ")";
 		}
 
 		

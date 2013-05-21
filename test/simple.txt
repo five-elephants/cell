@@ -5,6 +5,7 @@ mod test_module = {
 
 	def f(u : int) : int = {
 		var rv = a + b + c + u : int
+		return rv
 	}
 
 	def g(u : int, v : int) : int = {

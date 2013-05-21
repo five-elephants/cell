@@ -1,7 +1,11 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace ast {
 	// forward declarations
+	class Node_if;
 	class Op_plus;
 	class Op_minus;
 	class Op_mult;
@@ -67,5 +71,8 @@ namespace gen {
       // list separators
       virtual void comma_sep() = 0;
       virtual void line_sep() = 0;
+
+			// generic methods
+			virtual void generic_statement(std::string const& name, std::vector<ast::Node_if*>& objs) = 0;
 	};
 }

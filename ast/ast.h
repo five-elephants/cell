@@ -12,3 +12,4 @@
 #include "ast/compound.h"
 #include "ast/if_statement.h"
 #include "ast/while_statement.h"
+#include "ast/statement.h"

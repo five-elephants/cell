@@ -8,20 +8,23 @@ $2
 define(`variable_def', `$1 $2 = $3;')
 define(`variable_decl', `$1 $2;')
 
-define(`function_def', `$2 $1(`$3') $4')
+define(`function_def', `$2 $1(`$3') { $4 }')
 
 define(`param_list', `$@')
 define(`param_decl', `$1 $2')
 
 define(`compound',
 `{
-$1
+$@
 } 
 ')dnl
+
+define(`type', `$1')
 
 define(`if_else_statement', `if( `$1' ) `$2'else `$3'')
 define(`if_statement', `if( `$1' ) `$2'')
 define(`while_statement', `while( `$1' ) `$2'')
+define(`return_statement', `return $1')
 
 dnl 
 dnl operators

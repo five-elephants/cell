@@ -12,11 +12,11 @@ def configure(conf):
     conf.check_boost(lib='program_options')
 
 def build(bld):
+    #gen/gen_text.cpp
+    #gen/gen_cpp.cpp
     core_src = """
       scanner.l
       parser.yy
-      gen/gen_text.cpp
-      gen/gen_cpp.cpp
       gen/gen_m4.cpp
       ast/node_base.cpp
       ast/variable_def.cpp

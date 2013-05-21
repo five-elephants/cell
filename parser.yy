@@ -62,6 +62,7 @@
 %token        WHILE                   "while"
 %token        COLON                   ":"
 %token        COMMA                   ","
+%token        RETURN                  "return"
 %token <sval> IDENTIFIER              "identifier"
 %token <ival> NUMBER                  "number"
 %token <sval> BITSTRING               "bitstring"
@@ -84,6 +85,7 @@
 %type <node> compound
 %type <node> if_statement
 %type <node> while_statement
+%type <node> return_statement
 
 
 %printer { debug_stream() << *$$; } "identifier"
@@ -142,7 +144,8 @@ statement: if_statement          { $$ = $1; }
   | while_statement              { $$ = $1; }
 	| var_def                      { $$ = $1; }
 	| compound                     { $$ = $1; }
-  | func_call                    { $$ = $1; };
+  | func_call                    { $$ = $1; }
+	| return_statement             { $$ = $1; };
 compound: CURL_OPEN statements CURL_CLOSE
 									               { auto v = new ast::Compound(); v->statements(*$2); $$ = v; };
 
@@ -156,7 +159,7 @@ func_call: identifier PAREN_OPEN exp_list PAREN_CLOSE
 				                         { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; }
   | identifier PAREN_OPEN PAREN_CLOSE
 				                         { auto v = new ast::Function_call(*$1); $$ = v; };
-
+return_statement: "return" exp   { auto v = new ast::Statement("return_statement", {$2}); $$ = v; };
 exp_list: exp_list_              { $$ = $1; }
 	| exp_list_ COMMA              { $$ = $1; };
 exp_list_: exp_list_ COMMA exp   { $$ = $1; $1->push_back($3); }

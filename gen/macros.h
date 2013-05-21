@@ -37,6 +37,7 @@
 			virtual void compound(ast::Compound& c);  \
 			virtual void if_statement(ast::If_statement& i);  \
       virtual void while_statement(ast::While_statement& w);  \
+			virtual void generic_statement(std::string const& name, std::vector<ast::Node_if*>& objs); \
   \
       virtual void comma_sep();  \
       virtual void line_sep();  \

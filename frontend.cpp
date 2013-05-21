@@ -3,18 +3,18 @@
 #include <boost/program_options.hpp>
 
 #include "parse_driver.h"
-#include "gen/gen_text.h"
-#include "gen/gen_cpp.h"
+//#include "gen/gen_text.h"
+//#include "gen/gen_cpp.h"
 #include "gen/gen_m4.h"
 
 namespace po = boost::program_options;
 
 gen::Generator_if* make_generator(std::string const& type, std::ostream& outstream) {
-  if( type == "txt" )
+  /*if( type == "txt" )
     return new gen::Text_generator(outstream);
   else if( type == "cpp" )
     return new gen::Cpp_generator(outstream);
-	else if( type == "m4" )
+	else*/ if( type == "m4" )
 		return new gen::M4_generator(outstream);
   else
     throw std::runtime_error("Undefined generator type selected");
