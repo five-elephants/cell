@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     po::options_description desc("Options");
     desc.add_options()
       ("help,h", "print usage info")
-      ("gen,g", po::value<std::string>()->default_value("txt"),
+      ("gen,g", po::value<std::string>()->default_value("m4"),
        "select generator in {'txt', 'cpp', 'm4'}")
       ("file,f", po::value<std::string>(),
        "source file")
