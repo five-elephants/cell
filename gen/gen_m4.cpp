@@ -135,10 +135,11 @@
 			m_out << "compound(";
 			++m_indent;
 
-			for(auto i : c.statements()) {
+			for(auto i=begin(c.statements()); i != end(c.statements());) {
 				indent();
-				i->visit();
-				m_out << ", ";
+				(*i)->visit();
+				if( ++i != end(c.statements()) )
+					m_out << ", ";
 			}
 			//join_nodes_line(begin(c.statements()), end(c.statements()), *this);
 
