@@ -9,6 +9,7 @@
 	class Parse_driver;
 	namespace ast {
 		class Node_if;
+    class Unit;
 		class Module_def;
 		class Function_def;
 
@@ -32,6 +33,7 @@
 %union {
 	int ival;
 	std::string* sval;
+  ast::Unit* unit;
 	ast::Node_if* node;
 	ast::Module_def* mod;
 	ast::Function_def* func;
@@ -67,6 +69,8 @@
 %token <ival> NUMBER                  "number"
 %token <sval> BITSTRING               "bitstring"
 
+%type <unit> unit
+%type <node> unit_item
 %type <mod> module
 %type <list> module_body
 %type <node> module_item
@@ -103,9 +107,15 @@
 %left '+' '-';
 %left '*' '/';
 
-unit: module                     { driver.ast_root(*$1); };
+unit: unit unit_item             { $$ = $1; $1->append(*$2); }
+    |                            { $$ = new ast::Unit(); driver.ast_root(*$$);};
+unit_item: module                { $$ = $1; };
 module: "mod" identifier "=" CURL_OPEN module_body CURL_CLOSE
-			                           { $$ = new ast::Module_def(*$2); $$->append(*$5); };
+			                           { 
+                                  $$ = new ast::Module_def(*$2);
+                                  $$->append(*$5);
+                                  driver.cur_ns().insert_module(*$$);
+                                 };
 module_body: module_body module_item
 					                       { $$ = $1; $1->push_back($2); }
 	|                              { $$ = new ast::Node_list; };

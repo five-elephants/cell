@@ -27,7 +27,9 @@ def build(bld):
       ast/if_statement.cpp
       ast/while_statement.cpp
       ast/bitstring_literal.cpp
+      ast/unit.cpp
       parse_driver.cpp
+      ir/namespace.cpp
     """
 
     bld.program(

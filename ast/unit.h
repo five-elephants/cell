@@ -5,14 +5,13 @@
 
 namespace ast {
 
-	class Module_def : public Node_base {
+	class Unit : public Node_base {
 		public:
-			Module_def(Node_if& identifier)
-				:	Node_base(),
-		 			m_identifier(identifier) {
+			Unit()
+				:	Node_base() {
 			}
 
-			virtual ~Module_def() {};
+			virtual ~Unit() {};
 
 			virtual void set_generator(gen::Generator_if& g);
 			virtual void visit();
@@ -20,11 +19,7 @@ namespace ast {
 			void append(Node_if& node);
 			void append(std::vector<Node_if*> const& nodes);
 
-			Node_if& identifier() { return m_identifier; }
-			Node_if const& identifier() const { return m_identifier; }
-
 		private:
-			Node_if& m_identifier;
 			std::vector<Node_if*> m_elements;
 	};
 

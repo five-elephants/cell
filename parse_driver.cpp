@@ -3,7 +3,8 @@
 Parse_driver::Parse_driver()
 	:	m_trace_parsing(false),
 		m_trace_scanning(false),
-		m_ast_root(nullptr) {
+		m_ast_root(nullptr),
+    m_default_namespace("default") {
 }
 
 Parse_driver::~Parse_driver() {

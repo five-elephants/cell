@@ -2,6 +2,7 @@
 
 #include "parser.tab.h"
 #include "ast/node_if.h"
+#include "ir/namespace.h"
 #include <string>
 
 // Tell Flex the lexer's prototype ...
@@ -32,9 +33,12 @@ class Parse_driver {
 		void ast_root(ast::Node_if& root_node) { m_ast_root = &root_node; }
 		ast::Node_if& ast_root() { return *m_ast_root; }
 
+    ir::Namespace& cur_ns() { return m_default_namespace; }
+
 	private:
 		bool m_trace_parsing;
 		bool m_trace_scanning;
 		std::string m_filename;
 		ast::Node_if* m_ast_root;
+    ir::Namespace m_default_namespace;
 };

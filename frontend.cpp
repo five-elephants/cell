@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
        "select generator in {'txt', 'cpp', 'm4'}")
       ("file,f", po::value<std::string>(),
        "source file")
+      ("analyze,a", "analyze source file and print result")
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -55,9 +56,16 @@ int main(int argc, char* argv[]) {
 				throw std::runtime_error("parse failed");
 			}
 
-      driver.ast_root().set_generator(*gen);
-			driver.ast_root().visit();
-			cout << endl;
+      if( vm.count("analyze") ) {
+        cout << "List of modules:\n";
+        for(auto m : driver.cur_ns().modules) {
+          cout << "  " << m.first << ": " << m.second->name << '\n';
+        }
+      } else {
+        driver.ast_root().set_generator(*gen);
+        driver.ast_root().visit();
+        cout << endl;
+      }
 		} else {
       throw std::runtime_error("no input files specified");
     }
