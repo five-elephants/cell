@@ -149,9 +149,9 @@ var_def: "var" identifier "=" exp ":" identifier
                                   $$->location(@$);
                                  }
   | "var" identifier ":" identifier
-                                 { auto v = new ast::Variable_def(*$2); v->type(*$4); $$ = v; }
-  | "var" identifier "=" exp     { auto v = new ast::Variable_def(*$2); v->expression(*$4); $$ = v; }
-  | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; }
+                                 { auto v = new ast::Variable_def(*$2); v->type(*$4); $$ = v; $$->location(@$);}
+  | "var" identifier "=" exp     { auto v = new ast::Variable_def(*$2); v->expression(*$4); $$ = v; $$->location(@$);}
+  | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; $$->location(@$);}
 
 statements: statements statement { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };

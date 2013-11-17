@@ -2,6 +2,8 @@ mod vars = {
   var a = 1 : int
   var b = 2 : int
   var c = 3 : int
+  var d
+  var e = 4
 }
 
 mod funcs = {
@@ -12,4 +14,10 @@ mod funcs = {
   }
 
   def c() = b()
+
+  def d() = {
+    var da = 5 : int
+  }
+
+  def e(epa : int, epb : int) = {}
 }

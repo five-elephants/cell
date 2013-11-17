@@ -18,7 +18,7 @@ namespace ast {
 	}
 
 	void
-	Compound::visit(std::function<void(Node_if const&)> cb) {
+	Compound::visit(std::function<void(Node_if const&)> cb) const {
     Node_base::visit(cb);
     for(auto i : m_statements)
       i->visit(cb);
