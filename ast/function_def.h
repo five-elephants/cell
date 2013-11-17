@@ -1,12 +1,14 @@
 #pragma once
 
-#include "ast/node_base.h"
+#include "ast/tree_base.h"
 #include "gen/generator_if.h"
 #include <vector>
 
 namespace ast {
 
-  class Function_def : public Node_base {
+  class Function_def : public Tree_base<Function_def> {
+    friend class Tree_base<Function_def>;
+
     public:
       Function_def(Node_if& identifier);
       Function_def(Node_if& identifier, Node_if& return_type);
@@ -14,7 +16,7 @@ namespace ast {
 
       virtual void set_generator(gen::Generator_if& g);
       virtual void visit();
-      virtual void visit(std::function<void(Node_if const&)> cb) const;
+      //virtual void visit(std::function<void(Node_if const&)> cb) const;
 
       void append_parameter(Node_if& node);
       void append_parameter(std::vector<Node_if*> const& nodes);
@@ -32,6 +34,14 @@ namespace ast {
       Node_if& m_return_type;
       std::vector<Node_if*> m_parameters;
       std::vector<Node_if*> m_body;
+
+      const std::tuple<decltype(m_identifier)&,
+          decltype(m_return_type)&,
+          decltype(m_parameters)&,
+          decltype(m_body)&> m_branches { m_identifier, m_return_type, m_parameters, m_body };
   };
 
 }
+
+
+/* vim: set et fenc=utf-8 ff=unix sts=2 sw=2 ts=2 : */

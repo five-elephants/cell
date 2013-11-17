@@ -1,0 +1,10 @@
+mod signal_list_test = {
+
+  socket a = {
+    < clk : int
+    < reset : int
+    < din : int
+    > dout : int
+  }
+
+}

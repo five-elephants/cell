@@ -10,13 +10,13 @@ namespace ast {
 	static Identifier default_return_type = Identifier("void");
 
 	Function_def::Function_def(Node_if& identifier)
-		:	Node_base(),
+		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(default_return_type) {
 	}
 
 	Function_def::Function_def(Node_if& identifier, Node_if& return_type)
-		:	Node_base(),
+		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(return_type) {
 	}
@@ -48,7 +48,7 @@ namespace ast {
 	}
 
 
-  void
+  /*void
   Function_def::visit(std::function<void(Node_if const&)> cb) const {
     Node_base::visit(cb);
     for(auto i : m_parameters) {
@@ -57,7 +57,7 @@ namespace ast {
     for(auto i : m_body) {
       i->visit(cb);
     }
-  }
+  }*/
 
 
 	void

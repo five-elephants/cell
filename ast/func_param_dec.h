@@ -14,6 +14,7 @@ namespace ast {
 
 			virtual void set_generator(gen::Generator_if& g); 
 			virtual void visit();
+      virtual void visit(std::function<void(Node_if const&)> callback) const;
 	};
 
 }
