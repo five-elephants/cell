@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ast/node_if.h"
+
+#include <vector>
 #include <typeinfo>
 
 namespace ast {

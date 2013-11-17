@@ -29,4 +29,15 @@ namespace ast {
 		return *m_generator;
 	}
 
+  void
+  Node_base::location(yy::location loc) {
+    m_location = loc;
+  }
+
+  yy::location
+  Node_base::location() const {
+    return m_location;
+  }
+
+
 }
