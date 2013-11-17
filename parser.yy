@@ -125,11 +125,13 @@ module_item: var_def             { $$ = $1; }
 func: "def" identifier "(" func_params ")" ":" identifier "=" statement
                                  { $$ = new ast::Function_def(*$2, *$7); 
                                    $$->append_body(*$9);
-                                   $$->append_parameter(*$4); }
+                                   $$->append_parameter(*$4);
+                                   $$->location(@$); }
 func: "def" identifier "(" func_params ")" "=" statement
                                  { $$ = new ast::Function_def(*$2); 
                                    $$->append_body(*$7);
-                                   $$->append_parameter(*$4); }
+                                   $$->append_parameter(*$4); 
+                                   $$->location(@$);}
 func_params: func_params_        { $$ = $1; }
   | func_params_ COMMA           { $$ = $1; };
 func_params_:                    { $$ = new ast::Node_list; }
@@ -202,3 +204,5 @@ yy::Parser::error(yy::Parser::location_type const& loc, std::string const& msg) 
   driver.error(loc, msg);
 }
 
+
+/* vim: set et fenc=utf-8 ff=unix sts=2 sw=2 ts=2 : */

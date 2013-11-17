@@ -64,6 +64,10 @@ int main(int argc, char* argv[]) {
           for(auto o : m.second->objects) {
             cout << "    +-" << o.first << " : " << o.second->type->name << '\n';
           }
+          cout << "  +-Functions:\n";
+          for(auto f : m.second->functions) {
+            cout << "    +-" << f.first << " : " << f.second->return_type->name << '\n';
+          }
         }
       } else {
         driver.ast_root().set_generator(*gen);
