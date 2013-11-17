@@ -14,9 +14,12 @@ namespace ast {
 
 			virtual void set_generator(gen::Generator_if& g); 
 			virtual void visit();
+      virtual void visit(std::function<void(Node_if const&)> cb) const;
 
 			Node_if& identifier() { return m_identifier; }
+			Node_if const& identifier() const { return m_identifier; }
 			Node_if& type() { return *m_type; }
+			Node_if const& type() const { return *m_type; }
 			void type(Node_if& node) { 
 				if( m_is_type_owner )
 					delete m_type;

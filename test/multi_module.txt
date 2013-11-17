@@ -1,7 +1,13 @@
-mod a = {
-
+mod vars = {
+  var a = 1 : int
+  var b = 2 : int
+  var c = 3 : int
 }
 
-mod b = {
+mod funcs = {
+  def a() = {
+  }
 
+  def b() = {
+  }
 }

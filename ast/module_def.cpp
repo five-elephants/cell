@@ -29,6 +29,13 @@ namespace ast {
 		get_generator().module_end(*this);
 	}
 
+  void
+  Module_def::visit(std::function<void(Node_if const&)> cb) const {
+    Node_base::visit(cb);
+    m_identifier.visit(cb);
+    for(auto i : m_elements)
+      i->visit(cb);
+  }
 
 	void
 	Module_def::append(Node_if& node) {

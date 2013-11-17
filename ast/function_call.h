@@ -11,6 +11,7 @@ namespace ast {
 			virtual ~Function_call();
 
 			virtual void visit();
+      virtual void visit(std::function<void(Node_if const&)> cb) const;
 			virtual void set_generator(gen::Generator_if& g);
 
 			Node_if& identifier();

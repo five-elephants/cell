@@ -48,6 +48,18 @@ namespace ast {
 	}
 
 
+  void
+  Function_def::visit(std::function<void(Node_if const&)> cb) const {
+    Node_base::visit(cb);
+    for(auto i : m_parameters) {
+      i->visit(cb);
+    }
+    for(auto i : m_body) {
+      i->visit(cb);
+    }
+  }
+
+
 	void
 	Function_def::append_parameter(Node_if& node) {
 		m_parameters.push_back(&node);

@@ -47,5 +47,15 @@ namespace ast {
 		get_generator().variable_def(*this);
 	}
 
+
+  void 
+  Variable_def::visit(std::function<void(Node_if const&)> cb) const {
+    Node_base::visit(cb);
+    m_identifier.visit(cb);
+    m_type->visit(cb);
+    m_expression->visit(cb);
+  }
+
+
 }
 

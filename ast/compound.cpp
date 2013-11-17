@@ -18,6 +18,13 @@ namespace ast {
 	}
 
 	void
+	Compound::visit(std::function<void(Node_if const&)> cb) {
+    Node_base::visit(cb);
+    for(auto i : m_statements)
+      i->visit(cb);
+	}
+
+	void
 	Compound::set_generator(gen::Generator_if& g) {
     Node_base::set_generator(g);
 		for(auto i : m_statements)

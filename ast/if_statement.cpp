@@ -19,6 +19,14 @@ namespace ast {
 		get_generator().if_statement(*this);
 	}
 
+  void
+  If_statement::visit(std::function<void(Node_if const&)> cb) const {
+    Node_base::visit(cb);
+    m_condition.visit(cb);
+    m_body.visit(cb);
+    if( m_else_body != nullptr )
+      m_else_body->visit(cb);
+  }
 
 	void
 	If_statement::set_generator(gen::Generator_if& g) {

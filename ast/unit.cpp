@@ -22,6 +22,12 @@ namespace ast {
 		gen::join_nodes_line(begin(m_elements), end(m_elements), get_generator());
 	}
 
+  void
+  Unit::visit(std::function<void(Node_if const&)> cb) const {
+    Node_base::visit(cb);
+    for(auto i : m_elements)
+      i->visit(cb);
+  }
 
 	void
 	Unit::append(Node_if& node) {

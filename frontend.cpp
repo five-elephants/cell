@@ -60,6 +60,10 @@ int main(int argc, char* argv[]) {
         cout << "List of modules:\n";
         for(auto m : driver.cur_ns().modules) {
           cout << "  " << m.first << ": " << m.second->name << '\n';
+          cout << "  +-Objects:\n";
+          for(auto o : m.second->objects) {
+            cout << "    +-" << o.first << '\n';
+          }
         }
       } else {
         driver.ast_root().set_generator(*gen);

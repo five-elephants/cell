@@ -14,6 +14,11 @@ namespace ast {
 		:	m_generator(&default_generator) {
 	}
 
+  void
+  Node_base::visit(std::function<void(Node_if const&)> callback) const {
+    callback(*this);
+  }
+
 	void
 	Node_base::set_generator(gen::Generator_if& generator) {
 		m_generator = &generator;

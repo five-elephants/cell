@@ -23,6 +23,16 @@ namespace ast {
 			//i->visit();
 	}
 
+
+  void 
+  Function_call::visit(std::function<void(Node_if const&)> cb) const {
+    Node_base::visit(cb);
+    m_identifier.visit(cb);
+    for(auto i : m_expressions)
+      i->visit(cb);
+  }
+
+
 	void
 	Function_call::set_generator(gen::Generator_if& g) {
 		Node_base::set_generator(g);

@@ -17,6 +17,15 @@ namespace ast {
     get_generator().while_statement(*this);
   }
 
+
+  void 
+  While_statement::visit(std::function<void(Node_if const&)> cb) const {
+    Node_base::visit(cb);
+    m_expression.visit(cb);
+    m_body.visit(cb);
+  }
+
+
   void
   While_statement::set_generator(gen::Generator_if& g) {
     Node_base::set_generator(g);

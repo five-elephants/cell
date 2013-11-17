@@ -23,6 +23,12 @@ namespace ast {
 				get_generator().generic_statement(m_macro_name, m_objs);
 			}
 
+      virtual void visit(std::function<void(Node_if const&)> cb) const {
+        Node_base::visit(cb);
+        for(auto i : m_objs)
+          i->visit(cb);
+      }
+
 			virtual void set_generator(gen::Generator_if& g) {
 				Node_base::set_generator(g);
 
