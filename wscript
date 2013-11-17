@@ -30,6 +30,7 @@ def build(bld):
       ast/unit.cpp
       parse_driver.cpp
       ir/namespace.cpp
+      ir/builtins.cpp
     """
 
     bld.program(

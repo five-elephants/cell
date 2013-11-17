@@ -5,9 +5,9 @@ mod vars = {
 }
 
 mod funcs = {
-  def a() = {
+  def a() : int = {
   }
 
-  def b() = {
+  def b() : int = {
   }
 }

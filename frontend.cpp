@@ -59,10 +59,10 @@ int main(int argc, char* argv[]) {
       if( vm.count("analyze") ) {
         cout << "List of modules:\n";
         for(auto m : driver.cur_ns().modules) {
-          cout << "  " << m.first << ": " << m.second->name << '\n';
+          cout << "* " << m.first << ": " << m.second->name << '\n';
           cout << "  +-Objects:\n";
           for(auto o : m.second->objects) {
-            cout << "    +-" << o.first << '\n';
+            cout << "    +-" << o.first << " : " << o.second->type->name << '\n';
           }
         }
       } else {
