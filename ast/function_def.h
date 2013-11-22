@@ -6,9 +6,7 @@
 
 namespace ast {
 
-  class Function_def : public Tree_base<Function_def> {
-    friend class Tree_base<Function_def>;
-
+  class Function_def : public Tree_base {
     public:
       Function_def(Node_if& identifier);
       Function_def(Node_if& identifier, Node_if& return_type);
@@ -34,11 +32,6 @@ namespace ast {
       Node_if& m_return_type;
       std::vector<Node_if*> m_parameters;
       std::vector<Node_if*> m_body;
-
-      const std::tuple<decltype(m_identifier)&,
-          decltype(m_return_type)&,
-          decltype(m_parameters)&,
-          decltype(m_body)&> m_branches { m_identifier, m_return_type, m_parameters, m_body };
   };
 
 }

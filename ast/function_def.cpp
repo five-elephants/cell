@@ -13,12 +13,16 @@ namespace ast {
 		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(default_return_type) {
+        register_branches({&m_identifier, &default_return_type});
+        register_branch_lists({&m_parameters, &m_body});
 	}
 
 	Function_def::Function_def(Node_if& identifier, Node_if& return_type)
 		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(return_type) {
+        register_branches({&identifier, &return_type});
+        register_branch_lists({&m_parameters, &m_body});
 	}
 
 
