@@ -34,12 +34,12 @@ def build(bld):
       ir/builtins.cpp
     """
 
-    bld.program(
-        source = 'test_gen_text.cpp ' + core_src,
-        target = 'test_gen_text',
-        includes = '.',
-        cxxflags = '-std=c++11',
-    )
+    #bld.program(
+        #source = 'test_gen_text.cpp ' + core_src,
+        #target = 'test_gen_text',
+        #includes = '.',
+        #cxxflags = '-std=c++11',
+    #)
 
     bld.program(
         source = 'frontend.cpp ' + core_src,

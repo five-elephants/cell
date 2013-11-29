@@ -28,7 +28,8 @@ namespace ast {
       }
       Node_if& expression() { return *m_expression; }
       void expression(Node_if& node) { 
-        std::remove(begin(m_nodes), end(m_nodes), m_expression);
+        m_nodes.erase(std::remove(std::begin(m_nodes), std::end(m_nodes), m_expression),
+            std::end(m_nodes));
         if( m_is_expression_owner ) {
           delete m_expression;
         }
