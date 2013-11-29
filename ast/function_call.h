@@ -1,18 +1,16 @@
 #pragma once
 
-#include "ast/node_base.h"
+#include "ast/tree_base.h"
 #include <vector>
 
 namespace ast {
 
-	class Function_call : public Node_base {
+	class Function_call : public Tree_base {
 		public:
 			Function_call(Node_if& identifier);
 			virtual ~Function_call();
 
 			virtual void visit();
-      virtual void visit(std::function<void(Node_if const&)> cb) const;
-			virtual void set_generator(gen::Generator_if& g);
 
 			Node_if& identifier();
 			void expressions(std::vector<Node_if*>& nodes);
@@ -24,3 +22,5 @@ namespace ast {
 	};
 
 }
+
+/* vim: set noet fenc=utf-8 ff=unix sts=0 sw=4 ts=4 : */

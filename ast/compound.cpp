@@ -6,7 +6,8 @@
 namespace ast {
 
 	Compound::Compound() 
-		:	Node_base() {
+		:	Tree_base() {
+    register_branch_lists({&m_statements});
 	}
 
 	Compound::~Compound() {
@@ -15,20 +16,6 @@ namespace ast {
 	void
 	Compound::visit() {
 		get_generator().compound(*this);
-	}
-
-	void
-	Compound::visit(std::function<void(Node_if const&)> cb) const {
-    Node_base::visit(cb);
-    for(auto i : m_statements)
-      i->visit(cb);
-	}
-
-	void
-	Compound::set_generator(gen::Generator_if& g) {
-    Node_base::set_generator(g);
-		for(auto i : m_statements)
-			i->set_generator(g);
 	}
 
 	void

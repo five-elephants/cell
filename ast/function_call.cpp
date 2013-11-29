@@ -8,8 +8,10 @@
 namespace ast {
 
 	Function_call::Function_call(Node_if& identifier)
-		:	Node_base(),
+		:	Tree_base(),
 			m_identifier(identifier) {
+    register_branches({&m_identifier});
+    register_branch_lists({&m_expressions});
 	}
 
 	Function_call::~Function_call() {
@@ -23,23 +25,6 @@ namespace ast {
 			//i->visit();
 	}
 
-
-  void 
-  Function_call::visit(std::function<void(Node_if const&)> cb) const {
-    Node_base::visit(cb);
-    m_identifier.visit(cb);
-    for(auto i : m_expressions)
-      i->visit(cb);
-  }
-
-
-	void
-	Function_call::set_generator(gen::Generator_if& g) {
-		Node_base::set_generator(g);
-
-		for(auto i : m_expressions)
-			i->set_generator(g);
-	}
 
 	Node_if&
 	Function_call::identifier() {

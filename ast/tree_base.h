@@ -28,4 +28,5 @@ namespace ast {
       void register_branches(std::initializer_list<Node_if*> nodes);
       void register_branch_lists(std::initializer_list<std::vector<Node_if*>*> nodelist);
   };
+
 }

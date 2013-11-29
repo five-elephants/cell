@@ -1,11 +1,14 @@
 #include "ast/tree_base.h"
 
+#include <iostream>
+
 namespace ast {
 
   void
   Tree_base::visit(std::function<void(Node_if const&)> callback) const {
     Node_base::visit(callback);
     for(auto i : m_nodes) {
+      std::cout << "visiting " << i->location() << std::endl;
       i->visit(callback);
     }
 

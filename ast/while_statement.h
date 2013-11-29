@@ -1,17 +1,15 @@
 #pragma once
 
-#include "ast/node_base.h"
+#include "ast/tree_base.h"
 
 namespace ast {
 
-  class While_statement : public Node_base {
+  class While_statement : public Tree_base {
     public:
       While_statement(Node_if& expression, Node_if& body);
       virtual ~While_statement();
 
       virtual void visit();
-      virtual void visit(std::function<void(Node_if const&)> cb) const;
-      virtual void set_generator(gen::Generator_if& g);
 
       Node_if& expression() { return m_expression; }
       Node_if& body() { return m_body; }

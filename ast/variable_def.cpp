@@ -7,22 +7,24 @@
 namespace ast {
 
 	Variable_def::Variable_def(Node_if& identifier)
-		:	Node_base(),
+		:	Tree_base(),
 			m_identifier(identifier),
 			m_type(new Identifier("void")),
 			m_expression(new Empty_expression()),
- 			m_is_type_owner(true),
+			m_is_type_owner(true),
 			m_is_expression_owner(true)	{
+		register_branches({&m_identifier, m_type, m_expression});
 	}
 
 	Variable_def::Variable_def(Node_if& identifier,
 			Node_if& type,
 			Node_if& expression)
 		:	
-			Node_base(),
+			Tree_base(),
 			m_identifier(identifier),
 			m_type(&type),
 			m_expression(&expression) {
+		register_branches({&m_identifier, m_type, m_expression});
 	}
 
 	Variable_def::~Variable_def() {
@@ -34,28 +36,11 @@ namespace ast {
 	}
 
 	void
-	Variable_def::set_generator(gen::Generator_if& g) {
-		Node_base::set_generator(g);
-		m_identifier.set_generator(g);
-		m_expression->set_generator(g);
-		m_type->set_generator(g);
-	}
-
-
-	void
 	Variable_def::visit() {
 		get_generator().variable_def(*this);
 	}
 
-
-  void 
-  Variable_def::visit(std::function<void(Node_if const&)> cb) const {
-    Node_base::visit(cb);
-    m_identifier.visit(cb);
-    m_type->visit(cb);
-    m_expression->visit(cb);
-  }
-
-
 }
 
+
+/* vim: set noet fenc=utf-8 ff=unix sts=0 sw=4 ts=4 : */

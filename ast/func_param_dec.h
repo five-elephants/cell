@@ -12,10 +12,10 @@ namespace ast {
 					Node_if& expression);
 			virtual ~Func_param_dec();
 
-			virtual void set_generator(gen::Generator_if& g); 
 			virtual void visit();
-      virtual void visit(std::function<void(Node_if const&)> callback) const;
 	};
 
 }
 
+
+/* vim: set noet fenc=utf-8 ff=unix sts=0 sw=4 ts=4 : */

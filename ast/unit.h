@@ -1,21 +1,20 @@
 #pragma once
 
-#include "ast/node_base.h"
+#include "ast/tree_base.h"
 #include <vector>
 
 namespace ast {
 
-	class Unit : public Node_base {
+	class Unit : public Tree_base {
 		public:
 			Unit()
-				:	Node_base() {
+				:	Tree_base() {
+				register_branch_lists({&m_elements});
 			}
 
 			virtual ~Unit() {};
 
-			virtual void set_generator(gen::Generator_if& g);
 			virtual void visit();
-      virtual void visit(std::function<void(Node_if const&)> cb) const;
 
 			void append(Node_if& node);
 			void append(std::vector<Node_if*> const& nodes);
@@ -25,3 +24,6 @@ namespace ast {
 	};
 
 }
+
+
+/* vim: set noet fenc=utf-8 ff=unix sts=0 sw=4 ts=4 : */

@@ -8,16 +8,12 @@
 
 namespace ast {
 
-	void
-	Module_def::set_generator(gen::Generator_if& g) {
-		Node_base::set_generator(g);
-		m_identifier.set_generator(g);
-
-		for(auto i=begin(m_elements); i!=end(m_elements); ++i) {
-			(*i)->set_generator(g);
-		}
-	}
-
+  Module_def::Module_def(Node_if& identifier)
+    :	Tree_base(),
+      m_identifier(identifier) {
+    register_branches({&m_identifier});
+    register_branch_lists({&m_elements});
+  }
 
 	void
 	Module_def::visit() {
@@ -28,14 +24,6 @@ namespace ast {
 		//}
 		get_generator().module_end(*this);
 	}
-
-  void
-  Module_def::visit(std::function<void(Node_if const&)> cb) const {
-    Node_base::visit(cb);
-    m_identifier.visit(cb);
-    for(auto i : m_elements)
-      i->visit(cb);
-  }
 
 	void
 	Module_def::append(Node_if& node) {
