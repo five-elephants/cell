@@ -139,9 +139,9 @@ func_params_:                    { $$ = new ast::Node_list; }
                                  { $$ = $1; $1->push_back($3); }
   | func_param                   { $$ = new ast::Node_list; $$->push_back($1); };
 func_param: identifier "=" exp ":" identifier
-                                 { $$ = new ast::Variable_def(*$1, *$5, *$3); }
-  | identifier ":" identifier    { auto v = new ast::Variable_def(*$1); v->type(*$3); $$ = v; }
-  | identifier "=" exp           { auto v = new ast::Variable_def(*$1); v->expression(*$3); $$ = v; };
+                                 { $$ = new ast::Function_param(*$1, *$5, *$3); }
+  | identifier ":" identifier    { auto v = new ast::Function_param(*$1); v->type(*$3); $$ = v; }
+  | identifier "=" exp           { auto v = new ast::Function_param(*$1); v->expression(*$3); $$ = v; };
 
 var_def: "var" identifier "=" exp ":" identifier  
                                  { 

@@ -9,7 +9,8 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_cxx boost')
     conf.check_tool('bison flex')
-    conf.check_boost(lib='program_options')
+    conf.check_boost(lib='program_options serialization')
+    #conf.check_boost(lib='serialization')
 
 def build(bld):
     #gen/gen_text.cpp
@@ -24,6 +25,7 @@ def build(bld):
       ast/module_def.cpp
       ast/function_def.cpp
       ast/function_call.cpp
+      ast/function_param.cpp
       ast/compound.cpp
       ast/if_statement.cpp
       ast/while_statement.cpp

@@ -12,4 +12,5 @@ namespace ir {
 
 	std::map<Label, std::shared_ptr<Function>> Builtins::functions {
 	};
+
 }

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdexcept>
+#include <fstream>
 #include <boost/program_options.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 
 #include "parse_driver.h"
 //#include "gen/gen_text.h"
@@ -32,6 +34,8 @@ int main(int argc, char* argv[]) {
       ("file,f", po::value<std::string>(),
        "source file")
       ("analyze,a", "analyze source file and print result")
+      ("ir,i", po::value<std::string>(),
+       "output intermediate representation to file")
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -68,6 +72,12 @@ int main(int argc, char* argv[]) {
           for(auto f : m.second->functions) {
             cout << "    +-" << f.first << " : " << f.second->return_type->name << '\n';
           }
+        }
+
+        if( vm.count("ir") ) {
+          ofstream ofs(vm["ir"].as<std::string>());
+          boost::archive::xml_oarchive oar(ofs);
+          oar << boost::serialization::make_nvp("top", driver.cur_ns());
         }
       } else {
         driver.ast_root().set_generator(*gen);
