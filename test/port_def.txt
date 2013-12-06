@@ -1,0 +1,61 @@
+mod Test (  <= clk : logic,
+            <= reset : logic, 
+            => d : logic,
+            <> inout : logic,
+            inferred : logic) = {
+}
+
+mod Instantiate = {
+  var d : logic
+
+  Test test(
+    clk : clk,
+    reset : reset,
+    d,
+    inout : b,
+    inferred : 0 
+  ) 
+}
+
+
+mod Test2 ( <= clk : logic,
+            bus : Bus_if ) = {
+   
+}
+
+mod Instantiate2() = {
+  // Sockets are composite types with data directions.
+  // Data directions can always be omitted, in which case they are inferred
+  // automatically.
+  socket Bus_if = {
+    <= Clk : logic,
+    <= MReset_n : logic,
+    <= MCmd : int,
+    <= MData : int,
+    => SCmdAccept : logic,
+    => SResp : int,
+    => SData : int,
+    <= MRespAccept : logic,
+  } 
+
+  var clk : logic
+  var my_bus : rev(Bus_if)  // the rev(.) operator reverses directions in a socket type
+  var my_bus_2 : Bus_if
+
+  Test test(
+    clk : clk,
+    bus : my_bus  // sockets must be connected to reversed version
+  )
+  
+  // As variables sockets with direction => can be written and read,
+  // with direction <= can only be read.
+  my_bus.Clk = clk;
+  my_bus.MReset_n = '1'
+
+  // module ports can be used directly outside port connect list
+  test.bus.MData = 42
+
+  // connect statement works also outside of port connection list
+  // (is symmetrical)
+  my_bus_2 : my_bus
+}
