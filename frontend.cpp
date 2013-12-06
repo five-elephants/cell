@@ -8,6 +8,7 @@
 //#include "gen/gen_text.h"
 //#include "gen/gen_cpp.h"
 #include "gen/gen_m4.h"
+#include "ir/serialization.hpp"
 
 namespace po = boost::program_options;
 
