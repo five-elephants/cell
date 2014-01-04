@@ -1,0 +1,36 @@
+namespace Connectivity_example {
+
+	socket Handshake = {
+		<= valid : logic
+		<= data : logic
+		=> ready : logic
+	}
+
+
+	mod Module_a : Handshake = {
+
+	}
+
+	mod Module_b : socket = {
+		<= clk : logic
+		<= reset : logic
+		handshake : Handshake
+	} = {
+	}
+
+	mod Module_top = {
+		my_clk : logic
+		my_reset : logic
+		hand_a : rev Handshake
+		hand_b : rev Handshake
+
+		Module_a module_a : hand_a
+
+		Module_b module_b (
+			clk : my_clk,
+			reset : my_reset,
+			handshake : hand_b
+		)
+	}
+}
+
