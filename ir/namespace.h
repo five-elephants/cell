@@ -25,9 +25,31 @@ namespace ir {
     Label name;
   };
 
+  enum class Direction {
+    Input,
+    Output,
+    Bidirectional
+  };
+  
+  struct Port {
+    Label name;
+    Direction direction;
+    std::shared_ptr<Type> type;
+  };
+
+  struct Socket {
+    Socket(ast::Socket_def const& sock);
+    
+    Label name;
+    std::map<Label, std::shared_ptr<Port>> ports;
+
+    void scan_ast(ast::Node_if const& tree);
+  };
+
   struct Module {
     Module(ast::Module_def const& mod);
 
+    std::shared_ptr<Socket> socket;
     std::map<Label, std::shared_ptr<Type>> types;
     std::map<Label, std::shared_ptr<Object>> objects;
     std::map<Label, std::shared_ptr<Function>> functions;
@@ -44,9 +66,11 @@ namespace ir {
     Label name;
     std::map<Label, std::shared_ptr<Module>> modules;
     std::map<Label, std::shared_ptr<Namespace>> namespaces;
+    std::map<Label, std::shared_ptr<Socket>> sockets;
 
     void insert_module(ast::Module_def const& mod);
     void insert_namespace(ast::Namespace_def const& ns);
+    void insert_socket(ast::Socket_def const& sock);
 
     void scan_ast(ast::Node_if const& tree);
   };

@@ -28,7 +28,22 @@ namespace boost {
     }
 
     template<typename Archive>
+    void serialize(Archive& ar, ir::Port& port, unsigned int const version) {
+      ar & BOOST_SERIALIZATION_NVP(port.name);
+      ar & BOOST_SERIALIZATION_NVP(port.direction);
+      ar & BOOST_SERIALIZATION_NVP(port.type);
+    }
+
+    template<typename Archive>
+    void serialize(Archive& ar, ir::Socket& sock, unsigned int const version) {
+      ar & BOOST_SERIALIZATION_NVP(sock.name);
+      ar & BOOST_SERIALIZATION_NVP(sock.ports);
+    }
+
+    template<typename Archive>
     void serialize(Archive& ar, ir::Module& mod, unsigned int const version) {
+      ar & BOOST_SERIALIZATION_NVP(mod.name);
+      ar & BOOST_SERIALIZATION_NVP(mod.socket);
       ar & BOOST_SERIALIZATION_NVP(mod.types);
       ar & BOOST_SERIALIZATION_NVP(mod.objects);
       ar & BOOST_SERIALIZATION_NVP(mod.functions);
@@ -39,6 +54,7 @@ namespace boost {
       ar & BOOST_SERIALIZATION_NVP(ns.name);
       ar & BOOST_SERIALIZATION_NVP(ns.modules);
       ar & BOOST_SERIALIZATION_NVP(ns.namespaces);
+      ar & BOOST_SERIALIZATION_NVP(ns.sockets);
     }
 
 

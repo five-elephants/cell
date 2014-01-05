@@ -6,7 +6,6 @@ namespace Connectivity_example = {
 		=> ready : logic
 	}
 
-/*
 	mod Module_a : Handshake = {
 
 	}
@@ -16,7 +15,7 @@ namespace Connectivity_example = {
 		<= reset : logic
 		handshake : Handshake
 	} = {
-	} */
+	}
 
 	mod Module_top = {
 		var my_clk : logic
@@ -24,13 +23,13 @@ namespace Connectivity_example = {
 		var hand_a : rev Handshake
 		var hand_b : rev Handshake
 
-		/*Module_a module_a : hand_a
+		Module_a module_a : hand_a
 
 		Module_b module_b (
 			clk : my_clk,
 			reset : my_reset,
 			handshake : hand_b
-		)*/
+		)
 	}
 
 }

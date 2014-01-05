@@ -4,7 +4,7 @@
 #include "ast/visitor.h"
 #include "ir/namespace.h"
 
-#include <iostream>
+//#include <iostream>
 
 namespace ir {
 
@@ -20,20 +20,23 @@ namespace ir {
 
 
       virtual bool enter(ast::Node_if const& node) {
-        using namespace std;
+        //using namespace std;
 
         if( m_root ) {
           m_root = false;
-          cout << "[root] Entering " << typeid(node).name() << '\n';
+          //cout << "[root] Entering " << typeid(node).name() << '\n';
           return true;
         }
 
-        cout << "Entering " << typeid(node).name() << '\n';
+        //cout << "Entering " << typeid(node).name() << '\n';
         if( typeid(node) == typeid(ast::Namespace_def) ) {
           m_ns.insert_namespace(dynamic_cast<ast::Namespace_def const&>(node));
           return false;
         } else if( typeid(node) == typeid(ast::Module_def) ) {
           m_ns.insert_module(dynamic_cast<ast::Module_def const&>(node));
+          return false;
+        } else if( typeid(node) == typeid(ast::Socket_def) ) {
+          m_ns.insert_socket(dynamic_cast<ast::Socket_def const&>(node));
           return false;
         }
 
@@ -42,7 +45,7 @@ namespace ir {
 
 
       virtual bool visit(ast::Node_if const& node) {
-        std::cout << "Visit " << typeid(node).name() << '\n';
+        //std::cout << "Visit " << typeid(node).name() << '\n';
         m_root = false;
         return true;
       }
