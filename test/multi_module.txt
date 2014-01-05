@@ -21,3 +21,16 @@ mod funcs = {
 
   def e(epa : int, epb : int) = {}
 }
+
+namespace test_ns = {
+
+  mod mod_in_test_ns = {
+
+  }
+
+  namespace ns_in_ns = {
+    mod mod_in_nested_ns = {
+    }
+  }
+
+}

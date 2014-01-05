@@ -58,6 +58,7 @@
 %token        QUOTE                   "\""
 %token        VAR                     "var"
 %token        DEF                     "def"
+%token        NAMESPACE               "namespace"
 %token        MOD                     "mod"
 %token        IF                      "if"
 %token        ELSE                    "else"

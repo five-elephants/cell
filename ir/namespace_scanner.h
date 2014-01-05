@@ -9,7 +9,8 @@ namespace ir {
   class Namespace_scanner : public ast::Visitor_base {
     public:
       Namespace_scanner(Namespace& ns) 
-        : m_ns(ns) {
+        : m_ns(ns),
+          m_root(true) {
       }
 
 
@@ -17,6 +18,11 @@ namespace ir {
 
 
       virtual bool enter(ast::Node_if const& node) {
+        if( m_root ) {
+          m_root = false;
+          return true;
+        }
+
         if( typeid(node) == typeid(ast::Namespace_def) ) {
           m_ns.insert_namespace(dynamic_cast<ast::Namespace_def const&>(node));
           return false;
@@ -30,6 +36,7 @@ namespace ir {
 
 
     private:
+      bool m_root;
       Namespace& m_ns;
   };
 

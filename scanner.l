@@ -42,6 +42,7 @@ blank      [ \t]
 	typedef yy::Parser::token token;
 %}
 
+"namespace" return token::NAMESPACE;
 "mod"       return token::MOD;
 "def"       return token::DEF;
 "var"       return token::VAR;

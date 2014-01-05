@@ -38,6 +38,7 @@ namespace boost {
     void serialize(Archive& ar, ir::Namespace& ns, unsigned int const version) {
       ar & BOOST_SERIALIZATION_NVP(ns.name);
       ar & BOOST_SERIALIZATION_NVP(ns.modules);
+      ar & BOOST_SERIALIZATION_NVP(ns.namespaces);
     }
 
 
