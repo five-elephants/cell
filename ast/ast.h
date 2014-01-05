@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ast/socket_direction.h"
 #include "ast/empty_expression.h"
 #include "ast/bin_ops.h"
 #include "ast/literal.h"
@@ -16,3 +17,6 @@
 #include "ast/while_statement.h"
 #include "ast/statement.h"
 #include "ast/unit.h"
+#include "ast/socket_def.h"
+#include "ast/socket_item.h"
+#include "ast/socket_direction.h"

@@ -4,6 +4,8 @@
 #include "ast/visitor.h"
 #include "ir/namespace.h"
 
+#include <iostream>
+
 namespace ir {
 
   class Namespace_scanner : public ast::Visitor_base {
@@ -18,11 +20,15 @@ namespace ir {
 
 
       virtual bool enter(ast::Node_if const& node) {
+        using namespace std;
+
         if( m_root ) {
           m_root = false;
+          cout << "[root] Entering " << typeid(node).name() << '\n';
           return true;
         }
 
+        cout << "Entering " << typeid(node).name() << '\n';
         if( typeid(node) == typeid(ast::Namespace_def) ) {
           m_ns.insert_namespace(dynamic_cast<ast::Namespace_def const&>(node));
           return false;
@@ -31,6 +37,13 @@ namespace ir {
           return false;
         }
 
+        return true;
+      }
+
+
+      virtual bool visit(ast::Node_if const& node) {
+        std::cout << "Visit " << typeid(node).name() << '\n';
+        m_root = false;
         return true;
       }
 

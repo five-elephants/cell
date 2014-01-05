@@ -50,6 +50,8 @@
 %token        CMP_NEQ                 "!="
 %token        CMP_GT_EQ               ">="
 %token        CMP_LT_EQ               "<="
+%token        DARROW_RIGHT            "=>"
+%token        BIDIR                   "<>"
 %token        ASSIGN                  "="
 %token        CURL_OPEN               "{"
 %token        CURL_CLOSE              "}"
@@ -59,6 +61,7 @@
 %token        VAR                     "var"
 %token        DEF                     "def"
 %token        NAMESPACE               "namespace"
+%token        SOCKET                  "socket"
 %token        MOD                     "mod"
 %token        IF                      "if"
 %token        ELSE                    "else"
@@ -69,15 +72,21 @@
 %token <sval> IDENTIFIER              "identifier"
 %token <ival> NUMBER                  "number"
 %token <sval> BITSTRING               "bitstring"
+%token        IN                      "in"
+%token        OUT                     "out"
+%token        BIDIR2                  "bidir"
 
 %type <unit> unit
-%type <node> unit_item
 %type <node> namespace
 %type <list> namespace_body
 %type <node> namespace_item
 %type <mod> module
 %type <list> module_body
 %type <node> module_item
+%type <node> socket
+%type <list> socket_body
+%type <node> socket_item
+%type <ival> socket_direction
 %type <func> func
 %type <list> func_params
 %type <list> func_params_
@@ -111,10 +120,8 @@
 %left '+' '-';
 %left '*' '/';
 
-unit: unit unit_item             { $$ = $1; $1->append(*$2); }
-    |                            { $$ = new ast::Unit(); driver.ast_root(*$$);};
-unit_item: namespace            { $$ = $1; }
-    | module                    { $$ = $1; };
+unit: unit namespace_item       { $$ = $1; $1->append(*$2); }
+    |                           { $$ = new ast::Unit(); driver.ast_root(*$$);};
 
 namespace: "namespace" identifier "=" CURL_OPEN namespace_body CURL_CLOSE
                                 {
@@ -126,7 +133,8 @@ namespace_body: namespace_body namespace_item
                                 { $$ = $1; $1->push_back($2); }
     |                           { $$ = new ast::Node_list; };
 namespace_item: namespace       { $$ = $1; }
-    | module                    { $$ = $1; };
+    | module                    { $$ = $1; }
+    | socket                    { $$ = $1; };
 
 module: "mod" identifier "=" CURL_OPEN module_body CURL_CLOSE
                                  { 
@@ -138,6 +146,24 @@ module_body: module_body module_item
   |                              { $$ = new ast::Node_list; };
 module_item: var_def             { $$ = $1; }
   | func                         { $$ = $1; };
+
+
+socket: SOCKET identifier "=" CURL_OPEN socket_body CURL_CLOSE
+                                {
+                                  $$ = new ast::Socket_def(*$2, *$5);
+                                };
+socket_body: socket_body socket_item
+                                 { $$ = $1; $1->push_back($2); }
+  |                              { $$ = new ast::Node_list; };
+socket_item: socket_direction identifier ":" identifier
+                                {
+                                  $$ = new ast::Socket_item(static_cast<ast::Socket_direction>($1),*$2, *$4);
+                                  /*$$ = new ast::Socket_item(ast::Socket_input,*$1, *$3);*/
+                                };
+socket_direction: CMP_LT_EQ     { $$ = ast::Socket_input; }
+    | DARROW_RIGHT              { $$ = ast::Socket_output; }
+    | BIDIR                     { $$ = ast::Socket_bidirectional; };
+
 
 func: "def" identifier "(" func_params ")" ":" identifier "=" statement
                                  { $$ = new ast::Function_def(*$2, *$7); 

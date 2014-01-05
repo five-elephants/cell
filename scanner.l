@@ -56,6 +56,7 @@ blank      [ \t]
 	typedef yy::Parser::token token;
 %}
 
+"socket"    return token::SOCKET;
 "namespace" return token::NAMESPACE;
 "mod"       return token::MOD;
 "def"       return token::DEF;
@@ -70,6 +71,8 @@ blank      [ \t]
 "!="        return token::CMP_NEQ;
 ">="        return token::CMP_GT_EQ;
 "<="        return token::CMP_LT_EQ;
+"=>"        return token::DARROW_RIGHT;
+"<>"        return token::BIDIR;
 "{"         return token::CURL_OPEN;
 "}"         return token::CURL_CLOSE;
 "("         return token::PAREN_OPEN;
@@ -77,6 +80,9 @@ blank      [ \t]
 "\""        return token::QUOTE;
 ":"         return token::COLON;
 ","         return token::COMMA;
+"in"        return token::IN;
+"out"       return token::OUT;
+"bidir"     return token::BIDIR2;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;

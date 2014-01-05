@@ -32,6 +32,8 @@ def build(bld):
       ast/while_statement.cpp
       ast/bitstring_literal.cpp
       ast/unit.cpp
+      ast/socket_item.cpp
+      ast/socket_def.cpp
       parse_driver.cpp
       ir/namespace.cpp
       ir/builtins.cpp

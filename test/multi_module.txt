@@ -1,4 +1,7 @@
-/* this is a comment */
+/* this is a multi-line comment 
+hello
+   mod nothin
+*/
 
 mod vars = {
   var a = 1 : int

@@ -24,23 +24,23 @@ namespace ast {
       for(auto i : m_nodes) {
         if( !i->accept(visitor) ) {
           terminate = true;
-          break;
+          //break;
         }
       }
 
-      if( !terminate ) {
+      //if( !terminate ) {
         for(auto lst : m_node_lists) {
           for(auto i : *lst) {
             if( !i->accept(visitor) ) {
               terminate = true;
-              break;
+              //break;
             }
             
-            if( terminate )
-              break;
+            //if( terminate )
+              //break;
           }
         }
-      }
+      //}
     }
 
     return visitor.leave(*this);
