@@ -16,6 +16,36 @@ namespace ast {
     }
   }
 
+  bool
+  Tree_base::accept(Visitor_if& visitor) const {
+    if( visitor.enter(*this) ) { 
+      bool terminate = false;
+
+      for(auto i : m_nodes) {
+        if( !i->accept(visitor) ) {
+          terminate = true;
+          break;
+        }
+      }
+
+      if( !terminate ) {
+        for(auto lst : m_node_lists) {
+          for(auto i : *lst) {
+            if( !i->accept(visitor) ) {
+              terminate = true;
+              break;
+            }
+            
+            if( terminate )
+              break;
+          }
+        }
+      }
+    }
+
+    return visitor.leave(*this);
+  }
+
   void
   Tree_base::set_generator(gen::Generator_if& gen) {
     Node_base::set_generator(gen);

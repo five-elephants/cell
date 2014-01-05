@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/node_base.h"
+#include "ast/visitor.h"
 
 #include <initializer_list>
 #include <vector>
@@ -15,6 +16,7 @@ namespace ast {
       virtual ~Tree_base() {}
 
       virtual void visit(std::function<void(Node_if const&)> callback) const; 
+      virtual bool accept(Visitor_if& visitor) const;
 
       virtual void set_generator(gen::Generator_if& gen); 
       

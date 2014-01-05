@@ -1,5 +1,6 @@
 #include "ast/node_base.h"
 
+#include "ast/visitor.h"
 #include "gen/generator_if.h"
 #include "gen/gen_m4.h"
 #include <iostream>
@@ -17,6 +18,11 @@ namespace ast {
   void
   Node_base::visit(std::function<void(Node_if const&)> callback) const {
     callback(*this);
+  }
+
+  bool 
+  Node_base::accept(Visitor_if& visitor) const {
+    return visitor.visit(*this);
   }
 
 	void

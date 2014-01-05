@@ -35,6 +35,7 @@ def build(bld):
       parse_driver.cpp
       ir/namespace.cpp
       ir/builtins.cpp
+      ir/analyze.cpp
     """
 
     #bld.program(

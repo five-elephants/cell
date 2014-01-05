@@ -1,6 +1,7 @@
 #include "namespace.h"
 
 #include "ast/ast_find.h"
+#include "namespace_scanner.h"
 #include "builtins.h"
 
 #include <stdexcept>
@@ -61,21 +62,19 @@ namespace ir {
   //--------------------------------------------------------------------------------
   void
   Namespace::insert_namespace(ast::Namespace_def const& ns) {
-    auto n = std::shared_ptr<Namespace>(new Namespace(ns));
+    auto label = dynamic_cast<ast::Identifier const*>(&(ns.identifier()))->identifier();
+    auto n = std::shared_ptr<Namespace>(new Namespace(label));
     if( namespaces.count(n->name) > 0 )
       throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
     n->scan_ast(ns);
-    modules[m->name] = m;
+    namespaces[n->name] = n;
   }
   //--------------------------------------------------------------------------------
   void
   Namespace::scan_ast(ast::Node_if const& tree) {
-    if( typeid(tree) == typeid(ast::Namespace_def) ) {
-      
-    } else if( typeid(tree) == typeid(ast::Module_def) ) {
-      
-    }
+    Namespace_scanner scanner(*this);
+    tree.accept(scanner);
   }
   //--------------------------------------------------------------------------------
 
