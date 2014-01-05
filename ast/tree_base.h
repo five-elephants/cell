@@ -14,9 +14,6 @@ namespace ast {
       }
       virtual ~Tree_base() {}
 
-      //virtual void visit() {
-      //}
-
       virtual void visit(std::function<void(Node_if const&)> callback) const; 
 
       virtual void set_generator(gen::Generator_if& gen); 

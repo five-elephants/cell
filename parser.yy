@@ -71,6 +71,9 @@
 
 %type <unit> unit
 %type <node> unit_item
+%type <node> namespace
+%type <list> namespace_body
+%type <node> namespace_item
 %type <mod> module
 %type <list> module_body
 %type <node> module_item
@@ -109,12 +112,25 @@
 
 unit: unit unit_item             { $$ = $1; $1->append(*$2); }
     |                            { $$ = new ast::Unit(); driver.ast_root(*$$);};
-unit_item: module                { $$ = $1; };
+unit_item: namespace            { $$ = $1; }
+    | module                    { $$ = $1; };
+
+namespace: "namespace" identifier "=" CURL_OPEN namespace_body CURL_CLOSE
+                                {
+                                  auto v = new ast::Namespace_def(*$2);
+                                  v->append(*$5);
+                                  $$ = v;
+                                };
+namespace_body: namespace_body namespace_item 
+                                { $$ = $1; $1->push_back($2); }
+    |                           { $$ = new ast::Node_list; };
+namespace_item: namespace       { $$ = $1; }
+    | module                    { $$ = $1; };
+
 module: "mod" identifier "=" CURL_OPEN module_body CURL_CLOSE
                                  { 
                                   $$ = new ast::Module_def(*$2);
                                   $$->append(*$5);
-                                  driver.cur_ns().insert_module(*$$);
                                  };
 module_body: module_body module_item
                                  { $$ = $1; $1->push_back($2); }

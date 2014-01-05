@@ -59,7 +59,25 @@ namespace ir {
     modules[m->name] = m;
   }
   //--------------------------------------------------------------------------------
+  void
+  Namespace::insert_namespace(ast::Namespace_def const& ns) {
+    auto n = std::shared_ptr<Namespace>(new Namespace(ns));
+    if( namespaces.count(n->name) > 0 )
+      throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
+    n->scan_ast(ns);
+    modules[m->name] = m;
+  }
+  //--------------------------------------------------------------------------------
+  void
+  Namespace::scan_ast(ast::Node_if const& tree) {
+    if( typeid(tree) == typeid(ast::Namespace_def) ) {
+      
+    } else if( typeid(tree) == typeid(ast::Module_def) ) {
+      
+    }
+  }
+  //--------------------------------------------------------------------------------
 
 
   //--------------------------------------------------------------------------------

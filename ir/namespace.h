@@ -43,8 +43,12 @@ namespace ir {
 
     Label name;
     std::map<Label, std::shared_ptr<Module>> modules;
+    std::map<Label, std::shared_ptr<Namespace>> namespaces;
 
     void insert_module(ast::Module_def const& mod);
+    void insert_namespace(ast::Namespace_def const& ns);
+
+    void scan_ast(ast::Node_if const& tree);
   };
 
   //--------------------------------------------------------------------------------

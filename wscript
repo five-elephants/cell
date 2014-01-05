@@ -23,6 +23,7 @@ def build(bld):
       ast/tree_base.cpp
       ast/variable_def.cpp
       ast/module_def.cpp
+      ast/namespace_def.cpp
       ast/function_def.cpp
       ast/function_call.cpp
       ast/function_param.cpp

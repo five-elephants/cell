@@ -9,6 +9,7 @@
 //#include "gen/gen_cpp.h"
 #include "gen/gen_m4.h"
 #include "ir/serialization.hpp"
+#include "ir/analyze.h"
 
 namespace po = boost::program_options;
 
@@ -62,8 +63,9 @@ int main(int argc, char* argv[]) {
 			}
 
       if( vm.count("analyze") ) {
+        auto defns = ir::analyze(driver.ast_root());
         cout << "List of modules:\n";
-        for(auto m : driver.cur_ns().modules) {
+        for(auto m : defns.modules) {
           cout << "* " << m.first << ": " << m.second->name << '\n';
           cout << "  +-Objects:\n";
           for(auto o : m.second->objects) {
@@ -78,7 +80,7 @@ int main(int argc, char* argv[]) {
         if( vm.count("ir") ) {
           ofstream ofs(vm["ir"].as<std::string>());
           boost::archive::xml_oarchive oar(ofs);
-          oar << boost::serialization::make_nvp("top", driver.cur_ns());
+          oar << boost::serialization::make_nvp("top", defns);
         }
       } else {
         driver.ast_root().set_generator(*gen);
