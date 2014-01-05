@@ -10,6 +10,7 @@ namespace ast {
 
   Module_def::Module_def(Node_if& identifier)
     :	Tree_base(),
+      m_socket(nullptr),
       m_identifier(identifier) {
     register_branches({&m_identifier});
     register_branch_lists({&m_elements});

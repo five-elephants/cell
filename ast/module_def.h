@@ -18,8 +18,13 @@ namespace ast {
 			Node_if& identifier() { return m_identifier; }
 			Node_if const& identifier() const { return m_identifier; }
 
+			bool has_socket() const { return (m_socket != nullptr); }
+			void socket(Node_if& node) { m_socket = &node; }
+			Node_if const& socket() const { return *m_socket; }
+
 		private:
 			Node_if& m_identifier;
+			Node_if* m_socket;
 			std::vector<Node_if*> m_elements;
 	};
 

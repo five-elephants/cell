@@ -140,6 +140,12 @@ module: "mod" identifier "=" CURL_OPEN module_body CURL_CLOSE
                                  { 
                                   $$ = new ast::Module_def(*$2);
                                   $$->append(*$5);
+                                 }
+    | "mod" identifier ":" identifier "=" CURL_OPEN module_body CURL_CLOSE
+                                 { 
+                                  $$ = new ast::Module_def(*$2);
+                                  $$->socket(*$4);
+                                  $$->append(*$7);
                                  };
 module_body: module_body module_item
                                  { $$ = $1; $1->push_back($2); }
