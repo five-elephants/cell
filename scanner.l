@@ -29,6 +29,8 @@ blank      [ \t]
 #define YY_USER_ACTION yylloc->columns(yyleng);
 %}
 
+%x IN_COMMENT
+
 %%
 
 %{
@@ -37,6 +39,18 @@ blank      [ \t]
 
 {blank}+     yylloc->step();
 [\n]+        yylloc->lines(yyleng); yylloc->step();
+
+<INITIAL>{
+"/*"         BEGIN(IN_COMMENT);
+}
+<IN_COMMENT>{
+"*/"         BEGIN(INITIAL);
+[^*\n]+
+"*"
+\n           yylineno++;
+}
+
+"//".*
 
 %{
 	typedef yy::Parser::token token;

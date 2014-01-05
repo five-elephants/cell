@@ -1,3 +1,5 @@
+/* this is a comment */
+
 mod vars = {
   var a = 1 : int
   var b = 2 : int
@@ -22,6 +24,7 @@ mod funcs = {
   def e(epa : int, epb : int) = {}
 }
 
+// single line comment
 namespace test_ns = {
 
   mod mod_in_test_ns = {
