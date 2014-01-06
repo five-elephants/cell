@@ -4,6 +4,7 @@
 #include "namespace_scanner.h"
 #include "module_scanner.h"
 #include "builtins.h"
+#include "find.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -205,21 +206,4 @@ namespace ir {
   }
   //--------------------------------------------------------------------------------
   
-  //--------------------------------------------------------------------------------
-  std::shared_ptr<Socket> find_socket(Namespace const& m, Label socket_name) {
-    // search module sockets 
-    {
-      auto it = m.sockets.find(socket_name);
-      if( it != m.sockets.end() ) 
-        return it->second;
-    }
-
-    if( socket_name == Builtins::null_socket->name ) {
-      return Builtins::null_socket;
-    }
-    
-    // not found
-    return std::shared_ptr<Socket>(nullptr);
-  }
-  //--------------------------------------------------------------------------------
 }

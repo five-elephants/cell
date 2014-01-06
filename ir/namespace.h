@@ -92,6 +92,5 @@ namespace ir {
   //--------------------------------------------------------------------------------
 
   extern std::shared_ptr<Type> find_type(Namespace const& m, Label type_name);
-  extern std::shared_ptr<Socket> find_socket(Namespace const& ns, Label sock_name);
 
 }
