@@ -86,11 +86,4 @@ namespace ir {
     void scan_ast(ast::Node_if const& tree);
   };
 
-
-  //--------------------------------------------------------------------------------
-  // Free functions
-  //--------------------------------------------------------------------------------
-
-  extern std::shared_ptr<Type> find_type(Namespace const& m, Label type_name);
-
 }

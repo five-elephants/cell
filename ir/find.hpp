@@ -23,8 +23,9 @@ namespace ir {
     return std::shared_ptr<T>(nullptr); 
   }
 
+
   inline std::shared_ptr<Socket> find_socket(Namespace const& ns,
-      Label sock_name) {
+      Label const& sock_name) {
     auto rv = find_in_namespace<Socket>(ns, &Namespace::sockets, sock_name);
     if( !rv ) {
       if( sock_name == Builtins::null_socket->name ) {
@@ -34,4 +35,17 @@ namespace ir {
     return rv;
   }
   
+
+  inline std::shared_ptr<Type> find_type(Namespace const& ns,
+      Label const& type_name) {
+    auto rv = find_in_namespace<Type>(ns, &Namespace::types, type_name);
+    if( !rv ) {
+      auto it = Builtins::types.find(type_name);
+      if( it != Builtins::types.end() )
+        return it->second;
+    }
+    return rv;
+  }
+
+
 }

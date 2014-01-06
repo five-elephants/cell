@@ -181,29 +181,5 @@ namespace ir {
     tree.accept(scanner);
   }
   //--------------------------------------------------------------------------------
-
-
-  //--------------------------------------------------------------------------------
-  /** Find a type by name in the hierarchy
-   * */
-  std::shared_ptr<Type> find_type(Namespace const& m, Label type_name) {
-    // search module types
-    {
-      auto it = m.types.find(type_name);
-      if( it != m.types.end() ) 
-        return it->second;
-    }
-
-    // search builtin types
-    {
-      auto it = Builtins::types.find(type_name);
-      if( it != Builtins::types.end() )
-        return it->second;
-    }
-    
-    // not found
-    return std::shared_ptr<Type>(nullptr);
-  }
-  //--------------------------------------------------------------------------------
   
 }
