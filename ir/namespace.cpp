@@ -2,6 +2,7 @@
 
 #include "ast/ast_find.h"
 #include "namespace_scanner.h"
+#include "module_scanner.h"
 #include "builtins.h"
 
 #include <stdexcept>
@@ -11,7 +12,13 @@
 namespace ir {
 
   //--------------------------------------------------------------------------------
-  Socket::Socket(ast::Socket_def const& sock) {
+  Socket::Socket(Label name)
+    : enclosing_ns(nullptr),
+      name(name) {
+  }
+
+  Socket::Socket(ast::Socket_def const& sock)
+    : enclosing_ns(nullptr) {
     name = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
   }
 
@@ -66,44 +73,52 @@ namespace ir {
     }
   }
   //--------------------------------------------------------------------------------
-  Module::Module(ast::Module_def const& mod) {
-    name = dynamic_cast<ast::Identifier const*>(&(mod.identifier()))->identifier();
+  Module::Module(ast::Module_def const& mod)
+    : Namespace(dynamic_cast<ast::Identifier const*>(&(mod.identifier()))->identifier()) {
   }
 
 
   void
   Module::scan_ast(ast::Node_if const& tree) {
-    // find declared variables
-    auto vars = ast::find_by_type<ast::Variable_def>(tree);
-    for(auto i : vars) {
-      std::shared_ptr<Object> obj(new Object);
-      obj->name = dynamic_cast<ast::Identifier const*>(&(i->identifier()))->identifier();
-      auto type_name = dynamic_cast<ast::Identifier const*>(&(i->type()))->identifier();
-      obj->type = find_type(*this, type_name);
-      if( !obj->type ) {
+    auto mod = dynamic_cast<ast::Module_def const&>(tree);
+    if( mod.has_socket() ) {
+      auto socket_name = dynamic_cast<ast::Identifier const&>(mod.socket()).identifier();
+      socket = find_socket(*this, socket_name);
+      if( !socket ) {
         std::stringstream strm;
-        strm << i->type().location();
-        strm << ": typename '" << type_name << "' not found.";
+        strm << tree.location()
+          << ": failed to find socket of name "
+          << socket_name
+          << " in module "
+          << name;
         throw std::runtime_error(strm.str());
       }
-      objects[obj->name] = obj;
+    } else {
+      socket = Builtins::null_socket;
     }
 
-    // find defined functions 
-    auto funcs = ast::find_by_type<ast::Function_def>(tree);
-    for(auto i : funcs) {
-      std::shared_ptr<Function> func(new Function);
-      func->name = dynamic_cast<ast::Identifier const*>(&(i->identifier()))->identifier();
-      auto type_name = dynamic_cast<ast::Identifier const*>(&(i->return_type()))->identifier();
-      func->return_type = find_type(*this, type_name);
-      if( !func->return_type ) {
-        std::stringstream strm;
-        strm << i->return_type().location();
-        strm << ": return type '" << type_name << "' not found.";
-        throw std::runtime_error(strm.str());
-      }
-      functions[func->name] = func;
+    Module_scanner scanner(*this);
+    tree.accept(scanner);
+  }
+  //--------------------------------------------------------------------------------
+  void
+  Module::insert_object(ast::Variable_def const& node) {
+    std::shared_ptr<Object> obj(new Object);
+    obj->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
+    if( objects.count(obj->name) > 0 )
+      throw std::runtime_error(std::string("Variable with name ")
+          + obj->name
+          + std::string(" already exists"));
+
+    auto type_name = dynamic_cast<ast::Identifier const*>(&(node.type()))->identifier();
+    obj->type = find_type(*this, type_name);
+    if( !obj->type ) {
+      std::stringstream strm;
+      strm << node.type().location();
+      strm << ": typename '" << type_name << "' not found.";
+      throw std::runtime_error(strm.str());
     }
+    objects[obj->name] = obj;
   }
   //--------------------------------------------------------------------------------
   void
@@ -112,6 +127,7 @@ namespace ir {
     if( modules.count(m->name) > 0 )
       throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
 
+    m->enclosing_ns = this;
     m->scan_ast(mod);
     modules[m->name] = m;
   }
@@ -123,6 +139,7 @@ namespace ir {
     if( namespaces.count(n->name) > 0 )
       throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
+    n->enclosing_ns = this;
     n->scan_ast(ns);
     namespaces[n->name] = n;
   }
@@ -134,9 +151,28 @@ namespace ir {
     if( sockets.count(s->name) > 0 )
       throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
 
+    s->enclosing_ns = this;
     s->scan_ast(sock);
     sockets[s->name] = s;
   }
+  //--------------------------------------------------------------------------------
+  void
+  Namespace::insert_function(ast::Function_def const& node) {
+    std::shared_ptr<Function> func(new Function);
+    func->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
+    if( functions.count(func->name) > 0 )
+      throw std::runtime_error(std::string("Function with name ")+ func->name +std::string(" already exists"));
+
+    auto type_name = dynamic_cast<ast::Identifier const*>(&(node.return_type()))->identifier();
+    func->return_type = find_type(*this, type_name);
+    if( !func->return_type ) {
+      std::stringstream strm;
+      strm << node.return_type().location();
+      strm << ": return type '" << type_name << "' not found.";
+      throw std::runtime_error(strm.str());
+    }
+    functions[func->name] = func;
+  } 
   //--------------------------------------------------------------------------------
   void
   Namespace::scan_ast(ast::Node_if const& tree) {
@@ -149,7 +185,7 @@ namespace ir {
   //--------------------------------------------------------------------------------
   /** Find a type by name in the hierarchy
    * */
-  std::shared_ptr<Type> find_type(Module const& m, Label type_name) {
+  std::shared_ptr<Type> find_type(Namespace const& m, Label type_name) {
     // search module types
     {
       auto it = m.types.find(type_name);
@@ -169,4 +205,21 @@ namespace ir {
   }
   //--------------------------------------------------------------------------------
   
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Socket> find_socket(Namespace const& m, Label socket_name) {
+    // search module sockets 
+    {
+      auto it = m.sockets.find(socket_name);
+      if( it != m.sockets.end() ) 
+        return it->second;
+    }
+
+    if( socket_name == Builtins::null_socket->name ) {
+      return Builtins::null_socket;
+    }
+    
+    // not found
+    return std::shared_ptr<Socket>(nullptr);
+  }
+  //--------------------------------------------------------------------------------
 }

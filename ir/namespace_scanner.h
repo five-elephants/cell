@@ -38,6 +38,9 @@ namespace ir {
         } else if( typeid(node) == typeid(ast::Socket_def) ) {
           m_ns.insert_socket(dynamic_cast<ast::Socket_def const&>(node));
           return false;
+        } else if( typeid(node) == typeid(ast::Function_def) ) {
+          m_ns.insert_function(dynamic_cast<ast::Function_def const&>(node));
+          return false;
         }
 
         return true;
@@ -51,8 +54,10 @@ namespace ir {
       }
 
 
-    private:
+    protected:
       bool m_root;
+
+    private:
       Namespace& m_ns;
   };
 

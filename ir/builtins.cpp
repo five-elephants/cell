@@ -13,4 +13,7 @@ namespace ir {
 	std::map<Label, std::shared_ptr<Function>> Builtins::functions {
 	};
 
+
+	std::shared_ptr<Socket> Builtins::null_socket(new Socket("null_socket"));
+
 }

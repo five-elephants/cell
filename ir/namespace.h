@@ -9,6 +9,10 @@
 
 namespace ir {
 
+  // prototypes
+  struct Module;
+  struct Namespace;
+
   typedef std::string Label;
 
   struct Type {
@@ -38,47 +42,56 @@ namespace ir {
   };
 
   struct Socket {
+    Socket(Label name);
     Socket(ast::Socket_def const& sock);
     
     Label name;
+    Namespace* enclosing_ns;
     std::map<Label, std::shared_ptr<Port>> ports;
 
     void scan_ast(ast::Node_if const& tree);
   };
 
-  struct Module {
-    Module(ast::Module_def const& mod);
-
-    std::shared_ptr<Socket> socket;
-    std::map<Label, std::shared_ptr<Type>> types;
-    std::map<Label, std::shared_ptr<Object>> objects;
-    std::map<Label, std::shared_ptr<Function>> functions;
-    Label name;
-
-    void scan_ast(ast::Node_if const& tree);
-  };
 
   struct Namespace {
     Namespace(Label const& _name)
-      : name(_name) {
+      : name(_name),
+        enclosing_ns(nullptr) {
     };
 
     Label name;
+    Namespace* enclosing_ns;
     std::map<Label, std::shared_ptr<Module>> modules;
     std::map<Label, std::shared_ptr<Namespace>> namespaces;
     std::map<Label, std::shared_ptr<Socket>> sockets;
+    std::map<Label, std::shared_ptr<Type>> types;
+    std::map<Label, std::shared_ptr<Function>> functions;
 
     void insert_module(ast::Module_def const& mod);
     void insert_namespace(ast::Namespace_def const& ns);
     void insert_socket(ast::Socket_def const& sock);
+    void insert_function(ast::Function_def const& func);
 
     void scan_ast(ast::Node_if const& tree);
   };
+
+  struct Module : public Namespace {
+    Module(ast::Module_def const& mod);
+
+    std::shared_ptr<Socket> socket;
+    std::map<Label, std::shared_ptr<Object>> objects;
+
+    void insert_object(ast::Variable_def const& node);
+
+    void scan_ast(ast::Node_if const& tree);
+  };
+
 
   //--------------------------------------------------------------------------------
   // Free functions
   //--------------------------------------------------------------------------------
 
-  extern std::shared_ptr<Type> find_type(Module const& m, Label type_name);
+  extern std::shared_ptr<Type> find_type(Namespace const& m, Label type_name);
+  extern std::shared_ptr<Socket> find_socket(Namespace const& ns, Label sock_name);
 
 }
