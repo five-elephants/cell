@@ -9,7 +9,6 @@ namespace ast {
     public:
       Socket_def(Node_if& identifier,
           std::vector<Node_if*> const& body);
-      virtual ~Socket_def();
 
       virtual void visit() {}
 

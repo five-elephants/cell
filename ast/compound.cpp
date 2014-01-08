@@ -10,9 +10,6 @@ namespace ast {
     register_branch_lists({&m_statements});
 	}
 
-	Compound::~Compound() {
-	}
-
 	void
 	Compound::visit() {
 		get_generator().compound(*this);

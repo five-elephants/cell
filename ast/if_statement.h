@@ -10,7 +10,6 @@ namespace ast {
 	class If_statement : public Tree_base {
 		public:
 			If_statement(Node_if& condition, Node_if& body);
-			virtual ~If_statement();
 
 			virtual void visit();
 

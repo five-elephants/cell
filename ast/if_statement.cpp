@@ -11,9 +11,6 @@ namespace ast {
     register_branches({&m_condition, &m_body});
 	}
 
-	If_statement::~If_statement() {
-	}
-
 
 	void
 	If_statement::visit() {

@@ -12,8 +12,6 @@ namespace ast {
 				register_branch_lists({&m_elements});
 			}
 
-			virtual ~Unit() {};
-
 			virtual void visit();
 
 			void append(Node_if& node);

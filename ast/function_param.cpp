@@ -12,7 +12,4 @@ namespace ast {
     : Variable_def(identifier, type, expression) {
   }
 
-  Function_param::~Function_param() {
-  }
-
 }

@@ -13,7 +13,6 @@ namespace ast {
       Tree_base()
         : Node_base() {
       }
-      virtual ~Tree_base() {}
 
       virtual void visit(std::function<void(Node_if const&)> callback) const; 
       virtual bool accept(Visitor_if& visitor) const;

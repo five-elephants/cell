@@ -14,7 +14,6 @@ namespace ast {
 				:	Node_base(),
 					m_value(value) {
 			}
-			virtual ~Literal_base() {};
 
 		T const& value() const { return m_value; }
 
@@ -29,7 +28,6 @@ namespace ast {
 			Literal(T const& value)
 				:	Literal_base<T>(value) {
 			}
-			virtual ~Literal() {};
 
 			virtual void visit() {
 				throw std::runtime_error("not implemented!");
@@ -42,7 +40,6 @@ namespace ast {
 			Literal<int>(int const& value)
 				:	Literal_base<int>(value) {
 			}
-			virtual ~Literal<int>() {};
 
 			virtual void visit() {
 				get_generator().int_literal(*this);

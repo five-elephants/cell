@@ -10,7 +10,6 @@ namespace ast {
       Function_param(Node_if& identifier,
           Node_if& type,
           Node_if& expression);
-      virtual ~Function_param();
   };
 
 }

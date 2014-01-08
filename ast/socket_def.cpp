@@ -10,9 +10,5 @@ namespace ast {
     register_branch_lists({&m_body});
   }
 
-
-  Socket_def::~Socket_def() {
-  }
-
 }
 

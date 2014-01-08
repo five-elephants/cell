@@ -13,6 +13,8 @@ namespace ast {
 
   class Node_if {
     public:
+      virtual ~Node_if() {};
+
       virtual void visit() = 0;
       virtual void visit(std::function<void(Node_if const&)> callback) const = 0;
       virtual bool accept(Visitor_if& visitor) const = 0;

@@ -8,7 +8,6 @@ namespace ast {
 	class Compound : public Tree_base {
 		public:
 			Compound();
-			virtual ~Compound();
 
 			virtual void visit();
 

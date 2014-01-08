@@ -18,7 +18,6 @@ namespace ast {
 				std::copy(begin(objs), end(objs), begin(m_objs));
         register_branch_lists({&m_objs});
 			}
-			virtual ~Statement() {};
 
 			virtual void visit() {
 				get_generator().generic_statement(m_macro_name, m_objs);

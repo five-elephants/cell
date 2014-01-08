@@ -8,7 +8,6 @@ namespace ast {
 	class Function_call : public Tree_base {
 		public:
 			Function_call(Node_if& identifier);
-			virtual ~Function_call();
 
 			virtual void visit();
 

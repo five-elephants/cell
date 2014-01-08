@@ -12,8 +12,4 @@ namespace ast {
     register_branches({&m_name, &m_type});
   }
 
-
-  Socket_item::~Socket_item() {
-  }
-
 }

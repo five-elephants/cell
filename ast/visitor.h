@@ -4,6 +4,7 @@ namespace ast {
 
   class Visitor_if {
     public:
+      virtual ~Visitor_if() {}
       virtual bool visit(Node_if const& node) = 0;
       virtual bool enter(Node_if const& node) = 0;
       virtual bool leave(Node_if const& node) = 0;
@@ -12,7 +13,6 @@ namespace ast {
 
   class Visitor_base : public Visitor_if {
     public:
-      virtual ~Visitor_base() {}
 
       virtual bool visit(Node_if const& node) {
         return true;

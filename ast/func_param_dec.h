@@ -10,7 +10,6 @@ namespace ast {
 			Func_param_dec(Node_if& identifier,
 					Node_if& type,
 					Node_if& expression);
-			virtual ~Func_param_dec();
 
 			virtual void visit();
 	};

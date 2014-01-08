@@ -14,9 +14,6 @@ namespace ast {
     register_branch_lists({&m_expressions});
 	}
 
-	Function_call::~Function_call() {
-	}
-
 	void
 	Function_call::visit() {
 		get_generator().function_call(*this);

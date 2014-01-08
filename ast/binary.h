@@ -13,9 +13,6 @@ namespace ast {
 					m_right(right) {
 			}
 
-			virtual ~Binary() {
-			}
-
 			virtual void set_generator(gen::Generator_if& g) {
 				Node_base::set_generator(g);
 				m_left.set_generator(g);

@@ -8,9 +8,6 @@ namespace ast {
       m_bitstring(str) {
   }
 
-  Bitstring_literal::~Bitstring_literal() {
-  }
-
   void
   Bitstring_literal::visit() {
     get_generator().bitstring_literal(*this);

@@ -9,7 +9,6 @@ namespace ast {
       static gen::Generator_if& default_generator;
 
       Node_base();
-      virtual ~Node_base() {};
 
       virtual void visit(std::function<void(Node_if const&)> callback) const;
       virtual bool accept(Visitor_if& visitor) const;

@@ -11,7 +11,6 @@ namespace ast {
       Socket_item(Socket_direction const& direction,
           Node_if& name,
           Node_if& type);
-      virtual ~Socket_item();
 
       virtual void visit() { };
 

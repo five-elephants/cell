@@ -7,7 +7,6 @@ namespace ast {
   class Namespace_def : public Tree_base {
     public:
       Namespace_def(Node_if& identifier);
-      virtual ~Namespace_def() {};
 
       virtual void visit();
 

@@ -13,9 +13,6 @@ namespace ast {
 			Variable_def(identifier, type, expression) {
 	}
 
-	Func_param_dec::~Func_param_dec() {
-	}
-
 	void
 	Func_param_dec::visit() {
 		get_generator().func_param_dec(*this);

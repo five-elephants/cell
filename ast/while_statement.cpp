@@ -10,9 +10,6 @@ namespace ast {
     register_branches({&m_expression, &m_body});
   }
 
-  While_statement::~While_statement() {
-  }
-
   void
   While_statement::visit() {
     get_generator().while_statement(*this);

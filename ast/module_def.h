@@ -8,7 +8,6 @@ namespace ast {
 	class Module_def : public Tree_base {
 		public:
 			Module_def(Node_if& identifier);
-			virtual ~Module_def() {};
 
 			virtual void visit();
 

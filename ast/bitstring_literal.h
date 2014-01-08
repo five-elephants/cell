@@ -8,7 +8,6 @@ namespace ast {
   class Bitstring_literal : public Node_base {
     public:
       Bitstring_literal(std::string const& str);
-      virtual ~Bitstring_literal();
 
       virtual void visit();
 

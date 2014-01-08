@@ -10,7 +10,6 @@ namespace ast {
     public:
       Function_def(Node_if& identifier);
       Function_def(Node_if& identifier, Node_if& return_type);
-      virtual ~Function_def() {}
 
       virtual void visit();
 
