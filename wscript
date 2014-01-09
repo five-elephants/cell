@@ -21,6 +21,7 @@ def build(bld):
       gen/gen_m4.cpp
       ast/node_base.cpp
       ast/tree_base.cpp
+      ast/identifier.cpp
       ast/variable_def.cpp
       ast/module_def.cpp
       ast/namespace_def.cpp
@@ -34,6 +35,8 @@ def build(bld):
       ast/unit.cpp
       ast/socket_item.cpp
       ast/socket_def.cpp
+      ast/connection_item.cpp
+      ast/module_instantiation.cpp
       parse_driver.cpp
       ir/namespace.cpp
       ir/builtins.cpp

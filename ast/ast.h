@@ -20,3 +20,5 @@
 #include "ast/socket_def.h"
 #include "ast/socket_item.h"
 #include "ast/socket_direction.h"
+#include "ast/module_instantiation.h"
+#include "ast/connection_item.h"

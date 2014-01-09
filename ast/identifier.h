@@ -7,17 +7,13 @@ namespace ast {
 
 	class Identifier : public Node_base {
 		public:
-			Identifier(std::string const& txt)
-				: Node_base(),
-					m_identifier(txt) {
-			}
+			Identifier(std::string const& txt);
 
 			std::string const& identifier() const { return m_identifier; }
 			void identifier(std::string const& identifier) { m_identifier = identifier; }
 
-			virtual void visit() {
-				get_generator().identifier(*this);
-			}
+			virtual void visit();
+		 
 
 		private:
 			std::string m_identifier;

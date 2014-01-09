@@ -91,6 +91,10 @@
 %type <list> func_params
 %type <list> func_params_
 %type <node> func_param
+%type <node> mod_inst
+%type <list> connection_items
+%type <list> connection_items_
+%type <node> connection_item
 %type <node> var_def
 %type <list> statements
 %type <node> statement
@@ -151,7 +155,8 @@ module_body: module_body module_item
                                  { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };
 module_item: var_def             { $$ = $1; }
-  | func                         { $$ = $1; };
+  | func                         { $$ = $1; }
+  | mod_inst                     { $$ = $1; };
 
 
 socket: SOCKET identifier "=" CURL_OPEN socket_body CURL_CLOSE
@@ -191,6 +196,20 @@ func_param: identifier "=" exp ":" identifier
                                  { $$ = new ast::Function_param(*$1, *$5, *$3); }
   | identifier ":" identifier    { auto v = new ast::Function_param(*$1); v->type(*$3); $$ = v; }
   | identifier "=" exp           { auto v = new ast::Function_param(*$1); v->expression(*$3); $$ = v; };
+
+
+mod_inst: identifier identifier PAREN_OPEN connection_items PAREN_CLOSE
+                                 { $$ = new ast::Module_instantiation(*$1, *$2, *$4); };
+connection_items: connection_items_
+                                 { $$ = $1; }
+  | connection_items_ COMMA      { $$ = $1; }
+  |                              { $$ = new ast::Node_list; };
+connection_items_: connection_items_ COMMA connection_item 
+                                 { $$ = $1; $$->push_back($3); }
+  | connection_item              { $$ = new ast::Node_list; $$->push_back($1); };
+connection_item: identifier ":" identifier
+                                 { $$ = new ast::Connection_item(*$1, *$3); };
+
 
 var_def: "var" identifier "=" exp ":" identifier  
                                  { 
