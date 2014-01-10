@@ -123,6 +123,56 @@ namespace ir {
   }
   //--------------------------------------------------------------------------------
   void
+  Module::insert_instantiation(ast::Module_instantiation const& node) {
+    std::shared_ptr<Instantiation> inst(new Instantiation);
+    inst->name = dynamic_cast<ast::Identifier const&>(node.instance_name()).identifier();
+    if( instantiations.count(inst->name) > 0 )
+      throw std::runtime_error(std::string("Instantiation with name ")
+          + inst->name 
+          + std::string(" already exists"));
+
+    auto module_name = dynamic_cast<ast::Identifier const&>(node.module_name()).identifier();
+    inst->module = find_module(*this, module_name);
+    if( !inst->module ) {
+      std::stringstream strm;
+      strm << node.module_name().location();
+      strm << ": module '" << module_name << "' not found.";
+      throw std::runtime_error(strm.str());
+    }
+
+    /*if( (node.connection_items().size() == 1) 
+        && (typeid(node.connection_items()[0]) == typeid(ast::Identifier*)) ) {
+      auto socket_id = dynamic_cast<ast::Identifier const*>(node.connection_items()[0]);
+      throw std::runtime_error("not implemented yet!");
+    } else*/ {
+      for(auto i : node.connection_items()) {
+        auto con_item = dynamic_cast<ast::Connection_item const&>(*i);
+        auto port_name = con_item.port_name().identifier();
+        auto signal_name = con_item.signal_name().identifier();
+        std::shared_ptr<Port_assignment> port_assign(new Port_assignment);
+        port_assign->port = find_port(*(inst->module), port_name);
+        if( !port_assign->port ) {
+          std::stringstream strm;
+          strm << con_item.port_name().location();
+          strm << ": port '" << port_name << "' not found.";
+          throw std::runtime_error(strm.str());
+        }
+
+        port_assign->object = find_object(*this, signal_name);
+        if( !port_assign->object ) {
+          std::stringstream strm;
+          strm << con_item.signal_name().location();
+          strm << ": assigned object '" << signal_name << "' not found.";
+          throw std::runtime_error(strm.str());
+        }
+        inst->connection.push_back(port_assign);
+      }
+    }
+
+    instantiations[inst->name] = inst;
+  }
+  //--------------------------------------------------------------------------------
+  void
   Namespace::insert_module(ast::Module_def const& mod) {
     auto m = std::shared_ptr<Module>(new Module(mod));
     if( modules.count(m->name) > 0 )
@@ -151,10 +201,13 @@ namespace ir {
     auto s = std::shared_ptr<Socket>(new Socket(sock));
     if( sockets.count(s->name) > 0 )
       throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
+    if( types.count(s->name) > 0 )
+      throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
 
     s->enclosing_ns = this;
     s->scan_ast(sock);
     sockets[s->name] = s;
+    types[s->name] = s;
   }
   //--------------------------------------------------------------------------------
   void

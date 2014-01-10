@@ -12,6 +12,7 @@ namespace ir {
   // prototypes
   struct Module;
   struct Namespace;
+  struct Port;
 
   typedef std::string Label;
 
@@ -22,6 +23,17 @@ namespace ir {
   struct Object {
     std::shared_ptr<Type> type;
     Label name;
+  };
+
+  struct Port_assignment {
+    std::shared_ptr<Port> port;
+    std::shared_ptr<Object> object;
+  };
+
+  struct Instantiation {
+    Label name;
+    std::shared_ptr<Module> module;
+    std::vector<std::shared_ptr<Port_assignment>> connection;
   };
 
   struct Function {
@@ -41,7 +53,7 @@ namespace ir {
     std::shared_ptr<Type> type;
   };
 
-  struct Socket {
+  struct Socket : public Type {
     Socket(Label name);
     Socket(ast::Socket_def const& sock);
     
@@ -80,8 +92,10 @@ namespace ir {
 
     std::shared_ptr<Socket> socket;
     std::map<Label, std::shared_ptr<Object>> objects;
+    std::map<Label, std::shared_ptr<Instantiation>> instantiations;
 
     void insert_object(ast::Variable_def const& node);
+    void insert_instantiation(ast::Module_instantiation const& inst);
 
     void scan_ast(ast::Node_if const& tree);
   };

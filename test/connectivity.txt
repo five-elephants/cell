@@ -20,8 +20,8 @@ namespace Connectivity_example = {
 	mod Module_top = {
 		var my_clk : logic
 		var my_reset : logic
-		var hand_a : rev Handshake
-		var hand_b : rev Handshake
+		var hand_a : rev(Handshake)
+		var hand_b : rev(Handshake)
 
 		Module_a module_a : hand_a
 

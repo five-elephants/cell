@@ -27,6 +27,9 @@ namespace ir {
         } else if( typeid(node) == typeid(ast::Variable_def) ) {
           m_mod.insert_object(dynamic_cast<ast::Variable_def const&>(node));
           return false;
+        } else if( typeid(node) == typeid(ast::Module_instantiation) ) {
+          m_mod.insert_instantiation(dynamic_cast<ast::Module_instantiation const&>(node));
+          return false;
         }
         
         return true;

@@ -48,4 +48,31 @@ namespace ir {
   }
 
 
+  inline std::shared_ptr<Module> find_module(Namespace const& ns,
+      Label const& module_name) {
+    auto rv = find_in_namespace<Module>(ns, &Namespace::modules, module_name);
+    return rv;
+  }
+
+
+  inline std::shared_ptr<Object> find_object(Module const& mod,
+      Label const& object_name) {
+    auto it = mod.objects.find(object_name);
+    if( it != mod.objects.end() ) {
+      return it->second;
+    }
+
+    return std::shared_ptr<Object>(nullptr);
+  }
+
+
+  inline std::shared_ptr<Port> find_port(Module const& mod,
+      Label const& port_name) {
+    auto it = mod.socket->ports.find(port_name);
+    if( it != mod.socket->ports.end() ) {
+      return it->second;
+    }
+
+    return std::shared_ptr<Port>(nullptr);
+  }
 }

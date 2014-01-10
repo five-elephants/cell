@@ -3,6 +3,7 @@
 #include "ir/namespace.h"
 
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/nvp.hpp>
 
 namespace boost {
@@ -19,6 +20,19 @@ namespace boost {
     void serialize(Archive& ar, ir::Object& obj, unsigned int const version) {
       ar & BOOST_SERIALIZATION_NVP(obj.type);
       ar & BOOST_SERIALIZATION_NVP(obj.name);
+    }
+
+    template<typename Archive>
+    void serialize(Archive& ar, ir::Port_assignment& assign, unsigned int const version) {
+      ar & BOOST_SERIALIZATION_NVP(assign.port);
+      ar & BOOST_SERIALIZATION_NVP(assign.object);
+    }
+
+    template<typename Archive>
+    void serialize(Archive& ar, ir::Instantiation& inst, unsigned int const version) {
+      ar & BOOST_SERIALIZATION_NVP(inst.name);
+      ar & BOOST_SERIALIZATION_NVP(inst.module);
+      ar & BOOST_SERIALIZATION_NVP(inst.connection);
     }
 
     template<typename Archive>
@@ -47,6 +61,7 @@ namespace boost {
       ar & BOOST_SERIALIZATION_NVP(mod.name);
       ar & BOOST_SERIALIZATION_NVP(mod.socket);
       ar & BOOST_SERIALIZATION_NVP(mod.objects);
+      ar & BOOST_SERIALIZATION_NVP(mod.instantiations);
     }
 
     template<typename Archive>

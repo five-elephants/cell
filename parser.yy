@@ -203,6 +203,7 @@ mod_inst: identifier identifier PAREN_OPEN connection_items PAREN_CLOSE
 connection_items: connection_items_
                                  { $$ = $1; }
   | connection_items_ COMMA      { $$ = $1; }
+  | identifier                   { $$ = new ast::Node_list; $$->push_back($1); }
   |                              { $$ = new ast::Node_list; };
 connection_items_: connection_items_ COMMA connection_item 
                                  { $$ = $1; $$->push_back($3); }
