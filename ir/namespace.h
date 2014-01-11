@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ast/ast.h"
+#include "ast/node_if.h"
 #include "ir/serialize_shared_ptr.h"
 #include <map>
 #include <string>

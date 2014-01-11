@@ -70,7 +70,6 @@ namespace ir {
   //--------------------------------------------------------------------------------
   void
   Module::scan_ast(ast::Node_if const& tree) {
-
     Module_scanner scanner(*this);
     tree.accept(scanner);
   }

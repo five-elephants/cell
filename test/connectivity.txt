@@ -23,7 +23,7 @@ namespace Connectivity_example = {
 		var hand_a : rev(Handshake)
 		var hand_b : rev(Handshake)
 
-		Module_a module_a : hand_a
+		Module_a module_a(hand_a)
 
 		Module_b module_b (
 			clk : my_clk,
