@@ -95,7 +95,7 @@ namespace ir {
     std::map<Label, std::shared_ptr<Instantiation>> instantiations;
 
     void insert_object(ast::Variable_def const& node);
-    void insert_instantiation(ast::Module_instantiation const& inst);
+    //void insert_instantiation(ast::Module_instantiation const& inst);
 
     void scan_ast(ast::Node_if const& tree);
   };

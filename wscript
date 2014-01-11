@@ -42,6 +42,7 @@ def build(bld):
       ir/builtins.cpp
       ir/analyze.cpp
       ir/streamop.cpp
+      ir/module_scanner.cpp
     """
 
     #bld.program(
