@@ -61,17 +61,12 @@ namespace ir {
       }
 
       auto type_name = dynamic_cast<ast::Identifier const&>(i->type()).identifier();
-      // XXX only builtin types for now
-      {
-        auto it = Builtins::types.find(type_name);
-        if( it != Builtins::types.end() )
-          port->type = it->second;
-        else {
-          std::stringstream strm;
-          strm << i->type().location();
-          strm << ": typename '" << type_name << "' not found.";
-          throw std::runtime_error(strm.str());
-        }
+      port->type = find_type(*enclosing_ns, type_name);
+      if( !port->type ) {
+        std::stringstream strm;
+        strm << i->type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
       }
 
       ports[port->name] = port;
