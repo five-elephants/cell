@@ -22,11 +22,6 @@ namespace ir {
     this->name = name;
   }
 
-  Socket::Socket(ast::Socket_def const& sock)
-    : enclosing_ns(nullptr) {
-    name = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
-  }
-
 
   void
   Socket::scan_ast(ast::Node_if const& tree) {
@@ -73,11 +68,6 @@ namespace ir {
     }
   }
   //--------------------------------------------------------------------------------
-  Module::Module(ast::Module_def const& mod)
-    : Namespace(dynamic_cast<ast::Identifier const*>(&(mod.identifier()))->identifier()) {
-  }
-
-
   void
   Module::scan_ast(ast::Node_if const& tree) {
 

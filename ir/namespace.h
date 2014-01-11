@@ -55,7 +55,6 @@ namespace ir {
 
   struct Socket : public Type {
     Socket(Label name);
-    Socket(ast::Socket_def const& sock);
     
     Namespace* enclosing_ns;
     std::map<Label, std::shared_ptr<Port>> ports;
@@ -82,7 +81,9 @@ namespace ir {
   };
 
   struct Module : public Namespace {
-    Module(ast::Module_def const& mod);
+    Module(Label const& label)
+      : Namespace(label) {
+    }
 
     std::shared_ptr<Socket> socket;
     std::map<Label, std::shared_ptr<Object>> objects;

@@ -44,7 +44,8 @@ namespace ir {
   //--------------------------------------------------------------------------------
   std::shared_ptr<Module>
   Namespace_scanner::insert_module(ast::Module_def const& mod) {
-    auto m = std::shared_ptr<Module>(new Module(mod));
+    auto label = dynamic_cast<ast::Identifier const&>(mod.identifier()).identifier();
+    auto m = std::shared_ptr<Module>(new Module(label));
     if( m_ns.modules.count(m->name) > 0 )
       throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
 
@@ -72,7 +73,7 @@ namespace ir {
   std::shared_ptr<Socket>
   Namespace_scanner::insert_socket(ast::Socket_def const& sock) {
     auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
-    auto s = std::shared_ptr<Socket>(new Socket(sock));
+    auto s = std::shared_ptr<Socket>(new Socket(label));
     if( m_ns.sockets.count(s->name) > 0 )
       throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
     if( m_ns.types.count(s->name) > 0 )
