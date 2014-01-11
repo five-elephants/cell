@@ -80,7 +80,7 @@ namespace ir {
 
     void insert_module(ast::Module_def const& mod);
     void insert_namespace(ast::Namespace_def const& ns);
-    void insert_socket(ast::Socket_def const& sock);
+    std::shared_ptr<Socket> insert_socket(ast::Socket_def const& sock);
     void insert_function(ast::Function_def const& func);
 
     void scan_ast(ast::Node_if const& tree);
