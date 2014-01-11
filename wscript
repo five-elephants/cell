@@ -41,6 +41,7 @@ def build(bld):
       ir/namespace.cpp
       ir/builtins.cpp
       ir/analyze.cpp
+      ir/streamop.cpp
     """
 
     #bld.program(

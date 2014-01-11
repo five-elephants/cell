@@ -4,7 +4,8 @@ namespace ir {
 
 	std::map<Label, std::shared_ptr<Type>> Builtins::types {
 		{"void",		std::shared_ptr<Type>(new Type{"void"})},
-		{"int",			std::shared_ptr<Type>(new Type{"int"})}
+		{"int",			std::shared_ptr<Type>(new Type{"int"})},
+		{"logic",		std::shared_ptr<Type>(new Type{"logic"})}
 	};
 
 	std::map<Label, std::shared_ptr<Object>> Builtins::objects {

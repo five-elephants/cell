@@ -5,6 +5,8 @@
 #include "module_scanner.h"
 #include "builtins.h"
 #include "find.hpp"
+#include "types.h"
+#include "streamop.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -165,6 +167,17 @@ namespace ir {
           strm << ": assigned object '" << signal_name << "' not found.";
           throw std::runtime_error(strm.str());
         }
+
+        if( !type_compatible(*(port_assign->port->type), *(port_assign->object->type)) ) {
+          std::stringstream strm;
+          strm << con_item.location();
+          strm << ": incompatible types in port assignment: expected type '"
+            << *(port_assign->port->type)
+            << "' got '"
+            << *(port_assign->object->type) << "'";
+          throw std::runtime_error(strm.str());
+        }
+
         inst->connection.push_back(port_assign);
       }
     }
