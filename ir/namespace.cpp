@@ -8,8 +8,10 @@
 #include "types.h"
 #include "streamop.h"
 
+#include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <set>
 //--------------------------------------------------------------------------------
 
 namespace ir {
@@ -142,15 +144,20 @@ namespace ir {
       throw std::runtime_error(strm.str());
     }
 
-    /*if( (node.connection_items().size() == 1) 
-        && (typeid(node.connection_items()[0]) == typeid(ast::Identifier*)) ) {
-      auto socket_id = dynamic_cast<ast::Identifier const*>(node.connection_items()[0]);
-      throw std::runtime_error("not implemented yet!");
-    } else*/ {
-      for(auto i : node.connection_items()) {
+    std::set<Label> matched_ports;
+    for(auto& i : node.connection_items()) {
+      if( typeid(*i) == typeid(ast::Connection_item) ) {
         auto con_item = dynamic_cast<ast::Connection_item const&>(*i);
         auto port_name = con_item.port_name().identifier();
         auto signal_name = con_item.signal_name().identifier();
+
+        if( matched_ports.count(port_name) > 0 ) {
+          std::stringstream strm;
+          strm << con_item.port_name().location();
+          strm << ": Port already connected";
+          throw std::runtime_error(strm.str());
+        }
+
         std::shared_ptr<Port_assignment> port_assign(new Port_assignment);
         port_assign->port = find_port(*(inst->module), port_name);
         if( !port_assign->port ) {
@@ -179,6 +186,9 @@ namespace ir {
         }
 
         inst->connection.push_back(port_assign);
+        matched_ports.insert(port_name);
+      } else if( typeid(*i) == typeid(ast::Identifier) ) {
+            
       }
     }
 
