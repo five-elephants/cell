@@ -18,8 +18,8 @@ namespace ir {
 
   //--------------------------------------------------------------------------------
   Socket::Socket(Label name)
-    : enclosing_ns(nullptr),
-      name(name) {
+    : enclosing_ns(nullptr) {
+    this->name = name;
   }
 
   Socket::Socket(ast::Socket_def const& sock)

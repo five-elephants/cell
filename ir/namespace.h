@@ -57,7 +57,6 @@ namespace ir {
     Socket(Label name);
     Socket(ast::Socket_def const& sock);
     
-    Label name;
     Namespace* enclosing_ns;
     std::map<Label, std::shared_ptr<Port>> ports;
 

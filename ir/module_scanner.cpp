@@ -72,7 +72,58 @@ namespace ir {
         inst->connection.push_back(port_assign);
         matched_ports.insert(port_name);
       } else if( typeid(*i) == typeid(ast::Identifier) ) {
-            
+        auto obj_name = dynamic_cast<ast::Identifier const&>(*i).identifier();
+        auto assignee = find_object(m_mod, obj_name);
+
+        if( !assignee ) {
+          std::stringstream strm;
+          strm << i->location()
+            << ": object '" << obj_name << "' not found";
+          throw std::runtime_error(strm.str());
+        }
+
+        auto assignee_socket = find_socket(m_mod, assignee->type->name);
+        if( !assignee_socket ) {
+          std::stringstream strm;
+          strm << i->location()
+            << ": object '" << obj_name << "' of type '" << assignee->type->name
+            << "' is not a socket";
+          throw std::runtime_error(strm.str());
+        }
+
+        for(auto assignee_port_pair : assignee_socket->ports) {
+          auto port_name = assignee_port_pair.first;
+          auto assignee_port = assignee_port_pair.second;
+          auto searchit = m_mod.socket->ports.find(port_name);
+          if( searchit != m_mod.socket->ports.end() ) {
+            auto it = searchit->second;
+            if( !type_compatible(*(it->type), *(assignee_port->type)) ) {
+              std::stringstream strm;
+              strm << i->location()
+                << ": name match for port '" << port_name << "'"
+                << " but no type match (expected: "
+                << *(it->type)
+                << ", got: "
+                << *(assignee_port->type)
+                << ")";
+              throw std::runtime_error(strm.str());
+            }
+
+            if( matched_ports.count(assignee_port->name) > 0 ) {
+              std::stringstream strm;
+              strm << i->location()
+                << ": port '" << assignee_port->name << "' already matched";
+              throw std::runtime_error(strm.str());
+            }
+
+            std::shared_ptr<Port_assignment> port_assign(new Port_assignment);
+            port_assign->port = it;
+            // XXX assign object to element of composite type socket
+            inst->connection.push_back(port_assign);
+            matched_ports.insert(assignee_port->name);
+          }
+        }
+          
       }
     }
 
@@ -80,3 +131,5 @@ namespace ir {
   }
 
 }
+
+/* vim: set et fenc=utf-8 ff=unix sts=2 sw=2 ts=2 : */
