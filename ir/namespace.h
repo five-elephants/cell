@@ -78,11 +78,6 @@ namespace ir {
     std::map<Label, std::shared_ptr<Type>> types;
     std::map<Label, std::shared_ptr<Function>> functions;
 
-    void insert_module(ast::Module_def const& mod);
-    void insert_namespace(ast::Namespace_def const& ns);
-    std::shared_ptr<Socket> insert_socket(ast::Socket_def const& sock);
-    void insert_function(ast::Function_def const& func);
-
     void scan_ast(ast::Node_if const& tree);
   };
 
@@ -92,9 +87,6 @@ namespace ir {
     std::shared_ptr<Socket> socket;
     std::map<Label, std::shared_ptr<Object>> objects;
     std::map<Label, std::shared_ptr<Instantiation>> instantiations;
-
-    void insert_object(ast::Variable_def const& node);
-    //void insert_instantiation(ast::Module_instantiation const& inst);
 
     void scan_ast(ast::Node_if const& tree);
   };

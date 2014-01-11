@@ -15,50 +15,17 @@ namespace ir {
           m_root(true) {
       }
 
-
-      virtual ~Namespace_scanner() { }
-
-
-      virtual bool enter(ast::Node_if const& node) {
-        //using namespace std;
-
-        if( m_root ) {
-          m_root = false;
-          //cout << "[root] Entering " << typeid(node).name() << '\n';
-          return true;
-        }
-
-        //cout << "Entering " << typeid(node).name() << '\n';
-        if( typeid(node) == typeid(ast::Namespace_def) ) {
-          m_ns.insert_namespace(dynamic_cast<ast::Namespace_def const&>(node));
-          return false;
-        } else if( typeid(node) == typeid(ast::Module_def) ) {
-          m_ns.insert_module(dynamic_cast<ast::Module_def const&>(node));
-          return false;
-        } else if( typeid(node) == typeid(ast::Socket_def) ) {
-          m_ns.insert_socket(dynamic_cast<ast::Socket_def const&>(node));
-          return false;
-        } else if( typeid(node) == typeid(ast::Function_def) ) {
-          m_ns.insert_function(dynamic_cast<ast::Function_def const&>(node));
-          return false;
-        }
-
-        return true;
-      }
-
-
-      virtual bool visit(ast::Node_if const& node) {
-        //std::cout << "Visit " << typeid(node).name() << '\n';
-        m_root = false;
-        return true;
-      }
-
+      virtual bool enter(ast::Node_if const& node); 
+      virtual bool visit(ast::Node_if const& node);
 
     protected:
       bool m_root;
-
-    private:
       Namespace& m_ns;
+
+      std::shared_ptr<Module> insert_module(ast::Module_def const& mod);
+      std::shared_ptr<Namespace> insert_namespace(ast::Namespace_def const& ns);
+      std::shared_ptr<Socket> insert_socket(ast::Socket_def const& sock);
+      std::shared_ptr<Function> insert_function(ast::Function_def const& func);
   };
 
 }

@@ -11,35 +11,14 @@ namespace ir {
           m_mod(mod) {
       }
 
-
-      virtual ~Module_scanner() {
-      }
-
-
-      virtual bool enter(ast::Node_if const& node) {
-        if( m_root ) {
-          m_root = false;
-          return true;
-        }
-
-        if( !Namespace_scanner::enter(node) ) {
-          return false;
-        } else if( typeid(node) == typeid(ast::Variable_def) ) {
-          m_mod.insert_object(dynamic_cast<ast::Variable_def const&>(node));
-          return false;
-        } else if( typeid(node) == typeid(ast::Module_instantiation) ) {
-          insert_instantiation(dynamic_cast<ast::Module_instantiation const&>(node));
-          return false;
-        }
-        
-        return true;
-      }
+      virtual bool enter(ast::Node_if const& node); 
 
 
     private:
       Module& m_mod;
 
-      void insert_instantiation(ast::Module_instantiation const& node);
+      std::shared_ptr<Object> insert_object(ast::Variable_def const& node);
+      std::shared_ptr<Instantiation> insert_instantiation(ast::Module_instantiation const& node);
 
   };
 

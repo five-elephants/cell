@@ -10,7 +10,51 @@
 
 namespace ir {
 
-  void
+  //--------------------------------------------------------------------------------
+  bool
+  Module_scanner::enter(ast::Node_if const& node) {
+    if( m_root ) {
+      m_root = false;
+
+      auto mod = dynamic_cast<ast::Module_def const&>(node);
+      if( mod.has_socket() ) {
+        if( typeid(mod.socket()) == typeid(ast::Identifier) ) {
+          auto socket_name = dynamic_cast<ast::Identifier const&>(mod.socket()).identifier();
+          m_mod.socket = find_socket(m_mod, socket_name);
+          if( !m_mod.socket ) {
+            std::stringstream strm;
+            strm << node.location()
+              << ": failed to find socket of name "
+              << socket_name
+              << " in module "
+              << m_mod.name;
+            throw std::runtime_error(strm.str());
+          }
+        } else if( typeid(mod.socket()) == typeid(ast::Socket_def) ) {
+          auto sock = dynamic_cast<ast::Socket_def const&>(mod.socket());
+          m_mod.socket = insert_socket(sock);
+        }
+      } else {
+        m_mod.socket = Builtins::null_socket;
+      }
+
+      return true;
+    }
+
+    if( !Namespace_scanner::enter(node) ) {
+      return false;
+    } else if( typeid(node) == typeid(ast::Variable_def) ) {
+      insert_object(dynamic_cast<ast::Variable_def const&>(node));
+      return false;
+    } else if( typeid(node) == typeid(ast::Module_instantiation) ) {
+      insert_instantiation(dynamic_cast<ast::Module_instantiation const&>(node));
+      return false;
+    }
+    
+    return true;
+  }
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Instantiation> 
   Module_scanner::insert_instantiation(ast::Module_instantiation const& node) {
     std::shared_ptr<Instantiation> inst(new Instantiation);
     inst->name = dynamic_cast<ast::Identifier const&>(node.instance_name()).identifier();
@@ -128,7 +172,32 @@ namespace ir {
     }
 
     m_mod.instantiations[inst->name] = inst;
+
+    return inst;
   }
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Object>
+  Module_scanner::insert_object(ast::Variable_def const& node) {
+    std::shared_ptr<Object> obj(new Object);
+    obj->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
+    if( m_mod.objects.count(obj->name) > 0 )
+      throw std::runtime_error(std::string("Variable with name ")
+          + obj->name
+          + std::string(" already exists"));
+
+    auto type_name = dynamic_cast<ast::Identifier const*>(&(node.type()))->identifier();
+    obj->type = find_type(m_mod, type_name);
+    if( !obj->type ) {
+      std::stringstream strm;
+      strm << node.type().location();
+      strm << ": typename '" << type_name << "' not found.";
+      throw std::runtime_error(strm.str());
+    }
+    m_mod.objects[obj->name] = obj;
+
+    return obj;
+  }
+  //--------------------------------------------------------------------------------
 
 }
 
