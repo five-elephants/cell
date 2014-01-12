@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser.tab.h"
+#include "parser.tab.hh"
 #include "ast/node_if.h"
 #include "ir/namespace.h"
 #include <string>

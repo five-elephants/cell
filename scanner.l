@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include "parse_driver.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 
 /* Work around an incompatibility in flex (at least versions
    2.5.31 through 2.5.33): it generates code that does

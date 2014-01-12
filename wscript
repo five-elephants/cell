@@ -2,13 +2,15 @@
 # encoding: utf-8
 
 def options(opt):
-    opt.load('compiler_cxx')
+    opt.load('compiler_cxx compiler_c')
+    opt.load('flex')
     opt.load('bison')
     opt.load('boost')
+    opt.load('swig')
 
 def configure(conf):
-    conf.load('compiler_cxx boost')
-    conf.check_tool('bison flex')
+    conf.load('compiler_cxx compiler_c boost bison flex swig')
+    #conf.check_tool('bison flex')
     conf.check_boost(lib='program_options serialization')
     #conf.check_boost(lib='serialization')
 
@@ -17,7 +19,7 @@ def build(bld):
     #gen/gen_cpp.cpp
     core_src = """
       scanner.l
-      parser.yy
+      parser.yc
       gen/gen_m4.cpp
       ast/node_base.cpp
       ast/tree_base.cpp
@@ -47,6 +49,10 @@ def build(bld):
       ir/scan_ast.cpp
     """
 
+    bindings_src = """
+      bindings/ir.swig
+    """
+
     #bld.program(
         #source = 'test_gen_text.cpp ' + core_src,
         #target = 'test_gen_text',
@@ -68,3 +74,14 @@ def build(bld):
         #includes = '.',
         #cxxflags = '-std=c++11 -ggdb',
     #)
+
+    bindings_lib = bld(
+      source = bindings_src,
+      target = 'ir',
+      swig_flags = '-lua -c++',
+      includes = '.',
+      cxxflags = '-std=c++11',
+      features = 'swig cxx cxxshlib',
+      use = 'BOOST'
+    )
+    bindings_lib.env.cxxshlib_PATTERN = '%s.so'
