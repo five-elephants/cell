@@ -1,6 +1,7 @@
 #pragma once
 
 #include "namespace.h"
+#include "ast/node_if.h"
 
 namespace ir {
 
