@@ -1,6 +1,7 @@
 #include "namespace_scanner.h"
 
 #include "find.hpp"
+#include "scan_ast.h"
 
 #include <sstream>
 
@@ -50,7 +51,7 @@ namespace ir {
       throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
 
     m->enclosing_ns = &m_ns;
-    m->scan_ast(mod);
+    scan_ast(*m, mod);
     m_ns.modules[m->name] = m;
 
     return m;
@@ -64,7 +65,7 @@ namespace ir {
       throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
     n->enclosing_ns = &m_ns;
-    n->scan_ast(ns);
+    scan_ast(*n, ns);
     m_ns.namespaces[n->name] = n;
 
     return n;
@@ -80,7 +81,7 @@ namespace ir {
       throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
 
     s->enclosing_ns = &m_ns;
-    s->scan_ast(sock);
+    scan_ast(*s, sock);
     m_ns.sockets[s->name] = s;
     m_ns.types[s->name] = s;
 

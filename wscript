@@ -44,6 +44,7 @@ def build(bld):
       ir/streamop.cpp
       ir/namespace_scanner.cpp
       ir/module_scanner.cpp
+      ir/scan_ast.cpp
     """
 
     #bld.program(

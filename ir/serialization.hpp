@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ir/namespace.h"
+#include "ir/serialize_shared_ptr.h"
 
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/vector.hpp>

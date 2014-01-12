@@ -1,11 +1,9 @@
 #pragma once
 
 #include "ast/node_if.h"
-#include "ir/serialize_shared_ptr.h"
 #include <map>
 #include <string>
 #include <memory>
-#include <boost/serialization/map.hpp>
 
 namespace ir {
 
@@ -58,8 +56,6 @@ namespace ir {
     
     Namespace* enclosing_ns;
     std::map<Label, std::shared_ptr<Port>> ports;
-
-    void scan_ast(ast::Node_if const& tree);
   };
 
 
@@ -76,8 +72,6 @@ namespace ir {
     std::map<Label, std::shared_ptr<Socket>> sockets;
     std::map<Label, std::shared_ptr<Type>> types;
     std::map<Label, std::shared_ptr<Function>> functions;
-
-    void scan_ast(ast::Node_if const& tree);
   };
 
   struct Module : public Namespace {
@@ -88,8 +82,6 @@ namespace ir {
     std::shared_ptr<Socket> socket;
     std::map<Label, std::shared_ptr<Object>> objects;
     std::map<Label, std::shared_ptr<Instantiation>> instantiations;
-
-    void scan_ast(ast::Node_if const& tree);
   };
 
 }
