@@ -60,10 +60,14 @@ namespace ir {
 
 
   struct Namespace {
+    Namespace() 
+      : enclosing_ns(nullptr) {
+    }
+
     Namespace(Label const& _name)
       : name(_name),
         enclosing_ns(nullptr) {
-    };
+    }
 
     Label name;
     Namespace* enclosing_ns;

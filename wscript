@@ -51,6 +51,7 @@ def build(bld):
 
     bindings_src = """
       bindings/ir.swig
+      bindings/api.cpp
     """
 
     #bld.program(
