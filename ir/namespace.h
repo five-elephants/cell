@@ -31,7 +31,7 @@ namespace ir {
   struct Instantiation {
     Label name;
     std::shared_ptr<Module> module;
-    std::vector<std::shared_ptr<Port_assignment>> connection;
+    std::vector<std::shared_ptr<Port_assignment> > connection;
   };
 
   struct Function {
