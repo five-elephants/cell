@@ -3,6 +3,7 @@
 #include <fstream>
 #include <boost/program_options.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/export.hpp>
 
 #include "parse_driver.h"
 //#include "gen/gen_text.h"
@@ -10,6 +11,15 @@
 #include "gen/gen_m4.h"
 #include "ir/serialization.hpp"
 #include "ir/analyze.h"
+
+BOOST_CLASS_EXPORT(ir::Type)
+BOOST_CLASS_EXPORT(ir::Object)
+BOOST_CLASS_EXPORT(ir::Port_assignment)
+BOOST_CLASS_EXPORT(ir::Instantiation)
+BOOST_CLASS_EXPORT(ir::Function)
+BOOST_CLASS_EXPORT(ir::Namespace)
+BOOST_CLASS_EXPORT(ir::Socket)
+BOOST_CLASS_EXPORT(ir::Module)
 
 namespace po = boost::program_options;
 

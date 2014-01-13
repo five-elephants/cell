@@ -61,12 +61,20 @@ def build(bld):
         #cxxflags = '-std=c++11',
     #)
 
+    bld.objects(
+      source = core_src,
+      target = 'core',
+      includes = '.',
+      cxxflags = '-fPIC -std=c++11 -ggdb',
+      use = 'BOOST',
+    )
+
     bld.program(
-        source = 'frontend.cpp ' + core_src,
+        source = 'frontend.cpp ',
         target = 'frontend',
         includes = '.',
         cxxflags = '-std=c++11 -ggdb',
-        use = 'BOOST',
+        use = 'core',
     )
 
     #bld.program(
@@ -83,6 +91,6 @@ def build(bld):
       includes = '.',
       cxxflags = '-std=c++11',
       features = 'swig cxx cxxshlib',
-      use = 'BOOST'
+      use = 'core'
     )
     bindings_lib.env.cxxshlib_PATTERN = '%s.so'

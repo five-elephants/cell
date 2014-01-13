@@ -1,15 +1,44 @@
 #include "api.h"
 
+#include "parse_driver.h"
 #include "ir/serialization.hpp"
+#include "ir/analyze.h"
 
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/archive_exception.hpp>
+#include <boost/serialization/export.hpp>
 #include <iostream>
 #include <fstream>
 
+BOOST_CLASS_EXPORT(ir::Type)
+BOOST_CLASS_EXPORT(ir::Object)
+BOOST_CLASS_EXPORT(ir::Port_assignment)
+BOOST_CLASS_EXPORT(ir::Instantiation)
+BOOST_CLASS_EXPORT(ir::Function)
+BOOST_CLASS_EXPORT(ir::Namespace)
+BOOST_CLASS_EXPORT(ir::Socket)
+BOOST_CLASS_EXPORT(ir::Module)
+
 void hello() {
   std::cout << "Hello World" << std::endl; 
+}
+
+
+ir::Namespace analyze(std::string const& filename) {
+  try {
+    Parse_driver parse_driver;
+
+    if( parse_driver.parse(filename) )
+      throw std::runtime_error("parse failed");
+
+    auto rv = ir::analyze(parse_driver.ast_root());
+
+    return rv;
+  } catch( std::runtime_error const& err ) {
+    std::cerr << "Encountered runtime error: " << err.what() << std::endl;
+    return ir::Namespace();
+  }
 }
 
 

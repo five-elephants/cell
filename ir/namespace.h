@@ -52,6 +52,10 @@ namespace ir {
   };
 
   struct Socket : public Type {
+    Socket() 
+      : Type() {
+    }
+
     Socket(Label name);
     
     Namespace* enclosing_ns;
@@ -79,6 +83,10 @@ namespace ir {
   };
 
   struct Module : public Namespace {
+    Module() 
+      : Namespace() {
+    }
+
     Module(Label const& label)
       : Namespace(label) {
     }
