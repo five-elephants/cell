@@ -7,12 +7,15 @@ def options(opt):
     opt.load('bison')
     opt.load('boost')
     opt.load('swig')
+    opt.load('python')
 
 def configure(conf):
     conf.load('compiler_cxx compiler_c boost bison flex swig')
+    conf.load('python')
     #conf.check_tool('bison flex')
     conf.check_boost(lib='program_options serialization')
     #conf.check_boost(lib='serialization')
+    conf.check_python_headers()
 
 def build(bld):
     #gen/gen_text.cpp
@@ -54,13 +57,6 @@ def build(bld):
       bindings/api.cpp
     """
 
-    #bld.program(
-        #source = 'test_gen_text.cpp ' + core_src,
-        #target = 'test_gen_text',
-        #includes = '.',
-        #cxxflags = '-std=c++11',
-    #)
-
     bld.objects(
       source = core_src,
       target = 'core',
@@ -77,13 +73,6 @@ def build(bld):
         use = 'core',
     )
 
-    #bld.program(
-        #source = 'calc++.cpp calc++-driver.cpp calc++-parser.yy calc++-scanner.l',
-        #target = 'calc++',
-        #includes = '.',
-        #cxxflags = '-std=c++11 -ggdb',
-    #)
-
     bindings_lib = bld(
       source = bindings_src,
       target = 'ir',
@@ -94,3 +83,15 @@ def build(bld):
       use = 'core'
     )
     bindings_lib.env.cxxshlib_PATTERN = '%s.so'
+
+    bindings_lib = bld(
+      source = bindings_src,
+      target = '_ir',
+      swig_flags = '-python -c++',
+      includes = '.',
+      cxxflags = '-std=c++11',
+      features = 'swig pyext cxx cxxshlib',
+      use = 'core'
+    )
+    #bindings_lib.env.cxxshlib_PATTERN = '%s.so'
+

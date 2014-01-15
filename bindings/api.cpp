@@ -3,6 +3,7 @@
 #include "parse_driver.h"
 #include "ir/serialization.hpp"
 #include "ir/analyze.h"
+#include "ir/find.hpp"
 
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -76,4 +77,14 @@ void save(std::string const& filename, ir::Namespace& ns) {
       << err.what()
       << std::endl;
   }
+}
+
+
+
+ir::Module find_module(ir::Namespace const& ns, ir::Label const& name) {
+  auto rv = ir::find_module(ns, name); 
+  if( rv ) 
+    return *rv;
+  else
+    return ir::Module();
 }
