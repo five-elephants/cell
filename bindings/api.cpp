@@ -4,6 +4,7 @@
 #include "ir/serialization.hpp"
 #include "ir/analyze.h"
 #include "ir/find.hpp"
+#include "ir/find_hierarchy.h"
 
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -23,6 +24,14 @@ BOOST_CLASS_EXPORT(ir::Module)
 
 void hello() {
   std::cout << "Hello World" << std::endl; 
+
+  std::string path = "this.isa.test";
+  auto path_elems = ir::parse_path(path, ".");
+
+  std::cout << "PATH: " << path << "\n";
+  for(auto i : path_elems) {
+    std::cout << "   '" << i << "'\n";
+  } 
 }
 
 
