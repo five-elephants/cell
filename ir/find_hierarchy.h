@@ -1,5 +1,12 @@
 #pragma once
 
+#include "ir/namespace.h"
+
+#include <vector>
+#include <string>
+#include <memory>
+#include <iostream>
+
 namespace ir {
 
   inline std::vector<std::string> parse_path(std::string const& path,

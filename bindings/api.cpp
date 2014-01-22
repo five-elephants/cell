@@ -24,14 +24,6 @@ BOOST_CLASS_EXPORT(ir::Module)
 
 void hello() {
   std::cout << "Hello World" << std::endl; 
-
-  std::string path = "this.isa.test";
-  auto path_elems = ir::parse_path(path, ".");
-
-  std::cout << "PATH: " << path << "\n";
-  for(auto i : path_elems) {
-    std::cout << "   '" << i << "'\n";
-  } 
 }
 
 

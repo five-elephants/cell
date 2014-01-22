@@ -14,8 +14,10 @@ def configure(conf):
     conf.load('python')
     #conf.check_tool('bison flex')
     conf.check_boost(lib='program_options serialization')
-    #conf.check_boost(lib='serialization')
     conf.check_python_headers()
+    conf.check(lib='gtest', uselib_store='GTEST')
+    conf.check(lib='gtest_main', uselib_store='GTEST_MAIN')
+    conf.check(header_name='gtest/gtest.h')
 
 def build(bld):
     #gen/gen_text.cpp
@@ -57,6 +59,10 @@ def build(bld):
       bindings/api.cpp
     """
 
+    test_src = """
+      test/test_find_hierarchy.cpp
+    """
+
     bld.objects(
       source = core_src,
       target = 'core',
@@ -94,4 +100,13 @@ def build(bld):
       use = 'core'
     )
     #bindings_lib.env.cxxshlib_PATTERN = '%s.so'
+
+    bld.program(
+      source = test_src,
+      target = 'test-main',
+      cxxflags = '-std=c++11',
+      includes = '.',
+      use = 'core GTEST GTEST_MAIN',
+    )
+
 
