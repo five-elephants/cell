@@ -6,22 +6,38 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <regex>
+#include <algorithm>
 
 namespace ir {
 
   inline std::vector<std::string> parse_path(std::string const& path,
       std::string const& separator = ".") {
     std::vector<std::string> rv;
- 
-    auto tail = path;
-   
-    while( tail.size() > 0 ) {
-      auto pos = tail.find(separator);
-      rv.push_back(tail.substr(0, pos));
-      tail = tail.substr(pos+separator.size());
-      if( pos == std::string::npos )
-        break;
+
+    if( path.size() == 0 )
+      return rv;
+
+    // check for invalid characters
+    static std::array<char, 4> const invalid_chars {{
+      ' ', '\n', '\t', '\r'
+    }};
+
+    for(auto c : invalid_chars) {
+      if( path.find(c) != std::string::npos )
+        throw std::runtime_error("invalid character in path");
     }
+
+    // check for leading and trailing separators
+
+    auto tail = path;
+    size_t pos;
+
+    do {
+      pos = tail.find(separator);
+      rv.push_back(tail.substr(0, pos));
+      tail = tail.substr(std::min(pos+separator.size(), tail.size()));
+    } while( pos != std::string::npos );
 
     return rv;
   }
