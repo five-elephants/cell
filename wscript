@@ -44,6 +44,8 @@ def build(bld):
       ast/socket_def.cpp
       ast/connection_item.cpp
       ast/module_instantiation.cpp
+      ast/process.cpp
+      ast/assignment.cpp
       parse_driver.cpp
       ir/namespace.cpp
       ir/builtins.cpp

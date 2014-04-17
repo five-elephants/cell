@@ -1,26 +1,28 @@
 /* Proposal for sensitivy lists and process definitions */
 
-namespace example {
+namespace example = {
   mod Top = {
-    var clk : logic;
-    var a, b : int;
-    var x, y : int;
+    var clk : logic
+    var a : int
+    var b : int
+    var x : int
+    var y : int
 
     def logic_func(a : int, b : int) : int = {
-      return a + b;
+      return a + b
     }
     
     def alt_logic_func() = {
-      x = a - b;
+      x = a - b
     }
 
     /* Periodic is used for purely time controlled processes. */
-    periodic(5 ns) = {
-      if( clk == undef )
-        clk = 0;
-      else
-        clk = !clk;
-    }
+//     periodic(5 ns) = {
+//       if( clk == undef )
+//         clk = 0;
+//       else
+//         clk = !clk;
+//     }
 
     /* The process is run once initially at time 0. In each run it collects all 
      * input operands that are actually read within the {} block and adds them 
@@ -28,40 +30,40 @@ namespace example {
      * extracted. It should also be faster to simulate.
      * */
     process = {
-      y = logic_func(a, b);
+      y = logic_func(a, b)
     }
     
     /* Alternate coding style where the process body is given in a function. */
-    process = alt_logic_func();
+    process = alt_logic_func()
     
     /* This is an edge triggered flip-flop with asynchronous reset. */
     process = {
       if( reset ) {
-        a = 0;
-        b = 1;
+        a = 0
+        b = 1
       } else if( posedge(clk) ) {
-        a = b;
-        b = b + 1;
+        a = b
+        b = b + 1
       }
     }
     
     /* This is an edge triggered flip-flop with synchronous reset. A name can be
      given optionally. */
-    process clocked_process_example = {
-      if( posedge(clk) ) {
-        if( reset ) {
-          a = 0;
-          b = 1;
-        } else {
-          a = b;
-          b = b + 1;
-        }
-      }
-    }
-    
-    /* is() to indicate design intent. */
-    process is(async_ff) = {
-      // ...
-    }
+//     process clocked_process_example = {
+//       if( posedge(clk) ) {
+//         if( reset ) {
+//           a = 0;
+//           b = 1;
+//         } else {
+//           a = b;
+//           b = b + 1;
+//         }
+//       }
+//     }
+//     
+//     /* is() to indicate design intent. */
+//     process is(async_ff) = {
+//       // ...
+//     }
   }
 }

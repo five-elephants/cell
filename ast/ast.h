@@ -22,3 +22,5 @@
 #include "ast/socket_direction.h"
 #include "ast/module_instantiation.h"
 #include "ast/connection_item.h"
+#include "ast/process.h"
+#include "ast/assignment.h"

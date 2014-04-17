@@ -83,6 +83,7 @@ blank      [ \t]
 "in"        return token::IN;
 "out"       return token::OUT;
 "bidir"     return token::BIDIR2;
+"process"   return token::PROCESS;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;
