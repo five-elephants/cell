@@ -17,12 +17,12 @@ namespace example = {
     }
 
     /* Periodic is used for purely time controlled processes. */
-//     periodic(5 ns) = {
-//       if( clk == undef )
-//         clk = 0;
-//       else
-//         clk = !clk;
-//     }
+    periodic(5 ns) = {
+      if( clk == undef )
+        clk = 0;
+      else
+        clk = !clk;
+    }
 
     /* The process is run once initially at time 0. In each run it collects all 
      * input operands that are actually read within the {} block and adds them 

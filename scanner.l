@@ -84,6 +84,7 @@ blank      [ \t]
 "out"       return token::OUT;
 "bidir"     return token::BIDIR2;
 "process"   return token::PROCESS;
+"periodic"  return token::PERIODIC;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;

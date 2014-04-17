@@ -24,3 +24,4 @@
 #include "ast/connection_item.h"
 #include "ast/process.h"
 #include "ast/assignment.h"
+#include "ast/periodic.h"
