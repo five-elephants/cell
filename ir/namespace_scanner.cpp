@@ -91,10 +91,13 @@ namespace ir {
   std::shared_ptr<Function>
   Namespace_scanner::insert_function(ast::Function_def const& node) {
     std::shared_ptr<Function> func(new Function);
+
+    // get name
     func->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
     if( m_ns.functions.count(func->name) > 0 )
       throw std::runtime_error(std::string("Function with name ")+ func->name +std::string(" already exists"));
 
+    // get return type
     auto type_name = dynamic_cast<ast::Identifier const*>(&(node.return_type()))->identifier();
     func->return_type = find_type(m_ns, type_name);
     if( !func->return_type ) {
@@ -104,15 +107,44 @@ namespace ir {
       throw std::runtime_error(strm.str());
     }
 
+    // get parameters
+    auto params = node.parameters();
+    for(auto p_node : params) {
+      if( typeid(*p_node) != typeid(ast::Function_param) )
+        throw std::runtime_error("function parameter is not of type Function_param ("
+            + std::string(typeid(p_node).name())
+            + std::string(" instead)"));
+
+      auto p = dynamic_cast<ast::Function_param*>(p_node);
+      auto p_ir = std::make_shared<Object>();
+      p_ir->name = dynamic_cast<ast::Identifier const&>(p->identifier()).identifier();
+      if( func->parameters.count(p_ir->name) > 0 )
+        throw std::runtime_error(std::string("Parameter with name ")
+            + p_ir->name
+            + std::string(" already defined"));
+
+      auto type_name = dynamic_cast<ast::Identifier const&>(p->type()).identifier();
+      p_ir->type = find_type(m_ns, type_name);
+      if( !p_ir->type ) {
+        std::stringstream strm;
+        strm << p->type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+
+      func->parameters[p_ir->name] = p_ir;
+    }
+
     // generate code for function body
     auto cb = m_codegen.make_codeblock();
-    cb->scan_ast(m_ns, node);
+    cb->append_predefined_objects(func->parameters);
+    cb->scan_ast(m_ns, node.body());
     func->code = cb;
 
     m_ns.functions[func->name] = func;
 
     return func;
-  } 
+  }
   //--------------------------------------------------------------------------------
 
 }

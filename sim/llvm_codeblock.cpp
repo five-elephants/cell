@@ -14,6 +14,13 @@ namespace sim {
   void
   Llvm_codeblock::scan_ast(ir::Namespace& enclosing_ns,
       ast::Node_if const& tree) {
+
+  }
+
+  void
+  Llvm_codeblock::append_predefined_objects(
+      std::map<ir::Label, std::shared_ptr<ir::Object>> m) {
+    m_predefined_objects.insert(m.begin(), m.end());
   }
 
 }

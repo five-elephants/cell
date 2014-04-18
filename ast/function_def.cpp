@@ -13,29 +13,29 @@ namespace ast {
 		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(default_return_type) {
-        register_branches({&m_identifier, &default_return_type});
-        register_branch_lists({&m_parameters, &m_body});
+        register_branches({&m_identifier, &default_return_type, m_body});
+        register_branch_lists({&m_parameters});
 	}
 
 	Function_def::Function_def(Node_if& identifier, Node_if& return_type)
 		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(return_type) {
-        register_branches({&identifier, &return_type});
-        register_branch_lists({&m_parameters, &m_body});
+        register_branches({&identifier, &return_type, m_body});
+        register_branch_lists({&m_parameters});
 	}
 
 	void
 	Function_def::visit() {
-		get_generator().function_begin(*this);
-        gen::join_nodes_comma(begin(m_parameters), end(m_parameters), get_generator());
+		//get_generator().function_begin(*this);
+        //gen::join_nodes_comma(begin(m_parameters), end(m_parameters), get_generator());
 
-		get_generator().function_body(*this);
-        gen::join_nodes_line(begin(m_body), end(m_body), get_generator());
-		//for(auto i=begin(m_body); i!=end(m_body); ++i)
-			//(*i)->visit();
+		//get_generator().function_body(*this);
+        //gen::join_nodes_line(begin(m_body), end(m_body), get_generator());
+		////for(auto i=begin(m_body); i!=end(m_body); ++i)
+			////(*i)->visit();
 
-		get_generator().function_end(*this);
+		//get_generator().function_end(*this);
 	}
 
 	void
@@ -51,12 +51,7 @@ namespace ast {
 	
 	void
 	Function_def::append_body(Node_if& node) {
-		m_body.push_back(&node);
-	}
-
-	void
-	Function_def::append_body(std::vector<Node_if*> const& nodes) {
-		std::copy(begin(nodes), end(nodes), std::back_inserter(m_body));
+		m_body = &node;
 	}
 
 }

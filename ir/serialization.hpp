@@ -40,6 +40,7 @@ namespace boost {
     void serialize(Archive& ar, ir::Function& func, unsigned int const version) {
       ar & BOOST_SERIALIZATION_NVP(func.return_type);
       ar & BOOST_SERIALIZATION_NVP(func.name);
+      ar & BOOST_SERIALIZATION_NVP(func.parameters);
     }
 
     template<typename Archive>

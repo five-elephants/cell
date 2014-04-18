@@ -16,19 +16,20 @@ namespace ast {
       void append_parameter(Node_if& node);
       void append_parameter(std::vector<Node_if*> const& nodes);
       void append_body(Node_if& node);
-      void append_body(std::vector<Node_if*> const& nodes);
 
       Node_if& identifier() { return m_identifier; }
       Node_if const& identifier() const { return m_identifier; }
       Node_if& return_type() { return m_return_type; }
       Node_if const& return_type() const { return m_return_type; }
       void return_type(Node_if& t) { m_return_type = t; }
+      Node_if const& body() const { return *m_body; }
+      std::vector<Node_if*> const& parameters() const { return m_parameters; };
 
     private:
       Node_if& m_identifier;
       Node_if& m_return_type;
       std::vector<Node_if*> m_parameters;
-      std::vector<Node_if*> m_body;
+      Node_if* m_body = nullptr;
   };
 
 }

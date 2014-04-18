@@ -36,8 +36,9 @@ namespace ir {
   };
 
   struct Function {
-    std::shared_ptr<Type> return_type;
     Label name;
+    std::shared_ptr<Type> return_type;
+    std::map<Label, std::shared_ptr<Object>> parameters;
     std::shared_ptr<Codeblock_if> code;
   };
 

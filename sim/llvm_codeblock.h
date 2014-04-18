@@ -17,10 +17,13 @@ namespace sim {
       virtual void scan_ast(ir::Namespace& enclosing_ns,
           ast::Node_if const& tree);
 
+      virtual void append_predefined_objects(std::map<ir::Label, std::shared_ptr<ir::Object>> objects);
+
     private:
       llvm::LLVMContext& m_context;
       llvm::IRBuilder<>& m_builder;
       std::shared_ptr<llvm::Module> m_module;
+      std::map<ir::Label, std::shared_ptr<ir::Object>> m_predefined_objects;
   };
 
 }

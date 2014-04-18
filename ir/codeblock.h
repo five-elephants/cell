@@ -7,8 +7,15 @@ namespace ir {
 
   class Codeblock_if {
     public:
+      /** Process the AST to generate the code for this codeblock.
+       *
+       * @param enclosing_ns used for resolution of types and functions.
+       * */
       virtual void scan_ast(Namespace& enclosing_ns, 
           ast::Node_if const& tree) = 0;
+
+      /** Append to the list of predefined objects accessible in the codeblock */
+      virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects) = 0;
   };
 
 
@@ -23,6 +30,7 @@ namespace ir {
       virtual void scan_ast(Namespace& enclosing_ns,
           ast::Node_if const& tree);
 
+      virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects);
   };
 
 }
