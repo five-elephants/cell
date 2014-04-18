@@ -21,5 +21,9 @@ namespace sim {
     return rv;
   }
 
+  void
+  Llvm_codegen::emit() {
+    m_module->dump();
+  }
 }
 

@@ -10,6 +10,7 @@ namespace sim {
     Llvm_codegen codegen;
 
     scan_ast(rv, ast_root, codegen);
+    codegen.emit();
     return rv;
   }
 

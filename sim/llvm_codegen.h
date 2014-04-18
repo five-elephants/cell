@@ -14,6 +14,7 @@ namespace sim {
       Llvm_codegen();
 
       virtual std::shared_ptr<ir::Codeblock_if> make_codeblock();
+      virtual void emit();
 
     private:
       llvm::LLVMContext& m_context;

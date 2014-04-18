@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ast/node_if.h"
+
 namespace ast {
 
   class Visitor_if {

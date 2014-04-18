@@ -69,6 +69,7 @@ def build(bld):
     sim_src = """
       sim/llvm_codegen.cpp
       sim/llvm_codeblock.cpp
+      sim/codegen_visitor.cpp
       sim/compile.cpp
     """
 

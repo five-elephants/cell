@@ -8,7 +8,11 @@
 
 namespace sim {
 
+  class Codegen_visitor;
+
   class Llvm_codeblock : public ir::Codeblock_base {
+    friend class Codegen_visitor;
+
     public:
       Llvm_codeblock(llvm::LLVMContext& context,
           llvm::IRBuilder<>& builder,

@@ -8,6 +8,7 @@ namespace ir {
   class Codegen_if {
     public:
       virtual std::shared_ptr<Codeblock_if> make_codeblock() = 0;
+      virtual void emit() = 0;
   };
 
   class Codegen_base : public Codegen_if {
@@ -21,6 +22,7 @@ namespace ir {
       Null_codegen();
 
       virtual std::shared_ptr<Codeblock_if> make_codeblock();
+      virtual void emit();
   };
 }
 

@@ -1,5 +1,7 @@
 #include "sim/llvm_codeblock.h"
 
+#include "sim/codegen_visitor.h"
+
 namespace sim {
 
   Llvm_codeblock::Llvm_codeblock(llvm::LLVMContext& context,
@@ -14,7 +16,9 @@ namespace sim {
   void
   Llvm_codeblock::scan_ast(ir::Namespace& enclosing_ns,
       ast::Node_if const& tree) {
+    Codegen_visitor visitor(enclosing_ns, *this);
 
+    tree.accept(visitor);
   }
 
   void
