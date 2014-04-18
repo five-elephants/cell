@@ -18,6 +18,14 @@ def configure(conf):
     conf.check(lib='gtest', uselib_store='GTEST')
     conf.check(lib='gtest_main', uselib_store='GTEST_MAIN')
     conf.check(header_name='gtest/gtest.h')
+    conf.check_cfg(
+      path='llvm-config',
+      args='--cppflags --includedir --ldflags --libs',
+      package='',
+      uselib_store='LLVM'
+    )
+    print conf.env.LIB_LLVM
+    print conf.env.INCLUDES_LLVM
 
 def build(bld):
     #gen/gen_text.cpp
@@ -86,7 +94,7 @@ def build(bld):
       target = 'sim',
       includes = '.',
       cxxflags = '-fPIC -std=c++11 -ggdb',
-      use = 'BOOST'
+      use = 'BOOST LLVM'
     )
 
     bld.program(
@@ -102,7 +110,7 @@ def build(bld):
       target = 'compiler',
       includes = '.',
       cxxflags = '-std=c++11 -ggdb',
-      use = 'core sim'
+      use = 'core sim LLVM'
     )
 
     bindings_lib = bld(
