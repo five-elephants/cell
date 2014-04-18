@@ -4,10 +4,13 @@
 #include "gen/generator_if.h"
 #include "gen/gen_m4.h"
 #include <iostream>
+#include <sstream>
 
 namespace ast {
 
-	gen::M4_generator _default_generator(std::cout);
+  static std::stringstream nullstrm;
+
+	gen::M4_generator _default_generator(nullstrm);
 	gen::Generator_if& Node_base::default_generator = _default_generator;
 
 

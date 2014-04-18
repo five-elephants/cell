@@ -12,7 +12,7 @@
 namespace ir {
 
   //--------------------------------------------------------------------------------
-  void scan_ast(Socket& socket, ast::Node_if const& tree) {
+  void scan_ast(Socket& socket, ast::Node_if const& tree, Codegen_if& codegen) {
     auto port_nodes = ast::find_by_type<ast::Socket_item>(tree);
     
     for(auto i : port_nodes) {
@@ -56,13 +56,13 @@ namespace ir {
     }
   }
   //--------------------------------------------------------------------------------
-  void scan_ast(Module& mod, ast::Node_if const& tree) {
-    Module_scanner scanner(mod);
+  void scan_ast(Module& mod, ast::Node_if const& tree, Codegen_if& codegen) {
+    Module_scanner scanner(mod, codegen);
     tree.accept(scanner);
   }
   //--------------------------------------------------------------------------------
-  void scan_ast(Namespace& ns, ast::Node_if const& tree) {
-    Namespace_scanner scanner(ns);
+  void scan_ast(Namespace& ns, ast::Node_if const& tree, Codegen_if& codegen) {
+    Namespace_scanner scanner(ns, codegen);
     tree.accept(scanner);
   }
   //--------------------------------------------------------------------------------

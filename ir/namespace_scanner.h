@@ -3,6 +3,7 @@
 #include "ast/ast.h"
 #include "ast/visitor.h"
 #include "ir/namespace.h"
+#include "ir/codegen.h"
 
 //#include <iostream>
 
@@ -10,8 +11,9 @@ namespace ir {
 
   class Namespace_scanner : public ast::Visitor_base {
     public:
-      Namespace_scanner(Namespace& ns) 
+      Namespace_scanner(Namespace& ns, Codegen_if& codegen) 
         : m_ns(ns),
+          m_codegen(codegen),
           m_root(true) {
       }
 
@@ -21,6 +23,7 @@ namespace ir {
     protected:
       bool m_root;
       Namespace& m_ns;
+      Codegen_if& m_codegen;
 
       std::shared_ptr<Module> insert_module(ast::Module_def const& mod);
       std::shared_ptr<Namespace> insert_namespace(ast::Namespace_def const& ns);

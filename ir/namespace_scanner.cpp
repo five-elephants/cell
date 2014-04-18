@@ -51,7 +51,7 @@ namespace ir {
       throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
 
     m->enclosing_ns = &m_ns;
-    scan_ast(*m, mod);
+    scan_ast(*m, mod, m_codegen);
     m_ns.modules[m->name] = m;
 
     return m;
@@ -65,7 +65,7 @@ namespace ir {
       throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
     n->enclosing_ns = &m_ns;
-    scan_ast(*n, ns);
+    scan_ast(*n, ns, m_codegen);
     m_ns.namespaces[n->name] = n;
 
     return n;
@@ -81,7 +81,7 @@ namespace ir {
       throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
 
     s->enclosing_ns = &m_ns;
-    scan_ast(*s, sock);
+    scan_ast(*s, sock, m_codegen);
     m_ns.sockets[s->name] = s;
     m_ns.types[s->name] = s;
 
@@ -103,6 +103,12 @@ namespace ir {
       strm << ": return type '" << type_name << "' not found.";
       throw std::runtime_error(strm.str());
     }
+
+    // generate code for function body
+    auto cb = m_codegen.make_codeblock();
+    cb->scan_ast(m_ns, node);
+    func->code = cb;
+
     m_ns.functions[func->name] = func;
 
     return func;

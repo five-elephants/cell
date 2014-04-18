@@ -6,8 +6,8 @@ namespace ir {
 
   class Module_scanner : public Namespace_scanner {
     public:
-      Module_scanner(Module& mod)
-        : Namespace_scanner(mod),
+      Module_scanner(Module& mod, Codegen_if& codegen)
+        : Namespace_scanner(mod, codegen),
           m_mod(mod) {
       }
 

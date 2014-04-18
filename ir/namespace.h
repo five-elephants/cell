@@ -11,6 +11,7 @@ namespace ir {
   struct Module;
   struct Namespace;
   struct Port;
+  class Codeblock_if;
 
   typedef std::string Label;
 
@@ -37,6 +38,7 @@ namespace ir {
   struct Function {
     std::shared_ptr<Type> return_type;
     Label name;
+    std::shared_ptr<Codeblock_if> code;
   };
 
   enum class Direction {

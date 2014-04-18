@@ -237,7 +237,7 @@ var_def: "var" identifier "=" exp ":" identifier
   | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; $$->location(@$);}
 
 process: "process" "=" statement { $$ = new ast::Process(*$3); };
-periodic: "periodic" "(" identifier identifier ")" "=" statement
+periodic: "periodic" "(" exp identifier ")" "=" statement
                                  { auto v = new ast::Periodic(*$3, *$4, *$7); $$ = v; };
 
 statements: statements statement { $$ = $1; $1->push_back($2); }

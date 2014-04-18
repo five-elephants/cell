@@ -54,6 +54,14 @@ def build(bld):
       ir/namespace_scanner.cpp
       ir/module_scanner.cpp
       ir/scan_ast.cpp
+      ir/codegen.cpp
+      ir/codeblock.cpp
+    """
+
+    sim_src = """
+      sim/llvm_codegen.cpp
+      sim/llvm_codeblock.cpp
+      sim/compile.cpp
     """
 
     bindings_src = """
@@ -73,12 +81,28 @@ def build(bld):
       use = 'BOOST',
     )
 
+    bld.objects(
+      source = sim_src,
+      target = 'sim',
+      includes = '.',
+      cxxflags = '-fPIC -std=c++11 -ggdb',
+      use = 'BOOST'
+    )
+
     bld.program(
         source = 'frontend.cpp ',
         target = 'frontend',
         includes = '.',
         cxxflags = '-std=c++11 -ggdb',
         use = 'core',
+    )
+
+    bld.program(
+      source = 'sim/compiler.cpp',
+      target = 'compiler',
+      includes = '.',
+      cxxflags = '-std=c++11 -ggdb',
+      use = 'core sim'
     )
 
     bindings_lib = bld(
