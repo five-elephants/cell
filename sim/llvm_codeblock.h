@@ -28,6 +28,10 @@ namespace sim {
       llvm::IRBuilder<>& m_builder;
       std::shared_ptr<llvm::Module> m_module;
       std::map<ir::Label, std::shared_ptr<ir::Object>> m_predefined_objects;
+
+      llvm::FunctionType* m_function_type;
+      llvm::Function* m_function;
+      llvm::BasicBlock* m_bb;
   };
 
 }

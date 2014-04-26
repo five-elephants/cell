@@ -1,16 +1,17 @@
 #pragma once
 
-#include "ast/node_base.h"
+#include "ast/tree_base.h"
 #include "gen/generator_if.h"
 
 namespace ast {
 
-	class Binary : public Node_base {
+	class Binary : public Tree_base {
 		public:
 			Binary(Node_if& left, Node_if& right)
-		 		:	Node_base(),
+		 		:	Tree_base(),
 					m_left(left),
 					m_right(right) {
+				register_branches({&m_left, &m_right});
 			}
 
 			virtual void set_generator(gen::Generator_if& g) {

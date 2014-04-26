@@ -10,6 +10,9 @@ namespace ast {
      
       virtual void visit() {};
       
+      Node_if const& identifier() const { return m_identifier; }
+      Node_if const& expression() const { return m_expression; }
+
     private:
       Node_if& m_identifier;
       Node_if& m_expression;

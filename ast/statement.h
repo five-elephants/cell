@@ -23,10 +23,22 @@ namespace ast {
 				get_generator().generic_statement(m_macro_name, m_objs);
 			}
 
+
+			std::vector<Node_if*> const& objects() const { return m_objs; }
+
 		protected:
 			std::string m_macro_name;
 			std::vector<Node_if*> m_objs;
 	};
+
+
+	class Return_statement : public Statement {
+		public:
+			Return_statement(std::initializer_list<Node_if*> objs)
+				:	Statement("return_statement", objs) {
+			}
+	};
+
 
 }
 

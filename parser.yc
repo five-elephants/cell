@@ -262,7 +262,7 @@ func_call: identifier PAREN_OPEN exp_list PAREN_CLOSE
                                  { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; }
   | identifier PAREN_OPEN PAREN_CLOSE
                                  { auto v = new ast::Function_call(*$1); $$ = v; };
-return_statement: "return" exp   { auto v = new ast::Statement("return_statement", {$2}); $$ = v; };
+return_statement: "return" exp   { auto v = new ast::Return_statement({$2}); $$ = v; };
 
 assignment: identifier "=" exp
                                  { auto v = new ast::Assignment(*$1, *$3); $$ = v; };
