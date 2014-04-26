@@ -87,8 +87,9 @@ namespace sim {
 
 
   VISITOR_METHOD(compound_enter) {
-    auto bb = BasicBlock::Create(m_codeblock.m_context, "compound", m_codeblock.m_function);
-    m_codeblock.m_builder.SetInsertPoint(bb);
+    //auto bb = BasicBlock::Create(m_codeblock.m_context, "compound", m_codeblock.m_function);
+    //m_codeblock.m_builder.SetInsertPoint(bb);
+    //m_values[&node] = bb;
     return true;
   }
 
@@ -98,8 +99,7 @@ namespace sim {
     std::cout << "compound leave"
       << " searching value for " << std::hex << c.statements().back() << std::dec
       << std::endl;
-    Value* v = m_values.at(c.statements().back());
-    m_values[&node] = v;
+    m_values[&node] = m_values.at(c.statements().back());
     return true;
   }
 

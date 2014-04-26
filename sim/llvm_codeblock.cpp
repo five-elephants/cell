@@ -19,6 +19,8 @@ namespace sim {
         Function::ExternalLinkage,
         "",
         m_module.get());
+    m_bb = BasicBlock::Create(m_context, "entry", m_function);
+    m_builder.SetInsertPoint(m_bb);
   }
 
   void
