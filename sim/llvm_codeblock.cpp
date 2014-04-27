@@ -38,8 +38,8 @@ namespace sim {
       for( ; 
           (i != m_function->arg_end()) && (j != m_prototype->parameters.end()); 
           ++i, ++j) {
-        i->setName(j->first);
-        visitor.add_named_value(j->first, i);
+        i->setName((*j)->name);
+        visitor.add_named_value((*j)->name, i);
       }
     }
 
@@ -63,7 +63,7 @@ namespace sim {
 
     std::vector<Type*> arg_types;
     for(auto p : func->parameters) {
-      arg_types.push_back(get_type(p.second->type->name));
+      arg_types.push_back(get_type(p->type->name));
     }
     m_function_type = FunctionType::get(m_codegen.get_type(func->return_type),
         arg_types,

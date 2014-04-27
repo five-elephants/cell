@@ -118,10 +118,14 @@ namespace ir {
       auto p = dynamic_cast<ast::Function_param*>(p_node);
       auto p_ir = std::make_shared<Object>();
       p_ir->name = dynamic_cast<ast::Identifier const&>(p->identifier()).identifier();
-      if( func->parameters.count(p_ir->name) > 0 )
+      //if( func->parameters.count(p_ir->name) > 0 )
+      if( std::any_of(func->parameters.begin(),
+            func->parameters.end(),
+            [p_ir](std::shared_ptr<Object> const& i) { return i->name == p_ir->name; }) ) {
         throw std::runtime_error(std::string("Parameter with name ")
             + p_ir->name
             + std::string(" already defined"));
+      }
 
       auto type_name = dynamic_cast<ast::Identifier const&>(p->type()).identifier();
       p_ir->type = find_type(m_ns, type_name);
@@ -132,7 +136,8 @@ namespace ir {
         throw std::runtime_error(strm.str());
       }
 
-      func->parameters[p_ir->name] = p_ir;
+      //func->parameters[p_ir->name] = p_ir;
+      func->parameters.push_back(p_ir);
     }
 
     // generate code for function body
