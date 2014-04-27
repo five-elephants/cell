@@ -32,6 +32,8 @@ namespace sim {
 
       llvm::Type* get_type(std::shared_ptr<ir::Type> type) const; 
 
+      std::shared_ptr<llvm::Module> module() { return m_module; }
+
     private:
       llvm::LLVMContext& m_context;
       llvm::IRBuilder<> m_builder;

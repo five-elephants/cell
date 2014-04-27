@@ -20,7 +20,7 @@ def configure(conf):
     conf.check(header_name='gtest/gtest.h')
     conf.check_cfg(
       path='llvm-config',
-      args='--cppflags --includedir --ldflags --libs',
+      args='--cppflags --includedir --ldflags --libs core jit native',
       package='',
       uselib_store='LLVM'
     )
@@ -109,6 +109,14 @@ def build(bld):
     bld.program(
       source = 'sim/compiler.cpp',
       target = 'compiler',
+      includes = '.',
+      cxxflags = '-std=c++11 -ggdb',
+      use = 'core sim LLVM'
+    )
+
+    bld.program(
+      source = 'sim/simulator.cpp',
+      target = 'simulator',
       includes = '.',
       cxxflags = '-std=c++11 -ggdb',
       use = 'core sim LLVM'

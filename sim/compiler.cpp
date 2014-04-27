@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
       if( driver.parse(fn) )
         throw std::runtime_error("parse failed");
 
-      auto topns = sim::compile(driver.ast_root());
+      auto compiled = sim::compile(driver.ast_root());
     }
 
 
