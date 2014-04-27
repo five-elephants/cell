@@ -6,7 +6,7 @@ namespace ir {
   }
 
   void
-  Null_codeblock::scan_ast(Namespace& enclosing_ns, ast::Node_if const& tree) {
+  Null_codeblock::scan_ast(ast::Node_if const& tree) {
   }
 
   void

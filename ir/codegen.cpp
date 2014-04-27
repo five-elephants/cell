@@ -13,7 +13,7 @@ namespace ir {
   }
 
   std::shared_ptr<Codeblock_if>
-  Null_codegen::make_codeblock() {
+  Null_codegen::make_codeblock(Namespace const& ns) {
     return std::shared_ptr<Codeblock_if>(new Null_codeblock());
   }
 

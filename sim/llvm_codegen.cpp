@@ -1,6 +1,7 @@
 #include "llvm_codegen.h"
 
 #include "llvm_codeblock.h"
+#include "ir/builtins.h"
 
 #include <memory>
 
@@ -14,10 +15,12 @@ namespace sim {
   }
 
   std::shared_ptr<ir::Codeblock_if>
-  Llvm_codegen::make_codeblock() {
-    auto rv = std::make_shared<Llvm_codeblock>(m_context,
+  Llvm_codegen::make_codeblock(ir::Namespace const& ns) {
+    auto rv = std::make_shared<Llvm_codeblock>(*this,
+          m_context,
           m_builder,
-          m_module);
+          m_module,
+          ns);
     return rv;
   }
 
@@ -25,5 +28,7 @@ namespace sim {
   Llvm_codegen::emit() {
     m_module->dump();
   }
+
+
 }
 

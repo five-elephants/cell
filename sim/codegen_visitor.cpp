@@ -152,8 +152,14 @@ namespace sim {
   VISITOR_METHOD(literal_int) {
     std::cout << "make literal_int" << std::endl;
     auto lit = dynamic_cast<ast::Literal<int> const&>(node);
-    llvm::Value* v = llvm::ConstantInt::get(m_codeblock.m_context,
-        llvm::APInt(64, lit.value(), true));
+    Value* v = m_codeblock.make_constant("int", lit.value());
+    if( !v ) {
+      std::stringstream strm;
+      strm << node.location() << ": use of unknown type 'int'";
+      throw std::runtime_error(strm.str());
+    }
+    //llvm::Value* v = llvm::ConstantInt::get(m_codeblock.m_context,
+        //llvm::APInt(64, lit.value(), true));
     m_values[&node] = v;
     //m_codeblock.m_builder.Insert(v);
     return true;

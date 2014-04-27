@@ -11,8 +11,7 @@ namespace ir {
        *
        * @param enclosing_ns used for resolution of types and functions.
        * */
-      virtual void scan_ast(Namespace& enclosing_ns, 
-          ast::Node_if const& tree) = 0;
+      virtual void scan_ast(ast::Node_if const& tree) = 0;
 
       /** Append to the list of predefined objects accessible in the codeblock */
       virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects) = 0;
@@ -27,8 +26,7 @@ namespace ir {
 
   class Null_codeblock : public Codeblock_base {
     public:
-      virtual void scan_ast(Namespace& enclosing_ns,
-          ast::Node_if const& tree);
+      virtual void scan_ast(ast::Node_if const& tree);
 
       virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects);
   };
