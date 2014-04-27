@@ -19,18 +19,33 @@ namespace sim {
       m_enclosing_ns(ns) {
     // create anonymous function and set builder insertion point
     m_function_type = FunctionType::get(Type::getVoidTy(m_context), false);
-    m_function = Function::Create(m_function_type,
-        Function::ExternalLinkage,
-        "",
-        m_module.get());
-    m_bb = BasicBlock::Create(m_context, "entry", m_function);
-    m_builder.SetInsertPoint(m_bb);
   }
 
 
   void
   Llvm_codeblock::scan_ast(ast::Node_if const& tree) {
     Codegen_visitor visitor(m_enclosing_ns, *this);
+
+    m_function = Function::Create(m_function_type,
+        Function::ExternalLinkage,
+        m_function_name,
+        m_module.get());
+
+    if( m_prototype ) {
+      // this is a function declaration, so add argument names 
+      auto i = m_function->arg_begin();
+      auto j = m_prototype->parameters.begin();
+      for( ; 
+          (i != m_function->arg_end()) && (j != m_prototype->parameters.end()); 
+          ++i, ++j) {
+        i->setName(j->first);
+        visitor.add_named_value(j->first, i);
+      }
+    }
+
+    m_bb = BasicBlock::Create(m_context, "entry", m_function);
+    m_builder.SetInsertPoint(m_bb);
+
     tree.accept(visitor);
   }
 
@@ -42,5 +57,18 @@ namespace sim {
   }
 
 
+  void
+  Llvm_codeblock::prototype(std::shared_ptr<ir::Function> func) {
+    m_prototype = func;
+
+    std::vector<Type*> arg_types;
+    for(auto p : func->parameters) {
+      arg_types.push_back(get_type(p.second->type->name));
+    }
+    m_function_type = FunctionType::get(m_codegen.get_type(func->return_type),
+        arg_types,
+        false);
+    m_function_name = func->name;
+  }
 
 }

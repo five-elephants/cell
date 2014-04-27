@@ -27,6 +27,11 @@ namespace sim {
       virtual bool literal_int(ast::Node_if const& node);
       virtual bool identifier(ast::Node_if const& node);
 
+      void add_named_value(std::string const& name, llvm::Value* value) {
+        m_named_values[name] = value;
+      }
+            
+
     private:
       typedef std::unordered_map<std::type_info const*,
           std::function<bool(Codegen_visitor&, ast::Node_if const& node)>> Node_type_map;
@@ -47,3 +52,5 @@ namespace sim {
   };
 
 }
+
+/* vim: set et fenc=utf-8 ff=unix sts=0 sw=2 ts=2 : */

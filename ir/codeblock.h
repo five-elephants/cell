@@ -15,6 +15,9 @@ namespace ir {
 
       /** Append to the list of predefined objects accessible in the codeblock */
       virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects) = 0;
+
+      /** Give this codeblock a function prototype */
+      virtual void prototype(std::shared_ptr<Function> func) = 0;
   };
 
 
@@ -29,6 +32,8 @@ namespace ir {
       virtual void scan_ast(ast::Node_if const& tree);
 
       virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects);
+
+      virtual void prototype(std::shared_ptr<Function> func);
   };
 
 }

@@ -109,8 +109,7 @@ namespace sim {
     auto id = dynamic_cast<ast::Identifier const&>(def.identifier());
     auto type_id = dynamic_cast<ast::Identifier const&>(def.type());
 
-    Value* v = ConstantInt::get(m_codeblock.m_context,
-       APInt(64, 0, true)); 
+    Value* v = m_codeblock.make_constant(type_id.identifier(), 0);
     m_values[&node] = m_named_values[id.identifier()] = v;
 
     return false;
@@ -158,10 +157,7 @@ namespace sim {
       strm << node.location() << ": use of unknown type 'int'";
       throw std::runtime_error(strm.str());
     }
-    //llvm::Value* v = llvm::ConstantInt::get(m_codeblock.m_context,
-        //llvm::APInt(64, lit.value(), true));
     m_values[&node] = v;
-    //m_codeblock.m_builder.Insert(v);
     return true;
   }
 

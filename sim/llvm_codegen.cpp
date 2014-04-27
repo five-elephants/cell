@@ -30,5 +30,15 @@ namespace sim {
   }
 
 
+  llvm::Type*
+  Llvm_codegen::get_type(std::shared_ptr<ir::Type> type) const {
+    if( type == ir::Builtins::types["int"] )
+      return llvm::Type::getInt64Ty(m_context);
+    else if( type == ir::Builtins::types["void"] )
+      return llvm::Type::getVoidTy(m_context);
+
+    return nullptr;
+  }
+
 }
 

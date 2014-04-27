@@ -26,6 +26,7 @@ namespace sim {
 
       virtual void append_predefined_objects(std::map<ir::Label, std::shared_ptr<ir::Object>> objects);
 
+      virtual void prototype(std::shared_ptr<ir::Function> func);
 
     private:
       Llvm_codegen const& m_codegen;
@@ -35,6 +36,8 @@ namespace sim {
       std::shared_ptr<llvm::Module> m_module;
       std::map<ir::Label, std::shared_ptr<ir::Object>> m_predefined_objects;
 
+      ir::Label m_function_name;
+      std::shared_ptr<ir::Function> m_prototype;
       llvm::FunctionType* m_function_type;
       llvm::Function* m_function;
       llvm::BasicBlock* m_bb;
@@ -47,6 +50,14 @@ namespace sim {
         }
 
         return m_codegen.make_constant(the_type, value);
+      }
+
+      llvm::Type* get_type(ir::Label const& type_name) const {
+        auto the_type = ir::find_type(m_enclosing_ns, type_name);
+        if( !the_type )
+          return nullptr;
+
+        return m_codegen.get_type(the_type);
       }
   };
 

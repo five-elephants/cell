@@ -137,7 +137,8 @@ namespace ir {
 
     // generate code for function body
     auto cb = m_codegen.make_codeblock(m_ns);
-    cb->append_predefined_objects(func->parameters);
+    //cb->append_predefined_objects(func->parameters);
+    cb->prototype(func);
     cb->scan_ast(node.body());
     func->code = cb;
 

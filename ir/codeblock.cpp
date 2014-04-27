@@ -13,5 +13,9 @@ namespace ir {
   Null_codeblock::append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects) {
   }
 
+  void
+  Null_codeblock::prototype(std::shared_ptr<Function> func) {
+  }
+
 }
 
