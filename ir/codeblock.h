@@ -18,6 +18,9 @@ namespace ir {
 
       /** Give this codeblock a function prototype */
       virtual void prototype(std::shared_ptr<Function> func) = 0;
+
+      /** This codeblock lives in a module */
+      virtual void enclosing_module(std::shared_ptr<Module> mod) = 0;
   };
 
 
@@ -34,6 +37,7 @@ namespace ir {
       virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects);
 
       virtual void prototype(std::shared_ptr<Function> func);
+      virtual void enclosing_module(std::shared_ptr<Module> mod);
   };
 
 }

@@ -169,9 +169,14 @@ namespace sim {
       Value* v = m_named_values.at(id.identifier());
       m_values[&node] = v;
     } else {
-      std::stringstream strm;
-      strm << node.location() << ": named value '" << id.identifier() << "' not found";
-      throw std::runtime_error(strm.str());
+      Value* v = m_codeblock.get_global(id.identifier());
+      if( v == nullptr ) {
+        std::stringstream strm;
+        strm << node.location() << ": named value '" << id.identifier() << "' not found";
+        throw std::runtime_error(strm.str());
+      }
+
+      m_values[&node] = v;
     }
 
     return true;

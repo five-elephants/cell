@@ -8,6 +8,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
 #include <memory>
+#include <unordered_map>
 
 namespace sim {
 
@@ -16,12 +17,8 @@ namespace sim {
       Llvm_codegen();
 
       virtual std::shared_ptr<ir::Codeblock_if> make_codeblock(ir::Namespace const& ns);
+      virtual void register_variable(std::shared_ptr<ir::Object> obj);
       virtual void emit();
-
-      //template<typename T>
-      //llvm::Value* make_constant(std::shared_ptr<ir::Type> type, T const& value) {
-        //return nullptr;
-      //}
 
       llvm::Value* make_constant(std::shared_ptr<ir::Type> type, int const& value) const {
         if(type == ir::Builtins::types["int"]) 
@@ -31,13 +28,21 @@ namespace sim {
       }
 
       llvm::Type* get_type(std::shared_ptr<ir::Type> type) const; 
+      llvm::Value* get_global(std::shared_ptr<ir::Object> object) const;
 
       std::shared_ptr<llvm::Module> module() { return m_module; }
 
     private:
+      //typedef std::unordered_map< std::shared_ptr<ir::Object>,
+              //std::shared_ptr<llvm::GlobalVariable> > Variable_map;
+      typedef std::unordered_map< std::shared_ptr<ir::Object>,
+              llvm::GlobalVariable* > Variable_map;
+
       llvm::LLVMContext& m_context;
       llvm::IRBuilder<> m_builder;
       std::shared_ptr<llvm::Module> m_module;
+      Variable_map m_globals;
+
   };
 
 }

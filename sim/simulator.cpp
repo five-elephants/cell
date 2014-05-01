@@ -19,14 +19,15 @@ void simulate(std::shared_ptr<llvm::Module> topmod, ir::Label const& top_name) {
 
   cout << "starting simulation..." << endl;
   
-  auto initial = topmod->getFunction("initial");
+  auto initial = topmod->getFunction("__init__");
   if( !initial ) {
-    throw std::runtime_error("failed to find function initial");
+    throw std::runtime_error("failed to find function __init__()");
   }
 
   void* ptr = exe->getPointerToFunction(initial);
-  int (*func)() = (int (*)())(ptr);
-  cout << "initial: " << func() << endl;
+  void(*func)() = (void(*)())(ptr);
+  func();
+  //cout << "__init__: " << func() << endl;
 }
 
 int main(int argc, char* argv[]) {

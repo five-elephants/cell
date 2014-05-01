@@ -23,14 +23,14 @@ namespace sim {
           ir::Namespace const& enclosing_ns);
 
       virtual void scan_ast(ast::Node_if const& tree);
-
       virtual void append_predefined_objects(std::map<ir::Label, std::shared_ptr<ir::Object>> objects);
-
       virtual void prototype(std::shared_ptr<ir::Function> func);
+      virtual void enclosing_module(std::shared_ptr<ir::Module> mod);
 
     private:
       Llvm_codegen const& m_codegen;
       ir::Namespace const& m_enclosing_ns;
+      std::shared_ptr<ir::Module> m_enclosing_mod;
       llvm::LLVMContext& m_context;
       llvm::IRBuilder<>& m_builder;
       std::shared_ptr<llvm::Module> m_module;
@@ -58,6 +58,18 @@ namespace sim {
           return nullptr;
 
         return m_codegen.get_type(the_type);
+      }
+
+      llvm::Value* get_global(ir::Label const& name) const {
+        if( m_enclosing_mod ) {
+          auto the_object = ir::find_object(*m_enclosing_mod, name);
+          if( !the_object )
+            return nullptr;
+
+          return m_codegen.get_global(the_object);
+        }
+
+        return nullptr;
       }
   };
 

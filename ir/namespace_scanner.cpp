@@ -141,8 +141,7 @@ namespace ir {
     }
 
     // generate code for function body
-    auto cb = m_codegen.make_codeblock(m_ns);
-    //cb->append_predefined_objects(func->parameters);
+    auto cb = make_codeblock();
     cb->prototype(func);
     cb->scan_ast(node.body());
     func->code = cb;
@@ -151,6 +150,11 @@ namespace ir {
 
     return func;
   }
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Codeblock_if>
+  Namespace_scanner::make_codeblock() {
+    return m_codegen.make_codeblock(m_ns);
+  } 
   //--------------------------------------------------------------------------------
 
 }

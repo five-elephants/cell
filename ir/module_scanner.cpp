@@ -41,7 +41,10 @@ namespace ir {
       return true;
     }
 
-    if( !Namespace_scanner::enter(node) ) {
+    /*if( typeid(node) == typeid(ast::Function_def const&) ) {
+      insert_function(dynamic_cast<ast::Function_def const&>(node));
+      return false;
+    } else*/ if( !Namespace_scanner::enter(node) ) {
       return false;
     } else if( typeid(node) == typeid(ast::Variable_def) ) {
       insert_object(dynamic_cast<ast::Variable_def const&>(node));
@@ -179,12 +182,15 @@ namespace ir {
   std::shared_ptr<Object>
   Module_scanner::insert_object(ast::Variable_def const& node) {
     std::shared_ptr<Object> obj(new Object);
+
+    // get name
     obj->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
     if( m_mod.objects.count(obj->name) > 0 )
       throw std::runtime_error(std::string("Variable with name ")
           + obj->name
           + std::string(" already exists"));
 
+    // get type
     auto type_name = dynamic_cast<ast::Identifier const*>(&(node.type()))->identifier();
     obj->type = find_type(m_mod, type_name);
     if( !obj->type ) {
@@ -195,8 +201,18 @@ namespace ir {
     }
     m_mod.objects[obj->name] = obj;
 
+    // generate code
+    m_codegen.register_variable(obj);
+
     return obj;
   }
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Codeblock_if>
+  Module_scanner::make_codeblock() {
+    auto rv = m_codegen.make_codeblock(m_ns);
+    rv->enclosing_module(std::shared_ptr<Module>(&m_mod));
+    return rv;
+  } 
   //--------------------------------------------------------------------------------
 
 }

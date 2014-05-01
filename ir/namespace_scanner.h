@@ -29,6 +29,8 @@ namespace ir {
       std::shared_ptr<Namespace> insert_namespace(ast::Namespace_def const& ns);
       std::shared_ptr<Socket> insert_socket(ast::Socket_def const& sock);
       std::shared_ptr<Function> insert_function(ast::Function_def const& func);
+
+      virtual std::shared_ptr<Codeblock_if> make_codeblock();
   };
 
 }

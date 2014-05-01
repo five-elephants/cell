@@ -17,5 +17,8 @@ namespace ir {
   Null_codeblock::prototype(std::shared_ptr<Function> func) {
   }
 
+  void
+  Null_codeblock::enclosing_module(std::shared_ptr<Module> mod) {
+  }
 }
 

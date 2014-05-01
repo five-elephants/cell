@@ -17,6 +17,12 @@ namespace ir {
     return std::shared_ptr<Codeblock_if>(new Null_codeblock());
   }
 
+
+  void
+  Null_codegen::register_variable(std::shared_ptr<ir::Object> obj) {
+  }
+
+
   void
   Null_codegen::emit() {
   }

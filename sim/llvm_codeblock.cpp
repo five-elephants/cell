@@ -71,4 +71,8 @@ namespace sim {
     m_function_name = func->name;
   }
 
+  void
+  Llvm_codeblock::enclosing_module(std::shared_ptr<ir::Module> mod) {
+    m_enclosing_mod = mod;
+  }
 }
