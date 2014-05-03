@@ -3,6 +3,9 @@
 #include "llvm_codeblock.h"
 #include "ir/builtins.h"
 
+#include <llvm/Analysis/Passes.h>
+#include <llvm/Analysis/Verifier.h>
+#include <llvm/Transforms/Scalar.h>
 #include <memory>
 #include <iostream>
 
@@ -12,7 +15,15 @@ namespace sim {
     : ir::Codegen_base(),
       m_context(llvm::getGlobalContext()),
       m_builder(llvm::getGlobalContext()),
-      m_module(new llvm::Module("top", llvm::getGlobalContext())) {
+      m_module(new llvm::Module("top", llvm::getGlobalContext())),
+      m_fpm(m_module.get()) {
+    m_fpm.add(llvm::createBasicAliasAnalysisPass());
+    m_fpm.add(llvm::createPromoteMemoryToRegisterPass());
+    m_fpm.add(llvm::createInstructionCombiningPass());
+    m_fpm.add(llvm::createReassociatePass());
+    m_fpm.add(llvm::createGVNPass());
+    m_fpm.add(llvm::createCFGSimplificationPass());
+    m_fpm.doInitialization();
   }
 
 
@@ -69,6 +80,12 @@ namespace sim {
       return it->second;
 
     return nullptr;
+  }
+
+
+  void
+  Llvm_codegen::optimize(llvm::Function* func) {
+    m_fpm.run(*func);
   }
 
 }

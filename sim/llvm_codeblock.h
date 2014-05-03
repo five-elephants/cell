@@ -16,7 +16,7 @@ namespace sim {
     friend class Codegen_visitor;
 
     public:
-      Llvm_codeblock(Llvm_codegen const& parent,
+      Llvm_codeblock(Llvm_codegen& parent,
           llvm::LLVMContext& context,
           llvm::IRBuilder<>& builder,
           std::shared_ptr<llvm::Module> module,
@@ -28,7 +28,7 @@ namespace sim {
       virtual void enclosing_module(std::shared_ptr<ir::Module> mod);
 
     private:
-      Llvm_codegen const& m_codegen;
+      Llvm_codegen& m_codegen;
       ir::Namespace const& m_enclosing_ns;
       std::shared_ptr<ir::Module> m_enclosing_mod;
       llvm::LLVMContext& m_context;

@@ -7,6 +7,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/PassManager.h>
 #include <memory>
 #include <unordered_map>
 
@@ -29,6 +30,7 @@ namespace sim {
 
       llvm::Type* get_type(std::shared_ptr<ir::Type> type) const; 
       llvm::Value* get_global(std::shared_ptr<ir::Object> object) const;
+      void optimize(llvm::Function* func);
 
       std::shared_ptr<llvm::Module> module() { return m_module; }
 
@@ -41,6 +43,7 @@ namespace sim {
       llvm::LLVMContext& m_context;
       llvm::IRBuilder<> m_builder;
       std::shared_ptr<llvm::Module> m_module;
+      llvm::FunctionPassManager m_fpm;
       Variable_map m_globals;
 
   };

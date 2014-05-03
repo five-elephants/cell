@@ -6,7 +6,7 @@ namespace sim {
 
   using namespace llvm;
 
-  Llvm_codeblock::Llvm_codeblock(Llvm_codegen const& parent,
+  Llvm_codeblock::Llvm_codeblock(Llvm_codegen& parent,
         llvm::LLVMContext& context,
         llvm::IRBuilder<>& builder,
         std::shared_ptr<llvm::Module> module,
@@ -56,6 +56,8 @@ namespace sim {
       // TODO not sure if this is enough
       m_builder.CreateRetVoid();
     }
+
+    m_codegen.optimize(m_function);
   }
 
 
