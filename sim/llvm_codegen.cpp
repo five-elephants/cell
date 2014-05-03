@@ -4,6 +4,7 @@
 #include "ir/builtins.h"
 
 #include <memory>
+#include <iostream>
 
 namespace sim {
 
@@ -28,10 +29,12 @@ namespace sim {
 
   void
   Llvm_codegen::register_variable(std::shared_ptr<ir::Object> obj) {
-    auto gv = new llvm::GlobalVariable( get_type(obj->type),
+    auto gv = new llvm::GlobalVariable(*m_module,
+        get_type(obj->type),
         false,
         llvm::GlobalVariable::InternalLinkage,
-        nullptr,
+        //llvm::GlobalVariable::ExternalLinkage,
+        llvm::ConstantInt::get(m_context, llvm::APInt(64, 0, true)),
         obj->name);
     if( !gv )
       throw std::runtime_error("failed to register global variable");
@@ -42,7 +45,9 @@ namespace sim {
 
   void
   Llvm_codegen::emit() {
+    std::cout << "\n ==== Code: ====\n" << std::endl;
     m_module->dump();
+    std::cout << "\n ====  END  ====\n" << std::endl;
   }
 
 

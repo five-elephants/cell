@@ -27,7 +27,7 @@ namespace sim {
       virtual bool literal_int(ast::Node_if const& node);
       virtual bool identifier(ast::Node_if const& node);
 
-      void add_named_value(std::string const& name, llvm::Value* value) {
+      void add_named_value(std::string const& name, llvm::AllocaInst* value) {
         m_named_values[name] = value;
       }
             
@@ -36,7 +36,7 @@ namespace sim {
       typedef std::unordered_map<std::type_info const*,
           std::function<bool(Codegen_visitor&, ast::Node_if const& node)>> Node_type_map;
       typedef std::unordered_map<ast::Node_if const*, llvm::Value*> Node_value_map;
-      typedef std::unordered_map<std::string, llvm::Value*> Name_value_map;
+      typedef std::unordered_map<std::string, llvm::AllocaInst*> Name_value_map;
 
       ir::Namespace const& m_ns;
       Llvm_codeblock& m_codeblock;

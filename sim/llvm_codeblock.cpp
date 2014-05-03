@@ -31,22 +31,31 @@ namespace sim {
         m_function_name,
         m_module.get());
 
+    m_bb = BasicBlock::Create(m_context, "entry", m_function);
+    m_builder.SetInsertPoint(m_bb);
+
+    // make local mutable copies of the arguments
     if( m_prototype ) {
-      // this is a function declaration, so add argument names 
       auto i = m_function->arg_begin();
       auto j = m_prototype->parameters.begin();
       for( ; 
           (i != m_function->arg_end()) && (j != m_prototype->parameters.end()); 
           ++i, ++j) {
         i->setName((*j)->name);
-        visitor.add_named_value((*j)->name, i);
+
+        auto ptr = m_builder.CreateAlloca(i->getType(), 0, (*j)->name);
+        auto v = m_builder.CreateStore(i, ptr);
+
+        visitor.add_named_value((*j)->name, ptr);
       }
     }
 
-    m_bb = BasicBlock::Create(m_context, "entry", m_function);
-    m_builder.SetInsertPoint(m_bb);
-
     tree.accept(visitor);
+
+    if( !m_function->back().getTerminator() ) {
+      // TODO not sure if this is enough
+      m_builder.CreateRetVoid();
+    }
   }
 
 
@@ -74,5 +83,18 @@ namespace sim {
   void
   Llvm_codeblock::enclosing_module(std::shared_ptr<ir::Module> mod) {
     m_enclosing_mod = mod;
+  }
+
+
+
+  llvm::AllocaInst*
+  Llvm_codeblock::allocate_variable(ir::Label const& name, ir::Label const& type_name) const {
+    auto type = get_type(type_name);
+    if( type ) {
+      IRBuilder<> bld(&m_function->getEntryBlock(), m_function->getEntryBlock().begin());
+      return bld.CreateAlloca(type, 0, name.c_str());
+    }
+
+    return nullptr;
   }
 }

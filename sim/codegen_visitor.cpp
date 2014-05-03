@@ -105,12 +105,19 @@ namespace sim {
 
 
   VISITOR_METHOD(var_def) {
+    // this is always inside a function
     auto def = dynamic_cast<ast::Variable_def const&>(node);
     auto id = dynamic_cast<ast::Identifier const&>(def.identifier());
     auto type_id = dynamic_cast<ast::Identifier const&>(def.type());
 
-    Value* v = m_codeblock.make_constant(type_id.identifier(), 0);
-    m_values[&node] = m_named_values[id.identifier()] = v;
+    // TODO value initialization 
+    //Value* v = m_codeblock.make_constant(type_id.identifier(), 0);
+    //m_values[&node] = m_named_values[id.identifier()] = v;
+
+    auto v = m_codeblock.allocate_variable(id.identifier(), 
+        type_id.identifier());
+    m_named_values[id.identifier()] = v;
+    m_values[&node] = v;
 
     return false;
   }
@@ -129,7 +136,19 @@ namespace sim {
     auto a = dynamic_cast<ast::Assignment const&>(node);
     auto target_name = dynamic_cast<ast::Identifier const&>(a.identifier()).identifier();
 
-    m_values[&node] = m_named_values[target_name] = m_values.at(&a.expression());
+    auto it = m_named_values.find(target_name);
+    if( it != m_named_values.end() ) {
+      m_values[&node] = m_codeblock.m_builder.CreateStore(m_values.at(&a.expression()),
+          it->second);
+    } else {
+      llvm::Value* ptr = m_codeblock.get_global(target_name);
+      if( !ptr ) {
+        std::stringstream strm;
+        strm << node.location() << ": object '" << target_name << "' is unknown";
+        throw std::runtime_error(strm.str());
+      }
+      m_values[&node] = m_codeblock.m_builder.CreateStore(m_values.at(&a.expression()), ptr);
+    }
 
     return true;
   }
@@ -166,8 +185,7 @@ namespace sim {
     auto id = dynamic_cast<ast::Identifier const&>(node);
     auto p = m_named_values.find(id.identifier());
     if( p != m_named_values.end() ) {
-      Value* v = m_named_values.at(id.identifier());
-      m_values[&node] = v;
+      m_values[&node] = m_codeblock.m_builder.CreateLoad(p->second, "loadtmp");
     } else {
       Value* v = m_codeblock.get_global(id.identifier());
       if( v == nullptr ) {
@@ -176,7 +194,8 @@ namespace sim {
         throw std::runtime_error(strm.str());
       }
 
-      m_values[&node] = v;
+      m_values[&node] = m_codeblock.m_builder.CreateLoad(v, "loadtmp");
+      //m_values[&node] = v;
     }
 
     return true;

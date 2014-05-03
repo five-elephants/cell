@@ -52,6 +52,8 @@ namespace sim {
         return m_codegen.make_constant(the_type, value);
       }
 
+      llvm::AllocaInst* allocate_variable(ir::Label const& name, ir::Label const& type_name) const; 
+
       llvm::Type* get_type(ir::Label const& type_name) const {
         auto the_type = ir::find_type(m_enclosing_ns, type_name);
         if( !the_type )
