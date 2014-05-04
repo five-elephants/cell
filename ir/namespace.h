@@ -98,6 +98,7 @@ namespace ir {
     std::shared_ptr<Socket> socket;
     std::map<Label, std::shared_ptr<Object>> objects;
     std::map<Label, std::shared_ptr<Instantiation>> instantiations;
+    std::shared_ptr<Codeblock_if> constructor_code;
   };
 
 }

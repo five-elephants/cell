@@ -22,12 +22,13 @@ namespace sim {
 #define VISIT(x, y) m_mappings_visit[&typeid(ast:: x )] = &Codegen_visitor:: y 
 #define LEAVE(x, y) m_mappings_leave[&typeid(ast:: x )] = &Codegen_visitor:: y 
 
-    ENTER(Compound, compound_enter); 
+    // TODO compounds: push/pop named value environments
+    //ENTER(Compound, compound_enter); 
     ENTER(Variable_def, var_def);
     VISIT(Literal<int>, literal_int);
     VISIT(Identifier, identifier);
     LEAVE(Assignment, assignment);
-    LEAVE(Compound, compound_leave);
+    //LEAVE(Compound, compound_leave);
     LEAVE(Op_plus, op_plus);
     LEAVE(Return_statement, return_statement);
 
@@ -42,7 +43,7 @@ namespace sim {
     std::type_info const* node_type = &typeid(node);
 
     std::cout  << std::string(m_indent*2, ' ')
-      << "enter " << node_type->name() << std::endl;
+      << "enter " << node_type->name() << " {" << std::endl;
     ++m_indent;
 
     auto mapping = m_mappings_enter.find(node_type);
@@ -74,8 +75,11 @@ namespace sim {
     std::type_info const* node_type = &typeid(node);
 
     std::cout << std::string(m_indent*2, ' ')
-      << "leave " << node_type->name() << std::endl;
+      << "leave " << node_type->name() << '\n';
     --m_indent;
+    std::cout << std::string(m_indent*2, ' ')
+      << "}"
+      << std::endl;
 
     auto mapping = m_mappings_leave.find(node_type);
     if( mapping != m_mappings_leave.end() ) {

@@ -10,6 +10,10 @@ namespace ir {
   }
 
   void
+  Null_codeblock::scan_ast_module(ast::Node_if const& tree) {
+  }
+
+  void
   Null_codeblock::append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects) {
   }
 
@@ -18,7 +22,7 @@ namespace ir {
   }
 
   void
-  Null_codeblock::enclosing_module(std::shared_ptr<Module> mod) {
+  Null_codeblock::enclosing_module(Module* mod) {
   }
 }
 

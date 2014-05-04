@@ -11,9 +11,11 @@
 namespace sim {
 
   class Codegen_visitor;
+  class Module_codegen_visitor;
 
   class Llvm_codeblock : public ir::Codeblock_base {
     friend class Codegen_visitor;
+    friend class Module_codegen_visitor;
 
     public:
       Llvm_codeblock(Llvm_codegen& parent,
@@ -23,14 +25,15 @@ namespace sim {
           ir::Namespace const& enclosing_ns);
 
       virtual void scan_ast(ast::Node_if const& tree);
+      virtual void scan_ast_module(ast::Node_if const& tree);
       virtual void append_predefined_objects(std::map<ir::Label, std::shared_ptr<ir::Object>> objects);
       virtual void prototype(std::shared_ptr<ir::Function> func);
-      virtual void enclosing_module(std::shared_ptr<ir::Module> mod);
+      virtual void enclosing_module(ir::Module* mod);
 
     private:
       Llvm_codegen& m_codegen;
       ir::Namespace const& m_enclosing_ns;
-      std::shared_ptr<ir::Module> m_enclosing_mod;
+      ir::Module* m_enclosing_mod = nullptr;
       llvm::LLVMContext& m_context;
       llvm::IRBuilder<>& m_builder;
       std::shared_ptr<llvm::Module> m_module;

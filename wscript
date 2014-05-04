@@ -70,6 +70,7 @@ def build(bld):
       sim/llvm_codegen.cpp
       sim/llvm_codeblock.cpp
       sim/codegen_visitor.cpp
+      sim/module_codegen_visitor.cpp
       sim/compile.cpp
     """
 

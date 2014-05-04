@@ -16,10 +16,10 @@ namespace ir {
     if( m_root ) {
       m_root = false;
 
-      auto mod = dynamic_cast<ast::Module_def const&>(node);
+      auto& mod = dynamic_cast<ast::Module_def const&>(node);
       if( mod.has_socket() ) {
         if( typeid(mod.socket()) == typeid(ast::Identifier) ) {
-          auto socket_name = dynamic_cast<ast::Identifier const&>(mod.socket()).identifier();
+          auto& socket_name = dynamic_cast<ast::Identifier const&>(mod.socket()).identifier();
           m_mod.socket = find_socket(m_mod, socket_name);
           if( !m_mod.socket ) {
             std::stringstream strm;
@@ -31,20 +31,23 @@ namespace ir {
             throw std::runtime_error(strm.str());
           }
         } else if( typeid(mod.socket()) == typeid(ast::Socket_def) ) {
-          auto sock = dynamic_cast<ast::Socket_def const&>(mod.socket());
+          auto& sock = dynamic_cast<ast::Socket_def const&>(mod.socket());
           m_mod.socket = insert_socket(sock);
         }
       } else {
         m_mod.socket = Builtins::null_socket;
       }
 
+      // generate code for module initialization
+      std::cout << "begin generation of module constructor code..." << std::endl;
+      m_mod.constructor_code = make_codeblock();
+      m_mod.constructor_code->scan_ast_module(node);
+      std::cout << "finished generation of module constructor code." << std::endl;
+
       return true;
     }
 
-    /*if( typeid(node) == typeid(ast::Function_def const&) ) {
-      insert_function(dynamic_cast<ast::Function_def const&>(node));
-      return false;
-    } else*/ if( !Namespace_scanner::enter(node) ) {
+    if( !Namespace_scanner::enter(node) ) {
       return false;
     } else if( typeid(node) == typeid(ast::Variable_def) ) {
       insert_object(dynamic_cast<ast::Variable_def const&>(node));
@@ -66,7 +69,7 @@ namespace ir {
           + inst->name 
           + std::string(" already exists"));
 
-    auto module_name = dynamic_cast<ast::Identifier const&>(node.module_name()).identifier();
+    auto& module_name = dynamic_cast<ast::Identifier const&>(node.module_name()).identifier();
     inst->module = find_module(m_mod, module_name);
     if( !inst->module ) {
       std::stringstream strm;
@@ -78,7 +81,7 @@ namespace ir {
     std::set<Label> matched_ports;
     for(auto& i : node.connection_items()) {
       if( typeid(*i) == typeid(ast::Connection_item) ) {
-        auto con_item = dynamic_cast<ast::Connection_item const&>(*i);
+        auto& con_item = dynamic_cast<ast::Connection_item const&>(*i);
         auto port_name = con_item.port_name().identifier();
         auto signal_name = con_item.signal_name().identifier();
 
@@ -119,7 +122,7 @@ namespace ir {
         inst->connection.push_back(port_assign);
         matched_ports.insert(port_name);
       } else if( typeid(*i) == typeid(ast::Identifier) ) {
-        auto obj_name = dynamic_cast<ast::Identifier const&>(*i).identifier();
+        auto& obj_name = dynamic_cast<ast::Identifier const&>(*i).identifier();
         auto assignee = find_object(m_mod, obj_name);
 
         if( !assignee ) {
@@ -192,6 +195,7 @@ namespace ir {
 
     // get type
     auto type_name = dynamic_cast<ast::Identifier const*>(&(node.type()))->identifier();
+    //std::string type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
     obj->type = find_type(m_mod, type_name);
     if( !obj->type ) {
       std::stringstream strm;
@@ -202,7 +206,7 @@ namespace ir {
     m_mod.objects[obj->name] = obj;
 
     // generate code
-    m_codegen.register_variable(obj);
+    //m_codegen.register_global(obj);
 
     return obj;
   }
@@ -210,9 +214,9 @@ namespace ir {
   std::shared_ptr<Codeblock_if>
   Module_scanner::make_codeblock() {
     auto rv = m_codegen.make_codeblock(m_ns);
-    rv->enclosing_module(std::shared_ptr<Module>(&m_mod));
+    rv->enclosing_module(&m_mod);
     return rv;
-  } 
+  }
   //--------------------------------------------------------------------------------
 
 }

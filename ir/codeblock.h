@@ -7,11 +7,11 @@ namespace ir {
 
   class Codeblock_if {
     public:
-      /** Process the AST to generate the code for this codeblock.
-       *
-       * @param enclosing_ns used for resolution of types and functions.
-       * */
+      /** Process the AST to generate the code for this codeblock. */
       virtual void scan_ast(ast::Node_if const& tree) = 0;
+
+      /** Process the AST to generate toplevel code for a module. */
+      virtual void scan_ast_module(ast::Node_if const& tree) = 0;
 
       /** Append to the list of predefined objects accessible in the codeblock */
       virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects) = 0;
@@ -20,7 +20,7 @@ namespace ir {
       virtual void prototype(std::shared_ptr<Function> func) = 0;
 
       /** This codeblock lives in a module */
-      virtual void enclosing_module(std::shared_ptr<Module> mod) = 0;
+      virtual void enclosing_module(Module* mod) = 0;
   };
 
 
@@ -33,11 +33,12 @@ namespace ir {
   class Null_codeblock : public Codeblock_base {
     public:
       virtual void scan_ast(ast::Node_if const& tree);
+      virtual void scan_ast_module(ast::Node_if const& tree);
 
       virtual void append_predefined_objects(std::map<Label, std::shared_ptr<Object>> objects);
 
       virtual void prototype(std::shared_ptr<Function> func);
-      virtual void enclosing_module(std::shared_ptr<Module> mod);
+      virtual void enclosing_module(Module* mod);
   };
 
 }

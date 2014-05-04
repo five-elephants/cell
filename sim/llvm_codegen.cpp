@@ -39,7 +39,7 @@ namespace sim {
 
 
   void
-  Llvm_codegen::register_variable(std::shared_ptr<ir::Object> obj) {
+  Llvm_codegen::register_global(std::shared_ptr<ir::Object> obj) {
     auto gv = new llvm::GlobalVariable(*m_module,
         get_type(obj->type),
         false,

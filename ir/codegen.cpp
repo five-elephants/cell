@@ -19,7 +19,7 @@ namespace ir {
 
 
   void
-  Null_codegen::register_variable(std::shared_ptr<ir::Object> obj) {
+  Null_codegen::register_global(std::shared_ptr<ir::Object> obj) {
   }
 
 

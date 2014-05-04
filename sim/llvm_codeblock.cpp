@@ -1,6 +1,10 @@
 #include "sim/llvm_codeblock.h"
 
 #include "sim/codegen_visitor.h"
+#include "sim/module_codegen_visitor.h"
+
+#include <llvm/Analysis/Verifier.h>
+#include <sstream>
 
 namespace sim {
 
@@ -37,6 +41,10 @@ namespace sim {
     // make local mutable copies of the arguments
     if( m_prototype ) {
       auto i = m_function->arg_begin();
+      if( m_enclosing_mod ) {
+        i->setName("this");
+        ++i;
+      }
       auto j = m_prototype->parameters.begin();
       for( ; 
           (i != m_function->arg_end()) && (j != m_prototype->parameters.end()); 
@@ -57,6 +65,56 @@ namespace sim {
       m_builder.CreateRetVoid();
     }
 
+    if( verifyFunction(*m_function, PrintMessageAction) ) {
+      std::stringstream strm;
+      strm << tree.location()
+        << ": during generation of function '"
+        << m_function_name << "': "
+        << "error during code generation. (verifyFunction returned false)";
+      throw std::runtime_error(strm.str());
+    }
+
+    m_codegen.optimize(m_function);
+  }
+
+
+  void
+  Llvm_codeblock::scan_ast_module(ast::Node_if const& tree) {
+    Module_codegen_visitor visitor(*this);
+    tree.accept(visitor);
+
+    m_function_name = std::string("ctor_") + m_enclosing_mod->name;
+    
+    auto mod_type = visitor.get_module_type(m_enclosing_mod->name);
+    m_codegen.add_module_type(m_enclosing_mod, mod_type);
+
+    m_function_type = FunctionType::get(mod_type, false);
+
+    m_function = Function::Create(m_function_type,
+        Function::ExternalLinkage,
+        m_function_name,
+        m_module.get());
+
+    m_bb = BasicBlock::Create(m_context, "entry", m_function);
+    m_builder.SetInsertPoint(m_bb);
+
+    // create intialization method
+    auto obj_ptr = m_builder.CreateAlloca(mod_type, nullptr, "rv");
+    auto rv = visitor.get_initialization(obj_ptr);
+
+    // TODO call __init__ if defined
+
+    m_builder.CreateRet(rv);
+
+    if( verifyFunction(*m_function, PrintMessageAction) ) {
+      std::stringstream strm;
+      strm << tree.location()
+        << ": during generation of constructor '"
+        << m_function_name << "': "
+        << "error during code generation. (verifyFunction returned false)";
+      throw std::runtime_error(strm.str());
+    }
+
     m_codegen.optimize(m_function);
   }
 
@@ -73,6 +131,9 @@ namespace sim {
     m_prototype = func;
 
     std::vector<Type*> arg_types;
+    if( m_enclosing_mod )
+      arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
+
     for(auto p : func->parameters) {
       arg_types.push_back(get_type(p->type->name));
     }
@@ -83,7 +144,7 @@ namespace sim {
   }
 
   void
-  Llvm_codeblock::enclosing_module(std::shared_ptr<ir::Module> mod) {
+  Llvm_codeblock::enclosing_module(ir::Module* mod) {
     m_enclosing_mod = mod;
   }
 
