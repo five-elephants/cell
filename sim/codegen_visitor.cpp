@@ -25,6 +25,7 @@ namespace sim {
     // TODO compounds: push/pop named value environments
     //ENTER(Compound, compound_enter); 
     ENTER(Variable_def, var_def);
+    ENTER(Function_call, function_call);
     VISIT(Literal<int>, literal_int);
     VISIT(Identifier, identifier);
     LEAVE(Assignment, assignment);
@@ -186,6 +187,7 @@ namespace sim {
   }
 
 
+  // TODO I need multiple types of identifiers for functions/variables/types etc.
   VISITOR_METHOD(identifier) {
     auto id = dynamic_cast<ast::Identifier const&>(node);
     auto p = m_named_values.find(id.identifier());
@@ -202,6 +204,26 @@ namespace sim {
       m_values[&node] = m_codeblock.m_builder.CreateLoad(v, "loadtmp");
       //m_values[&node] = v;
     }
+
+    return true;
+  }
+
+
+  VISITOR_METHOD(function_call) {
+    auto& call = dynamic_cast<ast::Function_call const&>(node);
+    auto& callee_id = dynamic_cast<ast::Identifier const&>(call.identifier());
+
+    auto callee = m_codeblock.get_function(callee_id.identifier());
+    if( !callee ) {
+      std::stringstream strm;
+      strm << node.location() << ": can not find function '"
+        << callee_id.identifier()
+        << "'.";
+      throw std::runtime_error(strm.str());
+    }
+
+    // TODO this_in and this_out pointers
+    m_values[&node] = m_codeblock.m_builder.CreateCall(callee, "callres");
 
     return true;
   }

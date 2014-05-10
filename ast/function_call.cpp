@@ -22,9 +22,13 @@ namespace ast {
 			//i->visit();
 	}
 
-
 	Node_if&
 	Function_call::identifier() {
+		return m_identifier;
+	}
+
+	Node_if const&
+	Function_call::identifier() const {
 		return m_identifier;
 	}
 

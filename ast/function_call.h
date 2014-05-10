@@ -12,6 +12,7 @@ namespace ast {
 			virtual void visit();
 
 			Node_if& identifier();
+			Node_if const& identifier() const;
 			void expressions(std::vector<Node_if*>& nodes);
 			std::vector<Node_if*>& expressions();
 

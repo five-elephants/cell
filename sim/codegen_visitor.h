@@ -26,6 +26,7 @@ namespace sim {
       virtual bool op_plus(ast::Node_if const& node);
       virtual bool literal_int(ast::Node_if const& node);
       virtual bool identifier(ast::Node_if const& node);
+      virtual bool function_call(ast::Node_if const& node);
 
       void add_named_value(std::string const& name, llvm::AllocaInst* value) {
         m_named_values[name] = value;
