@@ -145,10 +145,11 @@ namespace sim {
       m_values[&node] = m_codeblock.m_builder.CreateStore(m_values.at(&a.expression()),
           it->second);
     } else {
-      llvm::Value* ptr = m_codeblock.get_global(target_name);
-      if( !ptr ) {
+      // TODO: get_module_object creates getelementptr instruction on this_out returning a pointer to the element
+      llvm::Value* ptr = m_codeblock.get_module_object_out(target_name);
+      if( index < 0 ) {
         std::stringstream strm;
-        strm << node.location() << ": object '" << target_name << "' is unknown";
+        strm << node.location() << ": object '" << target_name << "' is unknown in current module";
         throw std::runtime_error(strm.str());
       }
       m_values[&node] = m_codeblock.m_builder.CreateStore(m_values.at(&a.expression()), ptr);
@@ -191,7 +192,7 @@ namespace sim {
     if( p != m_named_values.end() ) {
       m_values[&node] = m_codeblock.m_builder.CreateLoad(p->second, "loadtmp");
     } else {
-      Value* v = m_codeblock.get_global(id.identifier());
+      Value* v = m_codeblock.get_module_object_in(id.identifier());
       if( v == nullptr ) {
         std::stringstream strm;
         strm << node.location() << ": named value '" << id.identifier() << "' not found";

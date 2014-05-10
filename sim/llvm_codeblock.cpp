@@ -42,7 +42,9 @@ namespace sim {
     if( m_prototype ) {
       auto i = m_function->arg_begin();
       if( m_enclosing_mod ) {
-        i->setName("this");
+        i->setName("this_out");
+        ++i;
+        i->setName("this_in");
         ++i;
       }
       auto j = m_prototype->parameters.begin();
@@ -131,8 +133,10 @@ namespace sim {
     m_prototype = func;
 
     std::vector<Type*> arg_types;
-    if( m_enclosing_mod )
+    if( m_enclosing_mod ) {
       arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
+      arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
+    }
 
     for(auto p : func->parameters) {
       arg_types.push_back(get_type(p->type->name));
@@ -160,4 +164,42 @@ namespace sim {
 
     return nullptr;
   }
+
+
+  llvm::Value*
+  Llvm_codeblock::get_module_object_out(ir::Label const& name) {
+    if( m_enclosing_mod ) {
+      auto it = m_enclosing_mod->objects.find(name);
+      if( it == m_enclosing_mod->objects.end() )
+        return nullptr;
+
+      auto index = std::distance(m_enclosing_mod->objects.begin(), it);
+      auto this_out = m_function->arg_begin();
+
+      auto rv = m_builder.CreateStructGEP(this_out, index, "obj");
+      return rv;
+    }
+
+    return nullptr;
+  }
+
+
+  llvm::Value*
+  Llvm_codeblock::get_module_object_in(ir::Label const& name) {
+    if( m_enclosing_mod ) {
+      auto it = m_enclosing_mod->objects.find(name);
+      if( it == m_enclosing_mod->objects.end() )
+        return nullptr;
+
+      auto index = std::distance(m_enclosing_mod->objects.begin(), it);
+      auto this_in = ++(m_function->arg_begin());
+
+      auto rv = m_builder.CreateStructGEP(this_in, index, "obj");
+      return rv;
+    }
+
+    return nullptr;
+  }
+
+
 }

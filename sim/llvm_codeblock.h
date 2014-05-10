@@ -76,6 +76,9 @@ namespace sim {
 
         return nullptr;
       }
+
+      llvm::Value* get_module_object_out(ir::Label const& name);
+      llvm::Value* get_module_object_in(ir::Label const& name);
   };
 
 }
