@@ -77,6 +77,14 @@ namespace sim {
         return nullptr;
       }
 
+      llvm::Function* get_function(ir::Label const& name) const {
+        auto the_func = ir::find_function(m_enclosing_ns, name);
+        if( !the_func )
+          return nullptr;
+
+        return m_codegen.get_function(the_func);
+      }
+
       llvm::Value* get_module_object_out(ir::Label const& name);
       llvm::Value* get_module_object_in(ir::Label const& name);
   };

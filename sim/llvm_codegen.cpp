@@ -55,6 +55,19 @@ namespace sim {
 
 
   void
+  Llvm_codegen::register_function(std::shared_ptr<ir::Function> func,
+      llvm::Function* code) {
+    m_functions[func.get()] = code;
+  }
+
+
+  void
+  Llvm_codegen::register_module_init(ir::Module* mod, llvm::Function* func) {
+    m_module_inits[mod] = func;
+  }
+
+
+  void
   Llvm_codegen::emit() {
     std::cout << "\n ==== Code: ====\n" << std::endl;
     m_module->dump();
@@ -77,6 +90,16 @@ namespace sim {
   Llvm_codegen::get_global(std::shared_ptr<ir::Object> object) const {
     auto it = m_globals.find(object);
     if( it != m_globals.end() )
+      return it->second;
+
+    return nullptr;
+  }
+
+
+  llvm::Function*
+  Llvm_codegen::get_function(std::shared_ptr<ir::Function> func) const {
+    auto it = m_functions.find(func.get());
+    if( it != m_functions.end() )
       return it->second;
 
     return nullptr;

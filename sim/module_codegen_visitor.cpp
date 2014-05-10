@@ -110,6 +110,12 @@ namespace sim {
 
 
   VISITOR_METHOD(func_def) {
+    auto& def = dynamic_cast<ast::Function_def const&>(node);
+    auto& id = dynamic_cast<ast::Identifier const&>(def.identifier());
+
+    if( id.identifier() == "__init__" )
+      m_has_init = true;
+
     return false;
   }
 

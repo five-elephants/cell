@@ -30,16 +30,22 @@ namespace sim {
   Llvm_codeblock::scan_ast(ast::Node_if const& tree) {
     Codegen_visitor visitor(m_enclosing_ns, *this);
 
-    m_function = Function::Create(m_function_type,
-        Function::ExternalLinkage,
-        m_function_name,
-        m_module.get());
+    if( (m_function_name == "__init__") && (m_enclosing_mod) ) {
+      m_function = m_codegen.get_module_init(m_enclosing_mod);
+    } else {
+      m_function = Function::Create(m_function_type,
+          Function::ExternalLinkage,
+          m_function_name,
+          m_module.get());
+    }
 
     m_bb = BasicBlock::Create(m_context, "entry", m_function);
     m_builder.SetInsertPoint(m_bb);
 
     // make local mutable copies of the arguments
     if( m_prototype ) {
+      m_codegen.register_function(m_prototype, m_function);
+      
       auto i = m_function->arg_begin();
       if( m_enclosing_mod ) {
         i->setName("this_out");
@@ -101,11 +107,27 @@ namespace sim {
     m_builder.SetInsertPoint(m_bb);
 
     // create intialization method
-    auto obj_ptr = m_builder.CreateAlloca(mod_type, nullptr, "rv");
-    auto rv = visitor.get_initialization(obj_ptr);
+    auto obj_ptr = m_builder.CreateAlloca(mod_type, nullptr, "this");
+    auto ini = visitor.get_initialization(obj_ptr);
+    m_builder.CreateStore(ini, obj_ptr);
 
-    // TODO call __init__ if defined
+    // call __init__ if defined
+    if( visitor.has_init() ) {
+      std::vector<Type*> arg_types{
+        PointerType::getUnqual(mod_type),
+        PointerType::getUnqual(mod_type)
+      };
+      auto init_type = FunctionType::get(Type::getVoidTy(m_context), arg_types, false);
+      auto init_func = Function::Create(init_type,
+          Function::ExternalLinkage,
+          "__init__",
+          m_module.get());
 
+      m_builder.CreateCall2(init_func, obj_ptr, obj_ptr);
+      m_codegen.register_module_init(m_enclosing_mod, init_func);
+    }
+
+    auto rv = m_builder.CreateLoad(obj_ptr, "obj");
     m_builder.CreateRet(rv);
 
     if( verifyFunction(*m_function, PrintMessageAction) ) {

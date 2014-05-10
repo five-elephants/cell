@@ -48,6 +48,18 @@ namespace ir {
   }
 
 
+  inline std::shared_ptr<Function> find_function(Namespace const& ns,
+      Label const& func_name) {
+    auto rv = find_in_namespace<Function>(ns, &Namespace::functions, func_name);
+    if( !rv ) {
+      auto it = Builtins::functions.find(func_name);
+      if( it != Builtins::functions.end() )
+        return it->second;
+    }
+    return rv;
+  }
+
+
   inline std::shared_ptr<Module> find_module(Namespace const& ns,
       Label const& module_name) {
     auto rv = find_in_namespace<Module>(ns, &Namespace::modules, module_name);

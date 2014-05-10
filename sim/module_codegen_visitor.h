@@ -25,6 +25,7 @@ namespace sim {
 
       llvm::Type* get_module_type(ir::Label const& name);
       llvm::Value* get_initialization(llvm::Value* obj);
+      bool has_init() { return m_has_init; }
 
     private:
       typedef std::unordered_map<std::type_info const*,
@@ -41,6 +42,7 @@ namespace sim {
 
       Node_value_map m_values;
       Type_list m_types;
+      bool m_has_init = false;
 
       unsigned int m_indent = 0;
   };
