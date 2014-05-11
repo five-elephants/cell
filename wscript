@@ -54,6 +54,7 @@ def build(bld):
       ast/module_instantiation.cpp
       ast/process.cpp
       ast/assignment.cpp
+      ast/variable_ref.cpp
       parse_driver.cpp
       ir/namespace.cpp
       ir/builtins.cpp

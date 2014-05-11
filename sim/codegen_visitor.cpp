@@ -25,9 +25,9 @@ namespace sim {
     // TODO compounds: push/pop named value environments
     //ENTER(Compound, compound_enter); 
     ENTER(Variable_def, var_def);
-    ENTER(Function_call, function_call);
+    ENTER(Variable_ref, var_ref);
     VISIT(Literal<int>, literal_int);
-    VISIT(Identifier, identifier);
+    LEAVE(Function_call, function_call);
     LEAVE(Assignment, assignment);
     //LEAVE(Compound, compound_leave);
     LEAVE(Op_plus, op_plus);
@@ -188,8 +188,9 @@ namespace sim {
 
 
   // TODO I need multiple types of identifiers for functions/variables/types etc.
-  VISITOR_METHOD(identifier) {
-    auto id = dynamic_cast<ast::Identifier const&>(node);
+  VISITOR_METHOD(var_ref) {
+    auto ref = dynamic_cast<ast::Variable_ref const&>(node);
+    auto id = dynamic_cast<ast::Identifier const&>(ref.identifier());
     auto p = m_named_values.find(id.identifier());
     if( p != m_named_values.end() ) {
       m_values[&node] = m_codeblock.m_builder.CreateLoad(p->second, "loadtmp");
@@ -213,17 +214,32 @@ namespace sim {
     auto& call = dynamic_cast<ast::Function_call const&>(node);
     auto& callee_id = dynamic_cast<ast::Identifier const&>(call.identifier());
 
-    auto callee = m_codeblock.get_function(callee_id.identifier());
-    if( !callee ) {
+    //auto callee = m_codeblock.get_function(callee_id.identifier());
+    //if( !callee ) {
+      //std::stringstream strm;
+      //strm << node.location() << ": can not find function '"
+        //<< callee_id.identifier()
+        //<< "'.";
+      //throw std::runtime_error(strm.str());
+    //}
+
+    //// TODO this_in and this_out pointers
+    //m_values[&node] = m_codeblock.m_builder.CreateCall(callee, "callres");
+
+    std::vector<Value*> args;
+    for(auto i : call.expressions()) {
+      args.push_back(m_values.at(i));
+    }
+    auto v = m_codeblock.create_function_call(callee_id.identifier(), args);
+    if( !v ) {
       std::stringstream strm;
-      strm << node.location() << ": can not find function '"
+      strm << node.location() << ": could not call function '"
         << callee_id.identifier()
-        << "'.";
+        << "', please try again in a few minutes...";
       throw std::runtime_error(strm.str());
     }
 
-    // TODO this_in and this_out pointers
-    m_values[&node] = m_codeblock.m_builder.CreateCall(callee, "callres");
+    m_values[&node] = v;
 
     return true;
   }

@@ -224,4 +224,26 @@ namespace sim {
   }
 
 
+  llvm::Value*
+  Llvm_codeblock::create_function_call(ir::Label const& callee,
+      std::vector<llvm::Value*> const& args) {
+    if( m_enclosing_mod ) {
+      std::vector<llvm::Value*> all_args(args.size()+2);
+
+      all_args[0] = (m_function->arg_begin());
+      all_args[1] = (++(m_function->arg_begin()));
+
+      std::copy(args.begin(), args.end(), all_args.begin() + 2);
+
+      auto func = get_function(callee);
+      if( !func )
+        return nullptr;
+
+      auto rv = m_builder.CreateCall(func, all_args, "callres");
+      return rv;
+    }
+
+    return nullptr;
+  }
+
 }

@@ -1,0 +1,39 @@
+namespace example = {
+	mod Top = {
+		var counter : int
+		var hello = 42 : int
+
+		def __init__() = {
+			// TODO: print function
+			counter = 1
+			hello = counter + 2 
+		}
+
+
+		def f(a : int, b : int) : int = {
+			var y : int
+			var x : int
+			y = 1 + 2 + a
+			{
+				x = 4 + 5 + b
+			}
+			y = 42
+			return y + x
+		}
+
+		def g() : int = {
+			return counter
+		}
+
+		def h() : int = {
+			var tmp : int
+			tmp = f(5, 2)
+			return g() + tmp
+		}
+
+		// TODO: processes
+		periodic(5 ns) = {
+			counter = counter + 1
+		}
+	}
+}

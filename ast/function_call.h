@@ -15,6 +15,7 @@ namespace ast {
 			Node_if const& identifier() const;
 			void expressions(std::vector<Node_if*>& nodes);
 			std::vector<Node_if*>& expressions();
+			std::vector<Node_if*> const& expressions() const { return m_expressions; }
 
 		private:
 			Node_if& m_identifier;
