@@ -5,6 +5,7 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/JIT.h>
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
 
 #include "parse_driver.h"
 #include "sim/compile.h"
@@ -21,7 +22,7 @@ void simulate(std::shared_ptr<sim::Llvm_codegen> code,
 
   cout << "starting simulation..." << endl;
 
-  // generate wrapper functions to setup, run and teardown the simulation
+  // generate wrapper function to setup simulation
   code->create_setup(toplevel);
   code->emit();
 
@@ -33,7 +34,18 @@ void simulate(std::shared_ptr<sim::Llvm_codegen> code,
   void* ptr = exe->getPointerToFunction(setup_func);
   void(*func)() = (void(*)())(ptr);
   func();
-  //cout << "__init__: " << func() << endl;
+
+  // run all processes initially
+  // TODO find all processes in hierarchy
+  auto root_ptr = exe->getPointerToGlobal(code->root());
+  std::vector<llvm::GenericValue> args{
+    llvm::PTOGV(root_ptr),
+    llvm::PTOGV(root_ptr)
+  };
+  for(auto proc : toplevel->processes) {
+    auto f = code->get_process(proc);
+    exe->runFunction(f, args);
+  }
 }
 
 int main(int argc, char* argv[]) {

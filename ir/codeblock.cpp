@@ -22,6 +22,10 @@ namespace ir {
   }
 
   void
+  Null_codeblock::process(std::shared_ptr<Process> func) {
+  }
+
+  void
   Null_codeblock::enclosing_module(Module* mod) {
   }
 }

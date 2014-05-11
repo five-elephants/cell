@@ -28,7 +28,10 @@ namespace sim {
       virtual void scan_ast_module(ast::Node_if const& tree);
       virtual void append_predefined_objects(std::map<ir::Label, std::shared_ptr<ir::Object>> objects);
       virtual void prototype(std::shared_ptr<ir::Function> func);
+      virtual void process(std::shared_ptr<ir::Process> proc);
       virtual void enclosing_module(ir::Module* mod);
+
+      llvm::Function* function() { return m_function; }
 
     private:
       Llvm_codegen& m_codegen;
@@ -41,6 +44,7 @@ namespace sim {
 
       ir::Label m_function_name;
       std::shared_ptr<ir::Function> m_prototype;
+      std::shared_ptr<ir::Process> m_process;
       llvm::FunctionType* m_function_type;
       llvm::Function* m_function;
       llvm::BasicBlock* m_bb;

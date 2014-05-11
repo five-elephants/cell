@@ -35,5 +35,9 @@ namespace example = {
 		periodic(5 ns) = {
 			counter = counter + 1
 		}
+
+		process = {
+			hello = hello + counter
+		}
 	}
 }

@@ -55,6 +55,9 @@ namespace ir {
     } else if( typeid(node) == typeid(ast::Module_instantiation) ) {
       insert_instantiation(dynamic_cast<ast::Module_instantiation const&>(node));
       return false;
+    } else if( typeid(node) == typeid(ast::Process) ) {
+      insert_process(dynamic_cast<ast::Process const&>(node));
+      return false;
     }
     
     return true;
@@ -209,6 +212,21 @@ namespace ir {
     //m_codegen.register_global(obj);
 
     return obj;
+  }
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Process>
+  Module_scanner::insert_process(ast::Process const& node) {
+    auto rv = std::make_shared<Process>();
+
+    // generate code for process body
+    auto cb = make_codeblock();
+    cb->process(rv);
+    cb->scan_ast(node.body());
+    rv->code = cb;
+
+    m_mod.processes.push_back(rv);
+
+    return rv;
   }
   //--------------------------------------------------------------------------------
   std::shared_ptr<Codeblock_if>

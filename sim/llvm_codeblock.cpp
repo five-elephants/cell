@@ -64,6 +64,12 @@ namespace sim {
 
         visitor.add_named_value((*j)->name, ptr);
       }
+    } else if( m_process ) {
+      m_codegen.register_process(m_process, m_function);
+
+      auto i = m_function->arg_begin();
+      i->setName("this_out");
+      (++i)->setName("this_in");
     }
 
     tree.accept(visitor);
@@ -169,6 +175,25 @@ namespace sim {
         arg_types,
         false);
     m_function_name = func->name;
+  }
+
+
+  void
+  Llvm_codeblock::process(std::shared_ptr<ir::Process> proc) {
+    m_process = proc;
+
+    std::vector<Type*> arg_types;
+    if( !m_enclosing_mod ) {
+      throw std::runtime_error("Process must be in module");
+    }
+
+    arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
+    arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
+
+    m_function_type = FunctionType::get(Type::getVoidTy(m_context),
+        arg_types,
+        false);
+    m_function_name = "__process__";
   }
 
   void

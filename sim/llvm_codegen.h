@@ -20,6 +20,7 @@ namespace sim {
       virtual std::shared_ptr<ir::Codeblock_if> make_codeblock(ir::Namespace const& ns);
       virtual void register_global(std::shared_ptr<ir::Object> obj);
       virtual void register_function(std::shared_ptr<ir::Function> func, llvm::Function* proto);
+      virtual void register_process(std::shared_ptr<ir::Process> proc, llvm::Function* func);
       virtual void register_module_ctor(ir::Module* mod, llvm::Function* func);
       virtual void register_module_init(ir::Module* mod, llvm::Function* func);
       virtual void emit();
@@ -35,6 +36,7 @@ namespace sim {
       llvm::Type* get_type(std::shared_ptr<ir::Type> type) const; 
       llvm::Value* get_global(std::shared_ptr<ir::Object> object) const;
       llvm::Function* get_function(std::shared_ptr<ir::Function> func) const;
+      llvm::Function* get_process(std::shared_ptr<ir::Process> process) const;
       void optimize(llvm::Function* func);
 
       std::shared_ptr<llvm::Module> module() { return m_module; }
@@ -59,6 +61,10 @@ namespace sim {
       }
 
 
+
+
+      llvm::GlobalVariable* root() { return m_root; }
+
     private:
       //typedef std::unordered_map< std::shared_ptr<ir::Object>,
               //std::shared_ptr<llvm::GlobalVariable> > Variable_map;
@@ -68,6 +74,7 @@ namespace sim {
       typedef std::unordered_map< ir::Module*, llvm::Type* > Module_type_map;
       typedef std::unordered_map< ir::Module*, llvm::Function* > Module_init_map;
       typedef std::unordered_map< ir::Function*, llvm::Function* > Function_map;
+      typedef std::unordered_map< ir::Process*, llvm::Function* > Process_map;
 
       llvm::LLVMContext& m_context;
       llvm::IRBuilder<> m_builder;
@@ -78,6 +85,8 @@ namespace sim {
       Module_init_map m_module_ctors;
       Module_init_map m_module_inits;
       Function_map m_functions;
+      Process_map m_processes;
+      llvm::GlobalVariable* m_root = nullptr;
 
   };
 

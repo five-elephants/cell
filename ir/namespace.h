@@ -49,6 +49,10 @@ namespace ir {
     std::shared_ptr<Codeblock_if> code;
   };
 
+  struct Process {
+    std::shared_ptr<Codeblock_if> code;
+  };
+
   enum class Direction {
     Input,
     Output,
@@ -104,6 +108,7 @@ namespace ir {
     std::shared_ptr<Socket> socket;
     std::map<Label, std::shared_ptr<Object>> objects;
     std::map<Label, std::shared_ptr<Instantiation>> instantiations;
+    std::vector<std::shared_ptr<Process>> processes;
     std::shared_ptr<Codeblock_if> constructor_code;
   };
 

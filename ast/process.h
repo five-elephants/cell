@@ -10,6 +10,7 @@ namespace ast {
     
       virtual void visit();
     
+      Node_if const& body() const { return m_body; }
     
     private:
       Node_if& m_body;

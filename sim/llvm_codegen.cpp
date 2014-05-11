@@ -62,6 +62,13 @@ namespace sim {
 
 
   void
+  Llvm_codegen::register_process(std::shared_ptr<ir::Process> func,
+      llvm::Function* code) {
+    m_processes[func.get()] = code;
+  }
+
+
+  void
   Llvm_codegen::register_module_ctor(ir::Module* mod, llvm::Function* func) {
     m_module_ctors[mod] = func;
   }
@@ -87,15 +94,15 @@ namespace sim {
     auto toplevel_type = get_module_type(toplevel.get());
     auto ctor = get_module_ctor(toplevel.get());
     auto undef_init = UndefValue::get(toplevel_type);
-    auto gv = new llvm::GlobalVariable(*m_module,
+    m_root = new llvm::GlobalVariable(*m_module,
         toplevel_type,
         false,
         llvm::GlobalVariable::InternalLinkage,
         //llvm::GlobalVariable::ExternalLinkage,
         undef_init,
         "root");
-    if( !gv )
-      throw std::runtime_error("failed to register root hierarchy module");
+    //if( !m_root )
+      //throw std::runtime_error("failed to register root hierarchy module");
 
     auto setup_func = Function::Create(FunctionType::get(Type::getVoidTy(m_context), false),
       Function::ExternalLinkage,
@@ -106,7 +113,7 @@ namespace sim {
     m_builder.SetInsertPoint(bb);
 
     auto root_init = m_builder.CreateCall(ctor);
-    m_builder.CreateStore(root_init, gv);
+    m_builder.CreateStore(root_init, m_root);
     m_builder.CreateRetVoid();
   }
 
@@ -140,6 +147,18 @@ namespace sim {
 
     return nullptr;
   }
+
+
+  llvm::Function*
+  Llvm_codegen::get_process(std::shared_ptr<ir::Process> func) const {
+    auto it = m_processes.find(func.get());
+    if( it != m_processes.end() )
+      return it->second;
+
+    return nullptr;
+  }
+
+
 
 
   void
