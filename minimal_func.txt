@@ -38,6 +38,7 @@ namespace example = {
 
 		process = {
 			hello = hello + counter
+			counter = f(0, 6)
 		}
 	}
 }

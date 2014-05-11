@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <iomanip>
 #include <boost/program_options.hpp>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/JIT.h>
@@ -46,6 +47,14 @@ void simulate(std::shared_ptr<sim::Llvm_codegen> code,
     auto f = code->get_process(proc);
     exe->runFunction(f, args);
   }
+
+  cout << "top:\n" << hex
+    << "0x" << setw(16) << setfill('0')
+    << static_cast<uint64_t*>(root_ptr)[0]
+    << " "
+    << "0x" << setw(16) << setfill('0')
+    << static_cast<uint64_t*>(root_ptr)[1]
+    << endl;
 }
 
 int main(int argc, char* argv[]) {
