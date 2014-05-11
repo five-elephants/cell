@@ -50,9 +50,25 @@ namespace ir {
     auto path_elems = parse_path(path, ".");
 
     std::cout << "PATH: " << path << "\n";
-    for(auto i : path_elems) {
+    Namespace const* cur_ns = &ns;
+    for(auto it=path_elems.begin();
+        (path_elems.size() > 1) && (it != --(path_elems.end()));
+        ++it) {
+      auto i = *it;
       std::cout << "   '" << i << "'\n";
+      
+      if( cur_ns->namespaces.count(i) )
+        cur_ns = cur_ns->namespaces.at(i).get();
+      else if( cur_ns->modules.count(i) )
+        cur_ns = cur_ns->modules.at(i).get();
+      else
+        return std::shared_ptr<T>(nullptr);
     } 
+
+    auto m = cur_ns->*field;
+
+    if( m.count(path_elems.back()) )
+      return m[path_elems.back()];
 
     return std::shared_ptr<T>(nullptr);
   }

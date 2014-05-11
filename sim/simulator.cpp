@@ -8,23 +8,29 @@
 
 #include "parse_driver.h"
 #include "sim/compile.h"
+#include "ir/find_hierarchy.h"
 
 namespace po = boost::program_options;
 
 
 static llvm::ExecutionEngine* exe;
 
-void simulate(std::shared_ptr<llvm::Module> topmod, ir::Label const& top_name) {
+void simulate(std::shared_ptr<sim::Llvm_codegen> code,
+    std::shared_ptr<ir::Module> toplevel) {
   using namespace std;
 
   cout << "starting simulation..." << endl;
-  
-  auto initial = topmod->getFunction("__init__");
-  if( !initial ) {
-    throw std::runtime_error("failed to find function __init__()");
+
+  // generate wrapper functions to setup, run and teardown the simulation
+  code->create_setup(toplevel);
+  code->emit();
+
+  auto setup_func = code->module()->getFunction("setup");
+  if( !setup_func ) {
+    throw std::runtime_error("failed to find function setup()");
   }
 
-  void* ptr = exe->getPointerToFunction(initial);
+  void* ptr = exe->getPointerToFunction(setup_func);
   void(*func)() = (void(*)())(ptr);
   func();
   //cout << "__init__: " << func() << endl;
@@ -71,11 +77,26 @@ int main(int argc, char* argv[]) {
         throw std::runtime_error("parse failed");
 
       ir::Namespace topns;
-      std::shared_ptr<Module> topmod;
-      std::tie(topns, topmod) = sim::compile(driver.ast_root());
+      std::shared_ptr<sim::Llvm_codegen> code;
+      std::tie(topns, code) = sim::compile(driver.ast_root());
+
+      //auto toplevel = find_module(topns, vm["top"].as<string>());
+      auto toplevel = find_by_path(topns, &ir::Namespace::modules, vm["top"].as<string>());
+      if( !toplevel ) {
+        cerr << "Can not find top level module '"
+          << vm["top"].as<string>()
+          << "'\n";
+        cerr << "The following modules were found in toplevel namespace '"
+          << topns.name 
+          << "':\n";
+        for(auto m : topns.modules) {
+          cerr << "    " << m.first << '\n';
+        }
+        return 1;
+      }
 
       {
-        EngineBuilder exe_bld(topmod.get());
+        EngineBuilder exe_bld(code->module().get());
         std::string err_str;
         exe_bld.setErrorStr(&err_str);
         exe_bld.setEngineKind(EngineKind::JIT);
@@ -87,7 +108,7 @@ int main(int argc, char* argv[]) {
         }
       }
 
-      simulate(topmod, vm["top"].as<string>());
+      simulate(code, toplevel);
     } else {
       cout << desc << endl;
       return 1;

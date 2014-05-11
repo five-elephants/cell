@@ -20,8 +20,10 @@ namespace sim {
       virtual std::shared_ptr<ir::Codeblock_if> make_codeblock(ir::Namespace const& ns);
       virtual void register_global(std::shared_ptr<ir::Object> obj);
       virtual void register_function(std::shared_ptr<ir::Function> func, llvm::Function* proto);
+      virtual void register_module_ctor(ir::Module* mod, llvm::Function* func);
       virtual void register_module_init(ir::Module* mod, llvm::Function* func);
       virtual void emit();
+      virtual void create_setup(std::shared_ptr<ir::Module> toplevel);
 
       llvm::Value* make_constant(std::shared_ptr<ir::Type> type, int const& value) const {
         if(type == ir::Builtins::types["int"]) 
@@ -42,13 +44,20 @@ namespace sim {
       }
 
 
+      llvm::Function* get_module_ctor(ir::Module* mod) const {
+        return m_module_ctors.at(mod);
+      }
+
+
       llvm::Function* get_module_init(ir::Module* mod) const {
         return m_module_inits.at(mod);
       }
 
+
       void add_module_type(ir::Module* mod, llvm::Type* type) {
         m_module_types[mod] = type;
       }
+
 
     private:
       //typedef std::unordered_map< std::shared_ptr<ir::Object>,
@@ -66,6 +75,7 @@ namespace sim {
       llvm::FunctionPassManager m_fpm;
       Variable_map m_globals;
       Module_type_map m_module_types;
+      Module_init_map m_module_ctors;
       Module_init_map m_module_inits;
       Function_map m_functions;
 

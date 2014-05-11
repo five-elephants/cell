@@ -214,18 +214,6 @@ namespace sim {
     auto& call = dynamic_cast<ast::Function_call const&>(node);
     auto& callee_id = dynamic_cast<ast::Identifier const&>(call.identifier());
 
-    //auto callee = m_codeblock.get_function(callee_id.identifier());
-    //if( !callee ) {
-      //std::stringstream strm;
-      //strm << node.location() << ": can not find function '"
-        //<< callee_id.identifier()
-        //<< "'.";
-      //throw std::runtime_error(strm.str());
-    //}
-
-    //// TODO this_in and this_out pointers
-    //m_values[&node] = m_codeblock.m_builder.CreateCall(callee, "callres");
-
     std::vector<Value*> args;
     for(auto i : call.expressions()) {
       args.push_back(m_values.at(i));

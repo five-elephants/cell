@@ -62,6 +62,11 @@ namespace sim {
 
 
   void
+  Llvm_codegen::register_module_ctor(ir::Module* mod, llvm::Function* func) {
+    m_module_ctors[mod] = func;
+  }
+
+  void
   Llvm_codegen::register_module_init(ir::Module* mod, llvm::Function* func) {
     m_module_inits[mod] = func;
   }
@@ -72,6 +77,37 @@ namespace sim {
     std::cout << "\n ==== Code: ====\n" << std::endl;
     m_module->dump();
     std::cout << "\n ====  END  ====\n" << std::endl;
+  }
+
+
+  void
+  Llvm_codegen::create_setup(std::shared_ptr<ir::Module> toplevel) {
+    using namespace llvm;
+
+    auto toplevel_type = get_module_type(toplevel.get());
+    auto ctor = get_module_ctor(toplevel.get());
+    auto undef_init = UndefValue::get(toplevel_type);
+    auto gv = new llvm::GlobalVariable(*m_module,
+        toplevel_type,
+        false,
+        llvm::GlobalVariable::InternalLinkage,
+        //llvm::GlobalVariable::ExternalLinkage,
+        undef_init,
+        "root");
+    if( !gv )
+      throw std::runtime_error("failed to register root hierarchy module");
+
+    auto setup_func = Function::Create(FunctionType::get(Type::getVoidTy(m_context), false),
+      Function::ExternalLinkage,
+      "setup",
+      m_module.get());
+
+    auto bb = BasicBlock::Create(m_context, "entry", setup_func);
+    m_builder.SetInsertPoint(bb);
+
+    auto root_init = m_builder.CreateCall(ctor);
+    m_builder.CreateStore(root_init, gv);
+    m_builder.CreateRetVoid();
   }
 
 

@@ -103,6 +103,8 @@ namespace sim {
         m_function_name,
         m_module.get());
 
+    m_codegen.register_module_ctor(m_enclosing_mod, m_function);
+
     m_bb = BasicBlock::Create(m_context, "entry", m_function);
     m_builder.SetInsertPoint(m_bb);
 
@@ -230,6 +232,7 @@ namespace sim {
     if( m_enclosing_mod ) {
       std::vector<llvm::Value*> all_args(args.size()+2);
 
+      // TODO check if callee needs this_in, this_out at all
       all_args[0] = (m_function->arg_begin());
       all_args[1] = (++(m_function->arg_begin()));
 
