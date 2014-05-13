@@ -25,6 +25,7 @@ namespace sim {
       virtual bool assignment(ast::Node_if const& node);
       virtual bool op_plus(ast::Node_if const& node);
       virtual bool literal_int(ast::Node_if const& node);
+      virtual bool literal_string(ast::Node_if const& node);
       virtual bool var_ref(ast::Node_if const& node);
       virtual bool function_call(ast::Node_if const& node);
 

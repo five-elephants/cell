@@ -255,17 +255,26 @@ namespace sim {
   Llvm_codeblock::create_function_call(ir::Label const& callee,
       std::vector<llvm::Value*> const& args) {
     if( m_enclosing_mod ) {
-      std::vector<llvm::Value*> all_args(args.size()+2);
+      auto the_func = ir::find_function(m_enclosing_ns, callee);
+      if( !the_func )
+        return nullptr;
 
-      // TODO check if callee needs this_in, this_out at all
-      all_args[0] = (m_function->arg_begin());
-      all_args[1] = (++(m_function->arg_begin()));
-
-      std::copy(args.begin(), args.end(), all_args.begin() + 2);
-
-      auto func = get_function(callee);
+      auto func = m_codegen.get_function(the_func);
       if( !func )
         return nullptr;
+
+      std::vector<llvm::Value*> all_args(args.size()+2);
+
+      if( the_func->within_module ) {
+        all_args.resize(args.size() + 2);
+
+        all_args[0] = (m_function->arg_begin());
+        all_args[1] = (++(m_function->arg_begin()));
+        std::copy(args.begin(), args.end(), all_args.begin() + 2);
+      } else {
+        all_args.resize(args.size());
+        std::copy(args.begin(), args.end(), all_args.begin());
+      }
 
       auto rv = m_builder.CreateCall(func, all_args, "callres");
       return rv;

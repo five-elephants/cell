@@ -4,6 +4,7 @@
 #include "gen/generator_if.h"
 
 #include <stdexcept>
+#include <string>
 
 namespace ast {
 	
@@ -46,5 +47,15 @@ namespace ast {
 			}
 	};
 
+
+	template<>
+	class Literal<std::string> : public Literal_base<std::string> {
+		public:
+			Literal<std::string>(std::string const& value)
+				:	Literal_base<std::string>(value) {
+			}
+
+			virtual void visit() {}
+	};
 
 }

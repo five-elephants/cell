@@ -10,6 +10,8 @@ namespace ir {
     static std::map<Label, std::shared_ptr<Function>> functions;
 
     static std::shared_ptr<Socket> null_socket;
+
+    static void init();
   };
 
 }

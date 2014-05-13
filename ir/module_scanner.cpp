@@ -47,7 +47,11 @@ namespace ir {
       return true;
     }
 
-    if( !Namespace_scanner::enter(node) ) {
+    if( typeid(node) == typeid(ast::Function_def) ) {
+      auto f = Namespace_scanner::insert_function(dynamic_cast<ast::Function_def const&>(node));
+      f->within_module = true;
+      return false;
+    } else if( !Namespace_scanner::enter(node) ) {
       return false;
     } else if( typeid(node) == typeid(ast::Variable_def) ) {
       insert_object(dynamic_cast<ast::Variable_def const&>(node));

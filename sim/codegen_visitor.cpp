@@ -27,6 +27,7 @@ namespace sim {
     ENTER(Variable_def, var_def);
     ENTER(Variable_ref, var_ref);
     VISIT(Literal<int>, literal_int);
+    VISIT(Literal<std::string>, literal_string);
     LEAVE(Function_call, function_call);
     LEAVE(Assignment, assignment);
     //LEAVE(Compound, compound_leave);
@@ -49,7 +50,18 @@ namespace sim {
 
     auto mapping = m_mappings_enter.find(node_type);
     if( mapping != m_mappings_enter.end() ) {
-      return mapping->second(*this, node);
+      try {
+        return mapping->second(*this, node);
+      } catch( std::out_of_range const& err ) {
+        std::cerr << node.location()
+          << ": Encountered out_of_range error. Probably a missing "
+             "value for a node of the AST.\n"
+             "Node is of type: "
+          << node_type->name()
+          << "\nwhat(): " << err.what()
+          << std::endl;
+        throw err;
+      }
     }
 
     return true;
@@ -64,7 +76,18 @@ namespace sim {
       << "visit " << node_type->name() << std::endl;
     auto mapping = m_mappings_visit.find(node_type);
     if( mapping != m_mappings_visit.end() ) {
-      return mapping->second(*this, node);
+      try {
+        return mapping->second(*this, node);
+      } catch( std::out_of_range const& err ) {
+        std::cerr << node.location()
+          << ": Encountered out_of_range error. Probably a missing "
+             "value for a node of the AST.\n"
+             "Node is of type: "
+          << node_type->name()
+          << "\nwhat(): " << err.what()
+          << std::endl;
+        throw err;
+      }
     }
 
     return true;
@@ -84,7 +107,18 @@ namespace sim {
 
     auto mapping = m_mappings_leave.find(node_type);
     if( mapping != m_mappings_leave.end() ) {
-      return mapping->second(*this, node);
+      try {
+        return mapping->second(*this, node);
+      } catch( std::out_of_range const& err ) {
+        std::cerr << node.location()
+          << ": Encountered out_of_range error. Probably a missing "
+             "value for a node of the AST.\n"
+             "Node is of type: "
+          << node_type->name()
+          << "\nwhat(): " << err.what()
+          << std::endl;
+        throw err;
+      }
     }
 
     return true;
@@ -180,6 +214,20 @@ namespace sim {
     if( !v ) {
       std::stringstream strm;
       strm << node.location() << ": use of unknown type 'int'";
+      throw std::runtime_error(strm.str());
+    }
+    m_values[&node] = v;
+    return true;
+  }
+
+
+  VISITOR_METHOD(literal_string) {
+    std::cout << "make literal_string" << std::endl;
+    auto& lit = dynamic_cast<ast::Literal<std::string> const&>(node);
+    Value* v = m_codeblock.make_constant("string", lit.value());
+    if( !v ) {
+      std::stringstream strm;
+      strm << node.location() << ": use of unknown type 'string'";
       throw std::runtime_error(strm.str());
     }
     m_values[&node] = v;

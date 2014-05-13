@@ -11,9 +11,15 @@
 #include "parse_driver.h"
 #include "sim/compile.h"
 #include "ir/find_hierarchy.h"
+#include "ir/builtins.h"
 
 namespace po = boost::program_options;
 
+extern "C"
+int print(char* msg) {
+	std::cout << msg << std::endl;
+	return 0;
+}
 
 static llvm::ExecutionEngine* exe;
 
@@ -22,6 +28,10 @@ void simulate(std::shared_ptr<sim::Llvm_codegen> code,
   using namespace std;
 
   cout << "starting simulation..." << endl;
+
+  // add mappings for runtime functions
+  exe->addGlobalMapping(code->get_function(ir::Builtins::functions.at("print")),
+      (void*)(&print));
 
   // generate wrapper function to setup simulation
   code->create_setup(toplevel);
@@ -62,6 +72,7 @@ int main(int argc, char* argv[]) {
   using namespace llvm;
 
   InitializeNativeTarget();
+  ir::Builtins::init();
 
   try {
     po::positional_options_description pd;
@@ -122,6 +133,7 @@ int main(int argc, char* argv[]) {
         exe_bld.setErrorStr(&err_str);
         exe_bld.setEngineKind(EngineKind::JIT);
         exe = exe_bld.create();
+        exe->DisableSymbolSearching(false);
         if( !exe ) {
           cerr << "Failed to create execution engine!" << endl;
           cerr << err_str << endl;

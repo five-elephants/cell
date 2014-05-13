@@ -120,7 +120,7 @@ def build(bld):
       source = 'sim/simulator.cpp',
       target = 'simulator',
       includes = '.',
-      cxxflags = '-std=c++11 -ggdb',
+      cxxflags = '-std=c++11 -ggdb -fPIC',
       use = 'core sim LLVM'
     )
 

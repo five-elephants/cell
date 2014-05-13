@@ -47,6 +47,7 @@ namespace ir {
     //std::map<Label, std::shared_ptr<Object>> parameters;
     std::vector<std::shared_ptr<Object>> parameters;
     std::shared_ptr<Codeblock_if> code;
+    bool within_module = false;
   };
 
   struct Process {

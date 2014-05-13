@@ -22,7 +22,8 @@
 
 id         [a-zA-Z_][a-zA-Z_0-9]*
 int        [0-9]+
-bitstring  \"[01_-]*\"
+bitstring  \'[01_-]*\'
+string     \"[[:print:]]*\"
 blank      [ \t]
 
 %{
@@ -94,6 +95,11 @@ blank      [ \t]
   std::string str(yytext);
   yylval->sval = new std::string(str.substr(1, str.size()-3));
   return token::BITSTRING;
+}
+{string} {
+  std::string str(yytext);
+  yylval->sval = new std::string(str.substr(1, str.size()-2));
+  return token::STRING;
 }
 {id}       yylval->sval = new std::string(yytext); return token::IDENTIFIER;
 .          driver.error(*yylloc, "invalid character");

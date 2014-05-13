@@ -33,6 +33,15 @@ namespace sim {
         return nullptr;
       }
 
+      llvm::Value* make_constant(std::shared_ptr<ir::Type> type,
+          std::string const& value) {
+        if( type == ir::Builtins::types["string"] )
+          //return llvm::ConstantDataArray::getString(m_context, value);
+          return m_builder.CreateGlobalStringPtr(value, "string");
+
+        return nullptr;
+      }
+
       llvm::Type* get_type(std::shared_ptr<ir::Type> type) const; 
       llvm::Value* get_global(std::shared_ptr<ir::Object> object) const;
       llvm::Function* get_function(std::shared_ptr<ir::Function> func) const;
@@ -71,6 +80,7 @@ namespace sim {
       typedef std::unordered_map< std::shared_ptr<ir::Object>,
               llvm::GlobalVariable* > Variable_map;
 
+      typedef std::unordered_map< ir::Type*, llvm::Type* > Type_map;
       typedef std::unordered_map< ir::Module*, llvm::Type* > Module_type_map;
       typedef std::unordered_map< ir::Module*, llvm::Function* > Module_init_map;
       typedef std::unordered_map< ir::Function*, llvm::Function* > Function_map;
@@ -81,6 +91,7 @@ namespace sim {
       std::shared_ptr<llvm::Module> m_module;
       llvm::FunctionPassManager m_fpm;
       Variable_map m_globals;
+      Type_map m_type_map;
       Module_type_map m_module_types;
       Module_init_map m_module_ctors;
       Module_init_map m_module_inits;
@@ -88,6 +99,9 @@ namespace sim {
       Process_map m_processes;
       llvm::GlobalVariable* m_root = nullptr;
 
+
+      void define_builtin_types();
+      void declare_runtime_functions();
   };
 
 }

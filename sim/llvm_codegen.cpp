@@ -6,6 +6,7 @@
 #include <llvm/Analysis/Passes.h>
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/Transforms/Scalar.h>
+#include <llvm/IR/TypeBuilder.h>
 #include <memory>
 #include <iostream>
 
@@ -24,6 +25,9 @@ namespace sim {
     m_fpm.add(llvm::createGVNPass());
     m_fpm.add(llvm::createCFGSimplificationPass());
     m_fpm.doInitialization();
+
+    define_builtin_types();
+    declare_runtime_functions();
   }
 
 
@@ -120,10 +124,9 @@ namespace sim {
 
   llvm::Type*
   Llvm_codegen::get_type(std::shared_ptr<ir::Type> type) const {
-    if( type == ir::Builtins::types["int"] )
-      return llvm::Type::getInt64Ty(m_context);
-    else if( type == ir::Builtins::types["void"] )
-      return llvm::Type::getVoidTy(m_context);
+    auto it = m_type_map.find(type.get());
+    if( it != m_type_map.end() )
+      return it->second;
 
     return nullptr;
   }
@@ -165,6 +168,43 @@ namespace sim {
   Llvm_codegen::optimize(llvm::Function* func) {
     m_fpm.run(*func);
   }
+
+
+  void
+  Llvm_codegen::define_builtin_types() {
+    using namespace ir;
+
+    m_type_map[Builtins::types.at("int").get()] = llvm::Type::getInt64Ty(m_context);
+    m_type_map[Builtins::types.at("void").get()] = llvm::Type::getVoidTy(m_context);
+    m_type_map[Builtins::types.at("string").get()] = llvm::TypeBuilder<char*, false>::get(m_context);
+  }
+
+
+  void
+  Llvm_codegen::declare_runtime_functions() {
+    using namespace llvm;
+
+    for(auto func_it : ir::Builtins::functions) {
+      std::vector<Type*> arg_types;
+      auto func = func_it.second;
+
+      for(auto p : func->parameters) {
+        arg_types.push_back(get_type(p->type));
+      }
+
+      FunctionType* type = FunctionType::get(get_type(func->return_type),
+        arg_types,
+        false);
+
+      Function* f = Function::Create(type,
+          Function::ExternalLinkage,
+          func->name,
+          m_module.get());
+
+      register_function(func, f);
+    }
+  }
+
 
 }
 
