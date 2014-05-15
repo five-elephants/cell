@@ -23,7 +23,7 @@ namespace sim {
       virtual bool var_def(ast::Node_if const& node);
       virtual bool func_def(ast::Node_if const& node);
 
-      llvm::Type* get_module_type(ir::Label const& name);
+      llvm::StructType* get_module_type(ir::Label const& name);
       llvm::Value* get_initialization(llvm::Value* obj);
       bool has_init() { return m_has_init; }
 

@@ -50,6 +50,7 @@ int main(int argc, char* argv[]) {
           vm["top"].as<string>());
       engine.setup();
       engine.simulate_cycle();
+      engine.simulate_cycle();
       engine.teardown();
     } else {
       cout << desc << endl;

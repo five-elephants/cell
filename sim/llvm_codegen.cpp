@@ -96,10 +96,11 @@ namespace sim {
     using namespace llvm;
 
     auto toplevel_type = get_module_type(toplevel.get());
+    auto toplevel_array_type = ArrayType::get(toplevel_type, 2);
     auto ctor = get_module_ctor(toplevel.get());
-    auto undef_init = UndefValue::get(toplevel_type);
+    auto undef_init = UndefValue::get(toplevel_array_type);
     m_root = new llvm::GlobalVariable(*m_module,
-        toplevel_type,
+        toplevel_array_type,
         false,
         llvm::GlobalVariable::InternalLinkage,
         //llvm::GlobalVariable::ExternalLinkage,
@@ -117,7 +118,10 @@ namespace sim {
     m_builder.SetInsertPoint(bb);
 
     auto root_init = m_builder.CreateCall(ctor);
-    m_builder.CreateStore(root_init, m_root);
+    auto ptr_root_a = m_builder.CreateConstGEP2_32(m_root, 0, 0);
+    auto ptr_root_b = m_builder.CreateConstGEP2_32(m_root, 0, 1);
+    m_builder.CreateStore(root_init, ptr_root_a);
+    m_builder.CreateStore(root_init, ptr_root_b);
     m_builder.CreateRetVoid();
   }
 

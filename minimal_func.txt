@@ -1,5 +1,7 @@
 namespace example = {
 	mod Top = {
+		var req : int
+		var ack : int
 		var counter : int
 		var hello = 42 : int
 
@@ -8,6 +10,9 @@ namespace example = {
 			counter = 1
 			hello = counter + 2 
 			print("hello world")
+
+			req = 0
+			ack = 0
 		}
 
 
@@ -39,8 +44,18 @@ namespace example = {
 
 		process = {
 			hello = hello + counter
-			counter = f(0, 6)
+			/*counter = f(0, 6)*/
+			counter = 5	
 			print("huhu")
 		}
+
+		process = {
+			ack = req
+		}
+
+		process = {
+			req = 1	
+		}
+
 	}
 }

@@ -29,9 +29,9 @@ namespace sim {
       typedef std::vector<Process> Process_list;
 
       struct Module {
-        llvm::GenericValue this_in;
-        llvm::GenericValue this_out;
-        llvm::Function* allocator;
+        void* this_in;
+        void* this_out;
+        llvm::StructLayout const* layout;
         Process_list processes;
       };
 
@@ -40,6 +40,7 @@ namespace sim {
 
 
       llvm::ExecutionEngine* m_exe = nullptr;
+      llvm::DataLayout const* m_layout = nullptr;
       std::shared_ptr<sim::Llvm_codegen> m_code;
       ir::Namespace m_top_ns;
       std::shared_ptr<ir::Module> m_top_mod;

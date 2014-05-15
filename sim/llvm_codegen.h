@@ -50,7 +50,7 @@ namespace sim {
 
       std::shared_ptr<llvm::Module> module() { return m_module; }
 
-      llvm::Type* get_module_type(ir::Module* mod) const {
+      llvm::StructType* get_module_type(ir::Module* mod) const {
         return m_module_types.at(mod);
       }
 
@@ -65,7 +65,7 @@ namespace sim {
       }
 
 
-      void add_module_type(ir::Module* mod, llvm::Type* type) {
+      void add_module_type(ir::Module* mod, llvm::StructType* type) {
         m_module_types[mod] = type;
       }
 
@@ -81,7 +81,7 @@ namespace sim {
               llvm::GlobalVariable* > Variable_map;
 
       typedef std::unordered_map< ir::Type*, llvm::Type* > Type_map;
-      typedef std::unordered_map< ir::Module*, llvm::Type* > Module_type_map;
+      typedef std::unordered_map< ir::Module*, llvm::StructType* > Module_type_map;
       typedef std::unordered_map< ir::Module*, llvm::Function* > Module_init_map;
       typedef std::unordered_map< ir::Function*, llvm::Function* > Function_map;
       typedef std::unordered_map< ir::Process*, llvm::Function* > Process_map;

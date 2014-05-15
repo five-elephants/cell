@@ -120,7 +120,7 @@ namespace sim {
   }
 
 
-  Type*
+  StructType*
   Module_codegen_visitor::get_module_type(ir::Label const& name) {
     auto rv = StructType::create(m_codeblock.m_context, m_types, name);
     return rv;
