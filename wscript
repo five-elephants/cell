@@ -73,6 +73,8 @@ def build(bld):
       sim/codegen_visitor.cpp
       sim/module_codegen_visitor.cpp
       sim/compile.cpp
+      sim/runtime.cpp
+      sim/simulation_engine.cpp
     """
 
     bindings_src = """
