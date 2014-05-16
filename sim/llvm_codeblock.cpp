@@ -4,6 +4,7 @@
 #include "sim/module_codegen_visitor.h"
 
 #include <llvm/Analysis/Verifier.h>
+#include <llvm/IR/TypeBuilder.h>
 #include <sstream>
 
 namespace sim {
@@ -21,7 +22,6 @@ namespace sim {
       m_builder(builder),
       m_module(module),
       m_enclosing_ns(ns) {
-    // create anonymous function and set builder insertion point
     m_function_type = FunctionType::get(Type::getVoidTy(m_context), false);
   }
 
@@ -52,7 +52,10 @@ namespace sim {
         ++i;
         i->setName("this_in");
         ++i;
+        i->setName("read_mask");
+        ++i; 
       }
+
       auto j = m_prototype->parameters.begin();
       for( ; 
           (i != m_function->arg_end()) && (j != m_prototype->parameters.end()); 
@@ -115,7 +118,9 @@ namespace sim {
     m_builder.SetInsertPoint(m_bb);
 
     // create intialization method
+    auto read_mask_type = ArrayType::get(IntegerType::get(m_context, 1), mod_type->getNumElements());
     auto obj_ptr = m_builder.CreateAlloca(mod_type, nullptr, "this");
+    auto read_mask_ptr = m_builder.CreateAlloca(read_mask_type, nullptr, "read_mask");
     auto ini = visitor.get_initialization(obj_ptr);
     m_builder.CreateStore(ini, obj_ptr);
 
@@ -123,7 +128,8 @@ namespace sim {
     if( visitor.has_init() ) {
       std::vector<Type*> arg_types{
         PointerType::getUnqual(mod_type),
-        PointerType::getUnqual(mod_type)
+        PointerType::getUnqual(mod_type),
+        PointerType::getUnqual(read_mask_type)
       };
       auto init_type = FunctionType::get(Type::getVoidTy(m_context), arg_types, false);
       auto init_func = Function::Create(init_type,
@@ -131,7 +137,7 @@ namespace sim {
           "__init__",
           m_module.get());
 
-      m_builder.CreateCall2(init_func, obj_ptr, obj_ptr);
+      m_builder.CreateCall3(init_func, obj_ptr, obj_ptr, read_mask_ptr);
       m_codegen.register_module_init(m_enclosing_mod, init_func);
     }
 
@@ -166,6 +172,14 @@ namespace sim {
     if( m_enclosing_mod ) {
       arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
       arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
+
+      // create read mask argument
+      auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
+      auto read_mask_type = PointerType::getUnqual(
+          ArrayType::get(IntegerType::get(m_context, 1), mod_type->getNumElements())
+      );
+
+      arg_types.push_back(read_mask_type);
     }
 
     for(auto p : func->parameters) {
@@ -187,8 +201,9 @@ namespace sim {
       throw std::runtime_error("Process must be in module");
     }
 
-    arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
-    arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
+    auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
+    arg_types.push_back(PointerType::getUnqual(mod_type));
+    arg_types.push_back(PointerType::getUnqual(mod_type));
 
     m_function_type = FunctionType::get(Type::getVoidTy(m_context),
         arg_types,
@@ -266,11 +281,13 @@ namespace sim {
       std::vector<llvm::Value*> all_args(args.size()+2);
 
       if( the_func->within_module ) {
-        all_args.resize(args.size() + 2);
+        all_args.resize(args.size() + 3);
 
-        all_args[0] = (m_function->arg_begin());
-        all_args[1] = (++(m_function->arg_begin()));
-        std::copy(args.begin(), args.end(), all_args.begin() + 2);
+        auto func_arg_it = m_function->arg_begin();
+        all_args[0] = func_arg_it++;
+        all_args[1] = func_arg_it++;
+        all_args[2] = func_arg_it++;
+        std::copy(args.begin(), args.end(), all_args.begin() + 3);
       } else {
         all_args.resize(args.size());
         std::copy(args.begin(), args.end(), all_args.begin());
