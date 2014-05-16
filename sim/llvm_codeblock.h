@@ -90,6 +90,11 @@ namespace sim {
         return m_codegen.get_function(the_func);
       }
 
+      llvm::ArrayType* read_mask_type() const { 
+        auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
+        return llvm::ArrayType::get(llvm::IntegerType::get(m_context, 1), mod_type->getNumElements());
+      }
+
       llvm::Value* get_module_object_out(ir::Label const& name);
       llvm::Value* get_module_object_in(ir::Label const& name);
       llvm::Value* create_function_call(ir::Label const& callee, std::vector<llvm::Value*> const& args);

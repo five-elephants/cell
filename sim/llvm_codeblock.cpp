@@ -75,19 +75,21 @@ namespace sim {
       (++i)->setName("this_in");
 
       auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
-      auto read_mask_type = ArrayType::get(IntegerType::get(m_context, 1), mod_type->getNumElements());
-      m_read_mask = m_builder.CreateAlloca(read_mask_type, nullptr, "read_mask");
+      m_read_mask = m_builder.CreateAlloca(read_mask_type(), nullptr, "read_mask");
       std::vector<Constant*> zeros(mod_type->getNumElements(),
           ConstantInt::get(m_context, APInt(1, 0, false)));
-      auto zero_mask = ConstantArray::get(read_mask_type, zeros);
+      auto zero_mask = ConstantArray::get(read_mask_type(), zeros);
       m_builder.CreateStore(zero_mask, m_read_mask);
     }
 
     tree.accept(visitor);
 
     if( !m_function->back().getTerminator() ) {
-      // TODO not sure if this is enough
-      m_builder.CreateRetVoid();
+      if( m_process ) {
+        auto rv = m_builder.CreateLoad(m_read_mask, "rv");
+        m_builder.CreateRet(rv);
+      } else
+        m_builder.CreateRetVoid();
     }
 
     if( verifyFunction(*m_function, PrintMessageAction) ) {
@@ -126,9 +128,8 @@ namespace sim {
     m_builder.SetInsertPoint(m_bb);
 
     // create intialization method
-    auto read_mask_type = ArrayType::get(IntegerType::get(m_context, 1), mod_type->getNumElements());
     auto obj_ptr = m_builder.CreateAlloca(mod_type, nullptr, "this");
-    auto read_mask_ptr = m_builder.CreateAlloca(read_mask_type, nullptr, "read_mask");
+    auto read_mask_ptr = m_builder.CreateAlloca(read_mask_type(), nullptr, "read_mask");
     auto ini = visitor.get_initialization(obj_ptr);
     m_builder.CreateStore(ini, obj_ptr);
 
@@ -137,7 +138,7 @@ namespace sim {
       std::vector<Type*> arg_types{
         PointerType::getUnqual(mod_type),
         PointerType::getUnqual(mod_type),
-        PointerType::getUnqual(read_mask_type)
+        PointerType::getUnqual(read_mask_type())
       };
       auto init_type = FunctionType::get(Type::getVoidTy(m_context), arg_types, false);
       auto init_func = Function::Create(init_type,
@@ -182,12 +183,7 @@ namespace sim {
       arg_types.push_back(PointerType::getUnqual(m_codegen.get_module_type(m_enclosing_mod)));
 
       // create read mask argument
-      auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
-      auto read_mask_type = PointerType::getUnqual(
-          ArrayType::get(IntegerType::get(m_context, 1), mod_type->getNumElements())
-      );
-
-      arg_types.push_back(read_mask_type);
+      arg_types.push_back(PointerType::getUnqual(read_mask_type()));
     }
 
     for(auto p : func->parameters) {
@@ -213,7 +209,7 @@ namespace sim {
     arg_types.push_back(PointerType::getUnqual(mod_type));
     arg_types.push_back(PointerType::getUnqual(mod_type));
 
-    m_function_type = FunctionType::get(Type::getVoidTy(m_context),
+    m_function_type = FunctionType::get(read_mask_type(),
         arg_types,
         false);
     m_function_name = "__process__";
@@ -313,3 +309,4 @@ namespace sim {
   }
 
 }
+

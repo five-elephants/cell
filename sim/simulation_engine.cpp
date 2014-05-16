@@ -81,7 +81,7 @@ namespace sim {
       };
 
       for(auto const& proc : mod.processes) {
-        m_exe->runFunction(proc.function, args);
+        auto res = m_exe->runFunction(proc.function, args);
       }
     }
 
