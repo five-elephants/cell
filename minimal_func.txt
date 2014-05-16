@@ -44,7 +44,7 @@ namespace example = {
 
 		process = {
 			hello = hello + counter
-			/*counter = f(0, 6)*/  // TODO triggers segfault
+			counter = f(0, 6)
 			counter = 5	
 			print("huhu")
 		}

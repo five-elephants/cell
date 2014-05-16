@@ -73,6 +73,14 @@ namespace sim {
       auto i = m_function->arg_begin();
       i->setName("this_out");
       (++i)->setName("this_in");
+
+      auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
+      auto read_mask_type = ArrayType::get(IntegerType::get(m_context, 1), mod_type->getNumElements());
+      m_read_mask = m_builder.CreateAlloca(read_mask_type, nullptr, "read_mask");
+      std::vector<Constant*> zeros(mod_type->getNumElements(),
+          ConstantInt::get(m_context, APInt(1, 0, false)));
+      auto zero_mask = ConstantArray::get(read_mask_type, zeros);
+      m_builder.CreateStore(zero_mask, m_read_mask);
     }
 
     tree.accept(visitor);
@@ -286,7 +294,11 @@ namespace sim {
         auto func_arg_it = m_function->arg_begin();
         all_args[0] = func_arg_it++;
         all_args[1] = func_arg_it++;
-        all_args[2] = func_arg_it++;
+        if( m_process ) {
+          all_args[2] = m_read_mask;
+        } else {
+          all_args[2] = func_arg_it++;
+        }
         std::copy(args.begin(), args.end(), all_args.begin() + 3);
       } else {
         all_args.resize(args.size());

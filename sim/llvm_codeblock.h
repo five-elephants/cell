@@ -48,6 +48,7 @@ namespace sim {
       llvm::FunctionType* m_function_type;
       llvm::Function* m_function;
       llvm::BasicBlock* m_bb;
+      llvm::Value* m_read_mask = nullptr;
 
       template<typename T>
       llvm::Value* make_constant(ir::Label const& type_name, T const& value) const {
