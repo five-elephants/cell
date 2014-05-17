@@ -53,9 +53,9 @@ namespace example = {
 			ack = req
 		}
 
-		/*process = {*/
-			/*req = 1	*/
-		/*}*/
+		process = {
+			req = 1	
+		}
 
 	}
 }

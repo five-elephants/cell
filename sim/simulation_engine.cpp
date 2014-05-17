@@ -14,6 +14,8 @@
 
 namespace sim {
 
+
+
   Simulation_engine::Simulation_engine(std::string const& filename,
       std::string const& toplevel) {
     init(filename, toplevel);
@@ -54,6 +56,7 @@ namespace sim {
     mod.this_out = root_b_ptr;
     mod.layout = m_layout->getStructLayout(m_code->get_module_type(m_top_mod.get()));
     mod.num_elements = m_code->get_module_type(m_top_mod.get())->getNumElements();
+    mod.sensitivity.resize(mod.num_elements);
     
     for(auto proc : m_top_mod->processes) {
       Process p;
@@ -61,6 +64,7 @@ namespace sim {
       p.exe_ptr = m_exe->getPointerToFunction(p.function);
 
       mod.processes.push_back(p);
+      mod.run_list.insert(p);
     }
 
     m_modules.push_back(mod);
@@ -78,18 +82,20 @@ namespace sim {
     //  // TODO run list data structure (C++) and delta cycle simulation
     //  // TODO support for periodic processes
 
-    for(auto const& mod : m_modules) {
-      vector<llvm::GenericValue> args{
-        llvm::PTOGV(mod.this_out),
-        llvm::PTOGV(mod.this_in)
-      };
+    for(auto& mod : m_modules) {
       auto read_mask_sz = m_layout->getTypeAllocSize(
         llvm::ArrayType::get(llvm::IntegerType::get(llvm::getGlobalContext(), 1),
             mod.num_elements) 
       );
       char* read_mask = new char [read_mask_sz];
 
-      for(auto const& proc : mod.processes) {
+      // clear sensitivity list
+      for(auto s : mod.sensitivity)
+        s.clear();
+
+      cout << "running " << mod.run_list.size() << " processes" << endl;
+
+      for(auto const& proc : mod.run_list) {
         cout << "calling process..." << endl;
         std::fill_n(read_mask, read_mask_sz, 0);
         auto exe_ptr = reinterpret_cast<void (*)(void*, void*, void*)>(proc.exe_ptr);
@@ -99,7 +105,12 @@ namespace sim {
         for(size_t j=0; j<read_mask_sz; j++)
           cout << setw(2) << setfill('0') << static_cast<int>(read_mask[j]) << " ";
         cout << endl; 
-        //auto res = m_exe->runFunction(proc.function, args);
+
+        // add to sensitivity list
+        for(size_t j=0; j<read_mask_sz; j++) {
+          if( read_mask[j] )
+            mod.sensitivity[j].push_back(proc);
+        }
       }
 
       delete [] read_mask;
@@ -107,10 +118,11 @@ namespace sim {
 
     // find modified signals
     bool modified = false;
-    for(auto const& mod : m_modules) {
+    for(auto& mod : m_modules) {
       char* ptr_in = static_cast<char*>(mod.this_in);
       char* ptr_out = static_cast<char*>(mod.this_out);
       auto size = mod.layout->getSizeInBytes();
+      mod.run_list.clear();
       
       bool mod_modified = false;
       for(size_t i=0; i<size; i++) {
@@ -120,6 +132,11 @@ namespace sim {
           cout << " belongs to element " << elem << endl;
           modified = true;
           mod_modified = true;
+
+          // add dependant processes to run list
+          for(auto const& dep : mod.sensitivity[elem]) {
+            mod.run_list.insert(dep);
+          }
         }
       }
 
@@ -138,7 +155,6 @@ namespace sim {
       << endl;
 
     auto off = m_layout->getTypeAllocSize(m_code->get_module_type(m_top_mod.get()));
-    cout << "alloca size = " << dec << off << endl;
     cout << "top B:\n" << hex
       << "0x" << setw(16) << setfill('0')
       << static_cast<uint64_t*>(root_ptr)[off/sizeof(uint64_t)]
