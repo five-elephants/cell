@@ -73,6 +73,7 @@ namespace sim {
       auto i = m_function->arg_begin();
       i->setName("this_out");
       (++i)->setName("this_in");
+      (++i)->setName("read_mask");
 
       auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
       m_read_mask = m_builder.CreateAlloca(read_mask_type(), nullptr, "read_mask");
@@ -85,11 +86,7 @@ namespace sim {
     tree.accept(visitor);
 
     if( !m_function->back().getTerminator() ) {
-      if( m_process ) {
-        auto rv = m_builder.CreateLoad(m_read_mask, "rv");
-        m_builder.CreateRet(rv);
-      } else
-        m_builder.CreateRetVoid();
+      m_builder.CreateRetVoid();
     }
 
     if( verifyFunction(*m_function, PrintMessageAction) ) {
@@ -208,8 +205,10 @@ namespace sim {
     auto mod_type = m_codegen.get_module_type(m_enclosing_mod);
     arg_types.push_back(PointerType::getUnqual(mod_type));
     arg_types.push_back(PointerType::getUnqual(mod_type));
+    arg_types.push_back(PointerType::getUnqual(read_mask_type()));
 
-    m_function_type = FunctionType::get(read_mask_type(),
+    //m_function_type = FunctionType::get(read_mask_type(),
+    m_function_type = FunctionType::get(Type::getVoidTy(m_context),
         arg_types,
         false);
     m_function_name = "__process__";

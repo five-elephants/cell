@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <llvm/ExecutionEngine/JIT.h>
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/Analysis/Verifier.h>
 
 #include "parse_driver.h"
 #include "sim/compile.h"
@@ -52,10 +53,13 @@ namespace sim {
     mod.this_in = root_ptr;
     mod.this_out = root_b_ptr;
     mod.layout = m_layout->getStructLayout(m_code->get_module_type(m_top_mod.get()));
+    mod.num_elements = m_code->get_module_type(m_top_mod.get())->getNumElements();
     
     for(auto proc : m_top_mod->processes) {
       Process p;
       p.function = m_code->get_process(proc);
+      p.exe_ptr = m_exe->getPointerToFunction(p.function);
+
       mod.processes.push_back(p);
     }
 
@@ -79,10 +83,26 @@ namespace sim {
         llvm::PTOGV(mod.this_out),
         llvm::PTOGV(mod.this_in)
       };
+      auto read_mask_sz = m_layout->getTypeAllocSize(
+        llvm::ArrayType::get(llvm::IntegerType::get(llvm::getGlobalContext(), 1),
+            mod.num_elements) 
+      );
+      char* read_mask = new char [read_mask_sz];
 
       for(auto const& proc : mod.processes) {
-        auto res = m_exe->runFunction(proc.function, args);
+        cout << "calling process..." << endl;
+        std::fill_n(read_mask, read_mask_sz, 0);
+        auto exe_ptr = reinterpret_cast<void (*)(void*, void*, void*)>(proc.exe_ptr);
+        exe_ptr(mod.this_out, mod.this_in, read_mask);
+
+        cout << "read_mask: " << hex;
+        for(size_t j=0; j<read_mask_sz; j++)
+          cout << setw(2) << setfill('0') << read_mask[j] << " ";
+        cout << endl; 
+        //auto res = m_exe->runFunction(proc.function, args);
       }
+
+      delete [] read_mask;
     }
 
     // find modified signals
@@ -162,6 +182,8 @@ namespace sim {
       return;
     }
 
+    verifyModule(*(m_code->module())); 
+
     EngineBuilder exe_bld(m_code->module().get());
     std::string err_str;
     exe_bld.setErrorStr(&err_str);
@@ -169,8 +191,9 @@ namespace sim {
     m_exe = exe_bld.create();
     m_exe->DisableSymbolSearching(false);
     if( !m_exe ) {
-      cerr << "Failed to create execution engine!" << endl;
-      cerr << err_str << endl;
+      std::stringstream strm;
+      strm << "Failed to create execution engine!: " << err_str;
+      throw std::runtime_error(strm.str());
     }
 
     m_layout = m_exe->getDataLayout();

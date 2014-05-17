@@ -24,6 +24,7 @@ namespace sim {
     private:
       struct Process {
         llvm::Function* function;
+        void* exe_ptr;
       };
 
       typedef std::vector<Process> Process_list;
@@ -33,6 +34,7 @@ namespace sim {
         void* this_out;
         llvm::StructLayout const* layout;
         Process_list processes;
+        unsigned int num_elements;
       };
 
       typedef std::vector<Module> Module_list;

@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <boost/program_options.hpp>
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/ExecutionEngine/JIT.h>
 
 #include "sim/simulation_engine.h"
 

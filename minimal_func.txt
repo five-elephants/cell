@@ -42,20 +42,20 @@ namespace example = {
 			counter = counter + 1
 		}
 
-		process = {
-			hello = hello + counter
-			counter = f(0, 6)
-			counter = 5	
-			print("huhu")
-		}
+		/*process = {*/
+			/*hello = hello + counter*/
+			/*counter = f(0, 6)*/
+			/*counter = 5	*/
+			/*print("huhu")*/
+		/*}*/
 
 		process = {
 			ack = req
 		}
 
-		process = {
-			req = 1	
-		}
+		/*process = {*/
+			/*req = 1	*/
+		/*}*/
 
 	}
 }
