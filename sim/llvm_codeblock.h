@@ -97,6 +97,7 @@ namespace sim {
 
       llvm::Value* get_module_object_out(ir::Label const& name);
       llvm::Value* get_module_object_in(ir::Label const& name);
+      llvm::Value* get_read_mask(ir::Label const& name);
       llvm::Value* create_function_call(ir::Label const& callee, std::vector<llvm::Value*> const& args);
   };
 

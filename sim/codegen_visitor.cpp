@@ -180,7 +180,6 @@ namespace sim {
       m_values[&node] = m_codeblock.m_builder.CreateStore(m_values.at(&a.expression()),
           it->second);
     } else {
-      // TODO: get_module_object creates getelementptr instruction on this_out returning a pointer to the element
       llvm::Value* ptr = m_codeblock.get_module_object_out(target_name);
       if( index < 0 ) {
         std::stringstream strm;
@@ -251,7 +250,21 @@ namespace sim {
       }
 
       m_values[&node] = m_codeblock.m_builder.CreateLoad(v, "loadtmp");
-      //m_values[&node] = v;
+      
+      // register the read access
+      Value* read_mask = m_codeblock.get_read_mask(id.identifier());
+      if( read_mask == nullptr ) {
+        std::stringstream strm;
+        strm << node.location() << ": failed to get read_mask entry for named value '"
+          << id.identifier()
+          << "'";
+        throw std::runtime_error(strm.str());
+      }
+
+      m_codeblock.m_builder.CreateStore(
+          ConstantInt::get(m_codeblock.m_context, APInt(1, 1, false)),
+          read_mask
+      );
     }
 
     return true;

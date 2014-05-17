@@ -270,6 +270,24 @@ namespace sim {
 
 
   llvm::Value*
+  Llvm_codeblock::get_read_mask(ir::Label const& name) {
+    if( m_enclosing_mod ) {
+      auto it = m_enclosing_mod->objects.find(name);
+      if( it == m_enclosing_mod->objects.end() )
+        return nullptr;
+
+      auto index = std::distance(m_enclosing_mod->objects.begin(), it);
+      auto read_mask = ++++(m_function->arg_begin());
+
+      auto rv = m_builder.CreateConstGEP2_32(read_mask, 0, index, "obj");
+      return rv;
+    }
+
+    return nullptr;
+  }
+
+
+  llvm::Value*
   Llvm_codeblock::create_function_call(ir::Label const& callee,
       std::vector<llvm::Value*> const& args) {
     if( m_enclosing_mod ) {

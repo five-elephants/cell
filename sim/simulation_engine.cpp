@@ -97,7 +97,7 @@ namespace sim {
 
         cout << "read_mask: " << hex;
         for(size_t j=0; j<read_mask_sz; j++)
-          cout << setw(2) << setfill('0') << read_mask[j] << " ";
+          cout << setw(2) << setfill('0') << static_cast<int>(read_mask[j]) << " ";
         cout << endl; 
         //auto res = m_exe->runFunction(proc.function, args);
       }
