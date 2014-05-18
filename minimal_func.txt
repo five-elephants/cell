@@ -48,6 +48,10 @@ namespace example = {
 		/*}*/
 
 		process = {
+			hello = counter + 5
+		}
+
+		process = {
 			ack = req
 		}
 

@@ -15,6 +15,10 @@ namespace ast {
       }
       
     virtual void visit() {};
+
+    Node_if const& body() const { return m_body; }
+    Node_if const& unit() const { return m_unit; }
+    Node_if const& period() const { return m_period; }
     
     private:
       Node_if& m_period;

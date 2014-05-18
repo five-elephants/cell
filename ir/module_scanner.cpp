@@ -240,6 +240,8 @@ namespace ir {
   Module_scanner::insert_periodic(ast::Periodic const& node) {
     auto rv = std::make_shared<Periodic>();
 
+    rv->period = Time(2, Time::ns);
+
     // generate code for process body
     auto cb = make_codeblock();
     cb->process(rv);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cmath>
-
+#include <ostream>
 
 namespace ir {
   
@@ -51,3 +51,17 @@ namespace ir {
 
 
 }
+
+inline std::ostream& operator << (std::ostream& os, ir::Time const& t) {
+  os << t.v;
+  switch( t.magnitude ) {
+    case 0:  os << "s"; break;
+    case -3: os << "ms"; break;
+    case -6: os << "us"; break;
+    case -9: os << "ns"; break;
+    case -12: os << "ps"; break;
+    default: os << "x10^" << t.magnitude << " s";
+  }
+  return os;
+}
+

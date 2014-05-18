@@ -40,7 +40,7 @@ namespace sim {
 
     // generate wrapper function to setup simulation
     m_code->create_setup(m_top_mod);
-    m_code->emit();
+    //m_code->emit();
 
     auto setup_func = m_code->module()->getFunction("setup");
     if( !setup_func ) {
@@ -83,10 +83,11 @@ namespace sim {
       Process p;
       p.function = m_code->get_process(proc);
       p.exe_ptr = m_exe->getPointerToFunction(p.function);
+      p.sensitive = false;
 
       mod.run_list.insert(p);
 
-      auto pr = std::make_pair(proc.period, p);
+      auto pr = std::make_pair(proc->period, p);
       mod.periodicals.insert(pr);
       mod.schedule.insert(pr);
     }
@@ -98,6 +99,10 @@ namespace sim {
   void
   Simulation_engine::simulate(ir::Time const& duration) {
     for(ir::Time t=m_time; t<(m_time + duration); ) {
+      ir::Time next_t = m_time + duration;
+
+      std::cout << "===== time: " << t << " =====" << std::endl;
+
       // add timed processes to the run list
       for(auto& mod : m_modules) {
         auto timed_procs_range = mod.schedule.equal_range(t);
@@ -108,6 +113,11 @@ namespace sim {
         }
 
         mod.schedule.erase(timed_procs_range.first, timed_procs_range.second);
+        
+        // select next point in time for simulation
+        auto nextit = mod.schedule.upper_bound(m_time);
+        if( nextit != mod.schedule.end() )
+          next_t = std::min(next_t, nextit->first);
       }
 
       // simulate cycles until all signals are stable
@@ -118,9 +128,7 @@ namespace sim {
         modified = simulate_cycle();
       } while( (cycle++ < max_cycles) && (modified) );
 
-
-      // select next point in time for simulation
-      t = t + duration;
+      t = next_t;
     }
   }
 
@@ -186,32 +194,37 @@ namespace sim {
 
     for(auto& mod : m_modules) {
       // clear sensitivity list
-      for(auto s : mod.sensitivity)
-        s.clear();
+      //for(auto s : mod.sensitivity)
+        //s.clear();
 
       cout << "running " << mod.run_list.size() << " processes" << endl;
 
       for(auto const& proc : mod.run_list) {
         cout << "calling process..." << endl;
-        std::fill_n(mod.read_mask, mod.read_mask_sz, 0);
+        if( proc.sensitive )
+          std::fill_n(mod.read_mask, mod.read_mask_sz, 0);
         auto exe_ptr = reinterpret_cast<void (*)(void*, void*, void*)>(proc.exe_ptr);
         exe_ptr(mod.this_out, mod.this_in, mod.read_mask);
 
-        cout << "read_mask: " << hex;
-        for(size_t j=0; j<mod.read_mask_sz; j++)
-          cout << setw(2) << setfill('0') << static_cast<int>(mod.read_mask[j]) << " ";
-        cout << endl; 
+        if( proc.sensitive ) {
+          cout << "read_mask: " << hex;
+          for(size_t j=0; j<mod.read_mask_sz; j++)
+            cout << setw(2) << setfill('0') << static_cast<int>(mod.read_mask[j]) << " ";
+          cout << endl; 
 
-        // add to sensitivity list
-        for(size_t j=0; j<mod.read_mask_sz; j++) {
-          if( mod.read_mask[j] )
-            mod.sensitivity[j].push_back(proc);
+          // add to sensitivity list
+          for(size_t j=0; j<mod.read_mask_sz; j++) {
+            if( mod.read_mask[j] )
+              mod.sensitivity[j].insert(proc);
+            else
+              mod.sensitivity[j].erase(proc); 
+          }
         }
       }
     }
 
     // find modified signals
-    bool modified = false;
+    bool rerun = false;
     for(auto& mod : m_modules) {
       char* ptr_in = static_cast<char*>(mod.this_in);
       char* ptr_out = static_cast<char*>(mod.this_out);
@@ -224,7 +237,6 @@ namespace sim {
           cout << "found mismatch at offset " << i;
           auto elem = mod.layout->getElementContainingOffset(i);
           cout << " belongs to element " << elem << endl;
-          modified = true;
           mod_modified = true;
 
           // add dependant processes to run list
@@ -236,10 +248,13 @@ namespace sim {
 
       if( mod_modified )
         copy(ptr_out, ptr_out + size, ptr_in);
+
+      if( !mod.run_list.empty() )
+        rerun = true;
     }
 
 
-    auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
+    /*auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
     cout << "top A:\n" << hex
       << "0x" << setw(16) << setfill('0')
       << static_cast<uint64_t*>(root_ptr)[0]
@@ -255,9 +270,9 @@ namespace sim {
       << " "
       << "0x" << setw(16) << setfill('0')
       << static_cast<uint64_t*>(root_ptr)[1 + off/sizeof(uint64_t)]
-      << endl;
+      << endl;*/
 
-    return modified;
+    return rerun;
   }
 
 }

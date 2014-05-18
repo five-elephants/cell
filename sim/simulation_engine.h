@@ -30,6 +30,7 @@ namespace sim {
       struct Process {
         llvm::Function* function;
         void* exe_ptr;
+        bool sensitive = true;
 
         bool operator == (Simulation_engine::Process const& b) const {
           return (function == b.function) && (exe_ptr == b.exe_ptr);
@@ -45,7 +46,7 @@ namespace sim {
       };
 
       typedef std::vector<Process> Process_list;
-      typedef std::unordered_set<Process, Process_hash> Run_list;
+      typedef std::unordered_set<Process, Process_hash> Process_set;
       typedef std::multimap<ir::Time, Process> Process_schedule;
 
       struct Module {
@@ -57,8 +58,8 @@ namespace sim {
         Process_list processes;
         Process_schedule periodicals;
         unsigned int num_elements;
-        std::vector<Process_list> sensitivity;
-        Run_list run_list;
+        std::vector<Process_set> sensitivity;
+        Process_set run_list;
         Process_schedule schedule;
       };
 
