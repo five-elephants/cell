@@ -87,9 +87,8 @@ namespace sim {
 
       mod.run_list.insert(p);
 
-      auto pr = std::make_pair(proc->period, p);
-      mod.periodicals.insert(pr);
-      mod.schedule.insert(pr);
+      mod.periodicals.insert(std::make_pair(proc->period, p));
+      mod.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
     }
 
     m_modules.push_back(mod);
@@ -105,14 +104,22 @@ namespace sim {
 
       // add timed processes to the run list
       for(auto& mod : m_modules) {
+        std::list<Process_schedule::value_type> new_schedules;
+
         auto timed_procs_range = mod.schedule.equal_range(t);
         for(auto it=timed_procs_range.first;
             it != timed_procs_range.second;
             ++it) {
-          mod.run_list.insert(it->second);
+          auto period = std::get<0>(it->second);
+          auto proc = std::get<1>(it->second);
+          mod.run_list.insert(proc);
+          new_schedules.push_back(std::make_pair(t + period, it->second));
         }
 
         mod.schedule.erase(timed_procs_range.first, timed_procs_range.second);
+        std::move(new_schedules.begin(),
+            new_schedules.end(),
+            std::inserter(mod.schedule, mod.schedule.begin()));
         
         // select next point in time for simulation
         auto nextit = mod.schedule.upper_bound(m_time);
@@ -122,11 +129,11 @@ namespace sim {
 
       // simulate cycles until all signals are stable
       unsigned int cycle = 0;
-      bool modified;
+      bool rerun;
 
       do {
-        modified = simulate_cycle();
-      } while( (cycle++ < max_cycles) && (modified) );
+        rerun = simulate_cycle();
+      } while( (cycle++ < max_cycles) && rerun );
 
       t = next_t;
     }
@@ -193,10 +200,6 @@ namespace sim {
     cout << "----- simulate cycle -----\n";
 
     for(auto& mod : m_modules) {
-      // clear sensitivity list
-      //for(auto s : mod.sensitivity)
-        //s.clear();
-
       cout << "running " << mod.run_list.size() << " processes" << endl;
 
       for(auto const& proc : mod.run_list) {

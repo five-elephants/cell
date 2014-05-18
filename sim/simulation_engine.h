@@ -47,7 +47,8 @@ namespace sim {
 
       typedef std::vector<Process> Process_list;
       typedef std::unordered_set<Process, Process_hash> Process_set;
-      typedef std::multimap<ir::Time, Process> Process_schedule;
+      typedef std::multimap<ir::Time, Process> Time_process_map;
+      typedef std::multimap<ir::Time, std::tuple<ir::Time,Process>> Process_schedule;
 
       struct Module {
         void* this_in;
@@ -56,7 +57,7 @@ namespace sim {
         std::size_t read_mask_sz;
         llvm::StructLayout const* layout;
         Process_list processes;
-        Process_schedule periodicals;
+        Time_process_map periodicals;
         unsigned int num_elements;
         std::vector<Process_set> sensitivity;
         Process_set run_list;
