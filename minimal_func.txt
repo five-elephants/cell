@@ -6,7 +6,6 @@ namespace example = {
 		var hello = 42 : int
 
 		def __init__() = {
-			// TODO: print function
 			counter = 1
 			hello = counter + 2 
 			print("hello world")
@@ -37,7 +36,6 @@ namespace example = {
 			return g() + tmp
 		}
 
-		// TODO: processes
 		periodic(5 ns) = {
 			counter = counter + 1
 		}

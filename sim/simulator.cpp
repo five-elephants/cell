@@ -50,10 +50,7 @@ int main(int argc, char* argv[]) {
       sim::Simulation_engine engine(vm["file"].as<string>(),
           vm["top"].as<string>());
       engine.setup();
-      for(int i=0; i<10; i++) {
-        if( !engine.simulate_cycle() )
-          break;
-      }
+      engine.simulate(ir::Time(10, ir::Time::ns));
       engine.teardown();
     } else {
       cout << desc << endl;

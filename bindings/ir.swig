@@ -2,9 +2,11 @@
 %include "std_string.i"
 %include "std_map.i"
 //%include "std_shared_ptr.i"  // would work for python
+%include "ir/time.h"
 %include "ir/namespace.h"
 %{
 #include "bindings/api.h"
+#include "ir/time.h"
 #include "ir/namespace.h"
 %}
 

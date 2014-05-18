@@ -5,11 +5,13 @@
 #include <vector>
 #include <functional>
 #include <unordered_set>
+#include <map>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 
 #include "sim/llvm_codegen.h"
 #include "ir/namespace.h"
+#include "ir/time.h"
 
 namespace sim {
 
@@ -17,9 +19,10 @@ namespace sim {
     public:
       Simulation_engine(std::string const& filename,
           std::string const& toplevel);
+      ~Simulation_engine();
 
       void setup();
-      bool simulate_cycle();
+      void simulate(ir::Time const& duration);
       void teardown();
 
 
@@ -43,18 +46,26 @@ namespace sim {
 
       typedef std::vector<Process> Process_list;
       typedef std::unordered_set<Process, Process_hash> Run_list;
+      typedef std::multimap<ir::Time, Process> Process_schedule;
 
       struct Module {
         void* this_in;
         void* this_out;
+        char* read_mask;
+        std::size_t read_mask_sz;
         llvm::StructLayout const* layout;
         Process_list processes;
+        Process_schedule periodicals;
         unsigned int num_elements;
         std::vector<Process_list> sensitivity;
         Run_list run_list;
+        Process_schedule schedule;
       };
 
       typedef std::vector<Module> Module_list;
+
+
+      static unsigned const max_cycles = 20;
 
 
       llvm::ExecutionEngine* m_exe = nullptr;
@@ -63,9 +74,11 @@ namespace sim {
       ir::Namespace m_top_ns;
       std::shared_ptr<ir::Module> m_top_mod;
       Module_list m_modules;
+      ir::Time m_time;
 
 
       void init(std::string const& filename, std::string const& toplevel);
+      bool simulate_cycle();
   };
 
 }

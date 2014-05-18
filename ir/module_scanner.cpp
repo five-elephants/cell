@@ -62,6 +62,9 @@ namespace ir {
     } else if( typeid(node) == typeid(ast::Process) ) {
       insert_process(dynamic_cast<ast::Process const&>(node));
       return false;
+    } else if( typeid(node) == typeid(ast::Periodic) ) {
+      insert_periodic(dynamic_cast<ast::Periodic const&>(node));
+      return false;
     }
     
     return true;
@@ -229,6 +232,21 @@ namespace ir {
     rv->code = cb;
 
     m_mod.processes.push_back(rv);
+
+    return rv;
+  }
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Process>
+  Module_scanner::insert_periodic(ast::Periodic const& node) {
+    auto rv = std::make_shared<Periodic>();
+
+    // generate code for process body
+    auto cb = make_codeblock();
+    cb->process(rv);
+    cb->scan_ast(node.body());
+    rv->code = cb;
+
+    m_mod.periodicals.push_back(rv);
 
     return rv;
   }

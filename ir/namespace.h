@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include "time.h"
+
 namespace ir {
 
   // prototypes
@@ -52,6 +54,10 @@ namespace ir {
 
   struct Process {
     std::shared_ptr<Codeblock_if> code;
+  };
+
+  struct Periodic : public Process {
+    Time period;
   };
 
   enum class Direction {
@@ -110,6 +116,7 @@ namespace ir {
     std::map<Label, std::shared_ptr<Object>> objects;
     std::map<Label, std::shared_ptr<Instantiation>> instantiations;
     std::vector<std::shared_ptr<Process>> processes;
+    std::vector<std::shared_ptr<Periodic>> periodicals;
     std::shared_ptr<Codeblock_if> constructor_code;
   };
 

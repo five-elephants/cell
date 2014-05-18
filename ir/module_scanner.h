@@ -21,6 +21,7 @@ namespace ir {
       std::shared_ptr<Object> insert_object(ast::Variable_def const& node);
       std::shared_ptr<Instantiation> insert_instantiation(ast::Module_instantiation const& node);
       std::shared_ptr<Process> insert_process(ast::Process const& node);
+      std::shared_ptr<Process> insert_periodic(ast::Periodic const& node);
 
       virtual std::shared_ptr<Codeblock_if> make_codeblock();
   };

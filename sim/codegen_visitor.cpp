@@ -181,7 +181,7 @@ namespace sim {
           it->second);
     } else {
       llvm::Value* ptr = m_codeblock.get_module_object_out(target_name);
-      if( index < 0 ) {
+      if( !ptr ) {
         std::stringstream strm;
         strm << node.location() << ": object '" << target_name << "' is unknown in current module";
         throw std::runtime_error(strm.str());
