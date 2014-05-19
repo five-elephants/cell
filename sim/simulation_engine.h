@@ -10,8 +10,10 @@
 #include <llvm/ExecutionEngine/GenericValue.h>
 
 #include "sim/llvm_codegen.h"
+#include "sim/module_inspector.h"
 #include "ir/namespace.h"
 #include "ir/time.h"
+
 
 namespace sim {
 
@@ -25,6 +27,7 @@ namespace sim {
       void simulate(ir::Time const& duration);
       void teardown();
 
+      Module_inspector inspect_module(ir::Label const& name);
 
     private:
       struct Process {

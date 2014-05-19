@@ -75,6 +75,7 @@ def build(bld):
       sim/compile.cpp
       sim/runtime.cpp
       sim/simulation_engine.cpp
+      sim/module_inspector.cpp
     """
 
     bindings_src = """

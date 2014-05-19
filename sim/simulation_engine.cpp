@@ -149,6 +149,18 @@ namespace sim {
   }
 
 
+  Module_inspector
+  Simulation_engine::inspect_module(ir::Label const& name) {
+    // TODO lookup module in hierarchy
+    auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
+    auto layout = m_layout->getStructLayout(m_code->get_module_type(m_top_mod.get()));
+    auto num_elements = m_code->get_module_type(m_top_mod.get())->getNumElements();
+
+    Module_inspector rv(m_top_mod, root_ptr, layout, num_elements);
+
+    return rv;
+  }
+
   void
   Simulation_engine::init(std::string const& filename, std::string const& toplevel) {
     using namespace llvm;

@@ -1,0 +1,6 @@
+namespace test = {
+	mod empty_module = {
+		def __init__() = {
+		}
+	}
+}
