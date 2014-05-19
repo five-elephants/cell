@@ -24,8 +24,8 @@ def configure(conf):
       package='',
       uselib_store='LLVM'
     )
-    print conf.env.LIB_LLVM
-    print conf.env.INCLUDES_LLVM
+    #print conf.env.LIB_LLVM
+    #print conf.env.INCLUDES_LLVM
 
 def build(bld):
     #gen/gen_text.cpp
@@ -84,6 +84,7 @@ def build(bld):
 
     test_src = """
       test/test_find_hierarchy.cpp
+      test/test_simple_sim.cpp
     """
 
     bld.objects(
@@ -126,34 +127,35 @@ def build(bld):
       use = 'core sim LLVM'
     )
 
-    bindings_lib = bld(
-      source = bindings_src,
-      target = 'ir',
-      swig_flags = '-lua -c++',
-      includes = '.',
-      cxxflags = '-std=c++11',
-      features = 'swig cxx cxxshlib',
-      use = 'core'
-    )
-    bindings_lib.env.cxxshlib_PATTERN = '%s.so'
+    if False:
+      bindings_lib = bld(
+        source = bindings_src,
+        target = 'ir',
+        swig_flags = '-lua -c++',
+        includes = '.',
+        cxxflags = '-std=c++11',
+        features = 'swig cxx cxxshlib',
+        use = 'core'
+      )
+      bindings_lib.env.cxxshlib_PATTERN = '%s.so'
 
-    bindings_lib = bld(
-      source = bindings_src,
-      target = '_ir',
-      swig_flags = '-python -c++',
-      includes = '.',
-      cxxflags = '-std=c++11',
-      features = 'swig pyext cxx cxxshlib',
-      use = 'core'
-    )
-    #bindings_lib.env.cxxshlib_PATTERN = '%s.so'
+      bindings_lib = bld(
+        source = bindings_src,
+        target = '_ir',
+        swig_flags = '-python -c++',
+        includes = '.',
+        cxxflags = '-std=c++11',
+        features = 'swig pyext cxx cxxshlib',
+        use = 'core'
+      )
+      #bindings_lib.env.cxxshlib_PATTERN = '%s.so'
 
     bld.program(
       source = test_src,
       target = 'test-main',
       cxxflags = '-std=c++11',
       includes = '.',
-      use = 'core GTEST GTEST_MAIN',
+      use = 'core sim GTEST GTEST_MAIN LLVM',
     )
 
 

@@ -47,7 +47,7 @@ namespace ir {
     Label name;
     std::shared_ptr<Type> return_type;
     //std::map<Label, std::shared_ptr<Object>> parameters;
-    std::vector<std::shared_ptr<Object>> parameters;
+    std::vector<std::shared_ptr<Object> > parameters;
     std::shared_ptr<Codeblock_if> code;
     bool within_module = false;
   };

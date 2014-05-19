@@ -1,0 +1,22 @@
+namespace test = {
+
+  mod basic_process = {
+    var a : int
+    var b : int
+    var c : int
+
+    def __init__() = {
+      a = 1
+    }
+
+
+    process = {
+      b = a + 1
+    }
+
+    process = {
+      c = b + 1
+    }
+  }
+
+}

@@ -58,6 +58,5 @@ namespace example = {
 		process = {
 			req = 1	
 		}
-
 	}
 }
