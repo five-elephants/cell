@@ -9,6 +9,7 @@
 #include <llvm/IR/TypeBuilder.h>
 #include <memory>
 #include <iostream>
+#include <stdexcept>
 
 namespace sim {
 

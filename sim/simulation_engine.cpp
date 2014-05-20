@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <iterator>
+#include <list>
 #include <llvm/ExecutionEngine/JIT.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Analysis/Verifier.h>

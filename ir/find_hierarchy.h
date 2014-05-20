@@ -8,6 +8,7 @@
 #include <iostream>
 #include <regex>
 #include <algorithm>
+#include <array>
 
 namespace ir {
 

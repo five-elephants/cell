@@ -6,6 +6,7 @@
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/IR/TypeBuilder.h>
 #include <sstream>
+#include <stdexcept>
 
 namespace sim {
 

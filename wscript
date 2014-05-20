@@ -15,15 +15,23 @@ def configure(conf):
     #conf.check_tool('bison flex')
     conf.check_boost(lib='program_options serialization')
     conf.check_python_headers()
-    conf.check(lib='gtest', uselib_store='GTEST')
-    conf.check(lib='gtest_main', uselib_store='GTEST_MAIN')
-    conf.check(header_name='gtest/gtest.h')
-    conf.check_cfg(
-      path='llvm-config',
-      args='--cppflags --includedir --ldflags --libs core jit native',
-      package='',
-      uselib_store='LLVM'
-    )
+    conf.check(lib='pthread', uselib_store='PTHREAD')
+    #conf.check(lib='gtest', uselib_store='GTEST')
+    #conf.check(lib='gtest_main', uselib_store='GTEST_MAIN')
+    #conf.check(header_name='gtest/gtest.h')
+    for llvm_config in [ 'llvm-config', 'llvm-config-3.4' ]:
+      res = conf.check_cfg(
+        path=llvm_config,
+        args='--cppflags --includedir --ldflags --libs core jit native',
+        package='',
+        uselib_store='LLVM',
+        mandatory=False
+      )
+      if res != None:
+        break
+
+    if res == None:
+      conf.fatal('Can not find llvm-config program')
     #print conf.env.LIB_LLVM
     #print conf.env.INCLUDES_LLVM
 
@@ -83,7 +91,12 @@ def build(bld):
       bindings/api.cpp
     """
 
+    gtest_src = """
+      gtest/gtest-1.7.0/src/gtest-all.cc
+    """
+
     test_src = """
+      gtest/gtest-1.7.0/src/gtest_main.cc
       test/test_find_hierarchy.cpp
       test/test_simple_sim.cpp
     """
@@ -151,12 +164,25 @@ def build(bld):
       )
       #bindings_lib.env.cxxshlib_PATTERN = '%s.so'
 
+    bld.objects(
+      source = gtest_src,
+      target = "gtest",
+      includes = [
+        "gtest/gtest-1.7.0/include",
+        "gtest/gtest-1.7.0/",
+      ],
+      use = 'PTHREAD'
+    )
+
     bld.program(
       source = test_src,
       target = 'test-main',
       cxxflags = '-std=c++11',
-      includes = '.',
-      use = 'core sim GTEST GTEST_MAIN LLVM',
+      includes = [
+        'gtest/gtest-1.7.0/include',
+        '.',
+      ],
+      use = 'core sim gtest LLVM',
     )
 
 
