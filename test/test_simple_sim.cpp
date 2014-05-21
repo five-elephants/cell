@@ -1,6 +1,7 @@
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/JIT.h>
 #include "sim/simulation_engine.h"
+#include "sim/stream_instrumenter.h"
 
 #include <gtest/gtest.h>
 
@@ -17,9 +18,12 @@ TEST_F(Simulator_test, basic_process) {
   sim::Simulation_engine engine("test/simulator_test/basic_process.mini", "test.basic_process");
 
   engine.setup();
+  auto intro = engine.inspect_module("test.basic_process");
+
+  EXPECT_EQ(intro.get<int64_t>("a"), 1);
+
   engine.simulate(ir::Time(10, ir::Time::ns));
 
-  auto intro = engine.inspect_module("test.basic_process");
   EXPECT_EQ(intro.get<int64_t>("a"), 1);
   EXPECT_EQ(intro.get<int64_t>("b"), 2);
   EXPECT_EQ(intro.get<int64_t>("c"), 3);
@@ -50,6 +54,22 @@ TEST_F(Simulator_test, empty_module) {
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
   engine.teardown();
+}
+
+
+TEST_F(Simulator_test, basic_logging) {
+  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test.basic_periodic");
+
+  std::stringstream strm;
+  sim::Stream_instrumenter instr(strm);
+  engine.instrument(instr);
+
+  engine.setup();
+  engine.simulate(ir::Time(10, ir::Time::ns));
+  engine.teardown();
+
+  std::cout << "Loggin output:\n"
+    << strm.str() << std::endl;
 }
 
 

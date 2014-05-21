@@ -11,6 +11,7 @@
 
 #include "sim/llvm_codegen.h"
 #include "sim/module_inspector.h"
+#include "sim/instrumenter_if.h"
 #include "ir/namespace.h"
 #include "ir/time.h"
 
@@ -29,7 +30,7 @@ namespace sim {
 
       Module_inspector inspect_module(ir::Label const& name);
 
-    private:
+    protected:
       struct Process {
         llvm::Function* function;
         void* exe_ptr;
@@ -80,12 +81,31 @@ namespace sim {
       std::shared_ptr<ir::Module> m_top_mod;
       Module_list m_modules;
       ir::Time m_time;
+      bool m_setup_complete = false;
 
 
       void init(std::string const& filename, std::string const& toplevel);
+      ir::Time simulate_step(ir::Time const& t, ir::Time const& duration);
       bool simulate_cycle();
   };
 
+
+
+  class Instrumented_simulation_engine : public Simulation_engine {
+    public:
+      Instrumented_simulation_engine(std::string const& filename,
+          std::string const& toplevel)
+        : Simulation_engine(filename, toplevel) {
+      }
+
+      void simulate(ir::Time const& duration);
+
+      void instrument(Instrumenter_if& instr) { m_instrumenter = &instr; }
+
+
+    private:
+      Instrumenter_if* m_instrumenter = nullptr;
+  };
 }
 
 

@@ -38,6 +38,24 @@ namespace sim {
         return rv;
       }
 
+      template<typename T>
+      T get(std::size_t idx) {
+        auto ofs = m_layout->getElementOffset(idx);
+
+        T rv;
+        std::copy_n(m_this_ptr + ofs, sizeof(rv), reinterpret_cast<char*>(&rv));
+        return rv;
+      }
+
+      
+      ir::Label const& get_name(std::size_t idx) {
+        auto it = m_module->objects.begin();
+        std::advance(it, idx);
+        return it->first;
+      }
+
+      unsigned num_elements() const { return m_num_elements; }
+
     private:
       std::shared_ptr<ir::Module> m_module;
       char* m_this_ptr;

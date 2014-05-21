@@ -93,50 +93,14 @@ namespace sim {
     }
 
     m_modules.push_back(mod);
+    m_setup_complete = true;
   }
 
 
   void
   Simulation_engine::simulate(ir::Time const& duration) {
     for(ir::Time t=m_time; t<(m_time + duration); ) {
-      ir::Time next_t = m_time + duration;
-
-      std::cout << "===== time: " << t << " =====" << std::endl;
-
-      // add timed processes to the run list
-      for(auto& mod : m_modules) {
-        std::list<Process_schedule::value_type> new_schedules;
-
-        auto timed_procs_range = mod.schedule.equal_range(t);
-        for(auto it=timed_procs_range.first;
-            it != timed_procs_range.second;
-            ++it) {
-          auto period = std::get<0>(it->second);
-          auto proc = std::get<1>(it->second);
-          mod.run_list.insert(proc);
-          new_schedules.push_back(std::make_pair(t + period, it->second));
-        }
-
-        mod.schedule.erase(timed_procs_range.first, timed_procs_range.second);
-        std::move(new_schedules.begin(),
-            new_schedules.end(),
-            std::inserter(mod.schedule, mod.schedule.begin()));
-        
-        // select next point in time for simulation
-        auto nextit = mod.schedule.upper_bound(m_time);
-        if( nextit != mod.schedule.end() )
-          next_t = std::min(next_t, nextit->first);
-      }
-
-      // simulate cycles until all signals are stable
-      unsigned int cycle = 0;
-      bool rerun;
-
-      do {
-        rerun = simulate_cycle();
-      } while( (cycle++ < max_cycles) && rerun );
-
-      t = next_t;
+      t = simulate_step(t, duration);
     }
   }
 
@@ -147,11 +111,16 @@ namespace sim {
       delete [] mod.read_mask;
     }
     m_modules.clear();
+
+    m_setup_complete = false;
   }
 
 
   Module_inspector
   Simulation_engine::inspect_module(ir::Label const& name) {
+    if( !m_setup_complete )
+      throw std::runtime_error("Call Simulation_engine::setup() before Simulation_engine::inspect_module()");
+
     // TODO lookup module in hierarchy
     auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
     auto layout = m_layout->getStructLayout(m_code->get_module_type(m_top_mod.get()));
@@ -205,6 +174,48 @@ namespace sim {
     m_layout = m_exe->getDataLayout();
   }
 
+
+  ir::Time
+  Simulation_engine::simulate_step(ir::Time const& t, ir::Time const& duration) {
+    ir::Time next_t = m_time + duration;
+
+    std::cout << "===== time: " << t << " =====" << std::endl;
+
+    // add timed processes to the run list
+    for(auto& mod : m_modules) {
+      std::list<Process_schedule::value_type> new_schedules;
+
+      auto timed_procs_range = mod.schedule.equal_range(t);
+      for(auto it=timed_procs_range.first;
+          it != timed_procs_range.second;
+          ++it) {
+        auto period = std::get<0>(it->second);
+        auto proc = std::get<1>(it->second);
+        mod.run_list.insert(proc);
+        new_schedules.push_back(std::make_pair(t + period, it->second));
+      }
+
+      mod.schedule.erase(timed_procs_range.first, timed_procs_range.second);
+      std::move(new_schedules.begin(),
+          new_schedules.end(),
+          std::inserter(mod.schedule, mod.schedule.begin()));
+      
+      // select next point in time for simulation
+      auto nextit = mod.schedule.upper_bound(m_time);
+      if( nextit != mod.schedule.end() )
+        next_t = std::min(next_t, nextit->first);
+    }
+
+    // simulate cycles until all signals are stable
+    unsigned int cycle = 0;
+    bool rerun;
+
+    do {
+      rerun = simulate_cycle();
+    } while( (cycle++ < max_cycles) && rerun );
+
+    return next_t;
+  }
 
   bool 
   Simulation_engine::simulate_cycle() {
@@ -291,4 +302,21 @@ namespace sim {
     return rerun;
   }
 
+
+
+
+
+  void
+  Instrumented_simulation_engine::simulate(ir::Time const& duration) {
+    for(ir::Time t=m_time; t<(m_time + duration); ) {
+      t = simulate_step(t, duration);
+
+      if( m_instrumenter ) {
+        for(auto const& mod : m_modules) {
+          Module_inspector insp(m_top_mod, mod.this_in, mod.layout, mod.num_elements);
+          m_instrumenter->module(t, insp);
+        }
+      }
+    }
+  }
 }

@@ -84,6 +84,7 @@ def build(bld):
       sim/runtime.cpp
       sim/simulation_engine.cpp
       sim/module_inspector.cpp
+      sim/stream_instrumenter.cpp
     """
 
     bindings_src = """
