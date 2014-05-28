@@ -147,16 +147,21 @@ namespace sim {
     // this is always inside a function
     auto def = dynamic_cast<ast::Variable_def const&>(node);
     auto id = dynamic_cast<ast::Identifier const&>(def.identifier());
-    auto type_id = dynamic_cast<ast::Identifier const&>(def.type());
 
-    // TODO value initialization 
-    //Value* v = m_codeblock.make_constant(type_id.identifier(), 0);
-    //m_values[&node] = m_named_values[id.identifier()] = v;
+    if( typeid(def.type()) == typeid(ast::Identifier) ) {
+      auto type_id = dynamic_cast<ast::Identifier const&>(def.type());
 
-    auto v = m_codeblock.allocate_variable(id.identifier(), 
-        type_id.identifier());
-    m_named_values[id.identifier()] = v;
-    m_values[&node] = v;
+      // TODO value initialization 
+      //Value* v = m_codeblock.make_constant(type_id.identifier(), 0);
+      //m_values[&node] = m_named_values[id.identifier()] = v;
+
+      auto v = m_codeblock.allocate_variable(id.identifier(), 
+          type_id.identifier());
+      m_named_values[id.identifier()] = v;
+      m_values[&node] = v;
+    } else if( typeid(def.type()) == typeid(ast::Array_type) ) {
+      throw std::runtime_error("not yet implemented");
+    }
 
     return false;
   }

@@ -63,6 +63,7 @@ def build(bld):
       ast/process.cpp
       ast/assignment.cpp
       ast/variable_ref.cpp
+      ast/array_type.cpp
       parse_driver.cpp
       ir/namespace.cpp
       ir/builtins.cpp

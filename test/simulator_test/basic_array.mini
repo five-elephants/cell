@@ -1,0 +1,11 @@
+namespace test = {
+
+  mod basic_array = {
+    var a : int[4]
+
+    def __init__() = {
+      
+    }
+  }
+
+}

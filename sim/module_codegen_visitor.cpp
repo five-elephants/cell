@@ -94,16 +94,35 @@ namespace sim {
   VISITOR_METHOD(var_def) {
     auto& def = dynamic_cast<ast::Variable_def const&>(node);
     auto& id = dynamic_cast<ast::Identifier const&>(def.identifier());
-    auto& type_id = dynamic_cast<ast::Identifier const&>(def.type());
 
-    auto type = m_codeblock.get_type(type_id.identifier());
-    if( !type ) {
-      std::stringstream strm;
-      strm << node.location() << ": type '" << type_id.identifier() << "' not found";
-      throw std::runtime_error(strm.str());
+
+    if( typeid(def.type()) == typeid(ast::Identifier) ) {
+      auto& type_id = dynamic_cast<ast::Identifier const&>(def.type());
+
+      auto type = m_codeblock.get_type(type_id.identifier());
+      if( !type ) {
+        std::stringstream strm;
+        strm << node.location() << ": type '" << type_id.identifier() << "' not found";
+        throw std::runtime_error(strm.str());
+      }
+      std::cout << "found type " << type_id.identifier() << std::endl;
+      m_types.push_back(type);
+    }  else if( typeid(def.type()) == typeid(ast::Array_type) ) {
+      auto& array_type = dynamic_cast<ast::Array_type const&>(def.type());
+      auto& base_type_id = dynamic_cast<ast::Identifier const&>(array_type.base_type());
+
+      auto base_type = m_codeblock.get_type(base_type_id.identifier());
+      if( !base_type ) {
+        std::stringstream strm;
+        strm << node.location() << ": type '"
+          << base_type_id.identifier()
+          << "' not found";
+        throw std::runtime_error(strm.str());
+      }
+
+      ArrayType* ty = ArrayType::get(base_type, array_type.size());
+      m_types.push_back(ty);
     }
-    std::cout << "found type " << type_id.identifier() << std::endl;
-    m_types.push_back(type);
 
     return false;
   }

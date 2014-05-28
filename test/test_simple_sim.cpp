@@ -73,4 +73,10 @@ TEST_F(Simulator_test, basic_logging) {
 }
 
 
+TEST_F(Simulator_test, basic_array) {
+  sim::Simulation_engine engine("test/simulator_test/basic_array.mini", "test.basic_array");
 
+  engine.setup();
+  engine.simulate(ir::Time(10, ir::Time::ns));
+  engine.teardown();  
+}

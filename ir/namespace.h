@@ -18,6 +18,12 @@ namespace ir {
   typedef std::string Label;
 
   struct Type {
+    Type() {}
+
+    Type(Label _name)
+      : name(_name) {
+    }
+
     //struct Field {
       //Label name;
       //std::shared_ptr<Type> type;
@@ -25,6 +31,7 @@ namespace ir {
 
     Label name;
     //std::vector<std::shared_ptr<Field>> fields;
+    std::size_t array_size = 1;
   };
 
   struct Object {

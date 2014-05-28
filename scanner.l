@@ -76,6 +76,8 @@ blank      [ \t]
 "<>"        return token::BIDIR;
 "{"         return token::CURL_OPEN;
 "}"         return token::CURL_CLOSE;
+"["         return token::SQUARE_OPEN;
+"]"         return token::SQUARE_CLOSE;
 "("         return token::PAREN_OPEN;
 ")"         return token::PAREN_CLOSE;
 "\""        return token::QUOTE;

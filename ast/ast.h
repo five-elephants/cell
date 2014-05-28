@@ -26,3 +26,5 @@
 #include "ast/assignment.h"
 #include "ast/periodic.h"
 #include "ast/variable_ref.h"
+#include "ast/array_type.h"
+

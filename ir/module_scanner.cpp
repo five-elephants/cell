@@ -204,20 +204,33 @@ namespace ir {
           + std::string(" already exists"));
 
     // get type
-    auto type_name = dynamic_cast<ast::Identifier const*>(&(node.type()))->identifier();
-    //std::string type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
-    obj->type = find_type(m_mod, type_name);
-    if( !obj->type ) {
-      std::stringstream strm;
-      strm << node.type().location();
-      strm << ": typename '" << type_name << "' not found.";
-      throw std::runtime_error(strm.str());
+    if( typeid(node.type()) == typeid(ast::Identifier) ) {
+      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
+      obj->type = find_type(m_mod, type_name);
+      if( !obj->type ) {
+        std::stringstream strm;
+        strm << node.type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+    } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
+      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
+      auto& base_type = dynamic_cast<ast::Identifier const&>(ar_type.base_type());
+      auto type_name = base_type.identifier();
+      auto type = find_type(m_mod, type_name);
+      if( !type ) {
+        std::stringstream strm;
+        strm << node.type().location()
+          << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+
+      obj->type = std::make_shared<Type>();
+      obj->type->name = type->name;
+      obj->type->array_size = ar_type.size();
     }
+
     m_mod.objects[obj->name] = obj;
-
-    // generate code
-    //m_codegen.register_global(obj);
-
     return obj;
   }
   //--------------------------------------------------------------------------------
