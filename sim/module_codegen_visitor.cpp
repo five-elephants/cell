@@ -1,6 +1,7 @@
 #include "sim/module_codegen_visitor.h"
 
 #include "ast/ast.h"
+#include "ir/make_array_type.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -9,9 +10,11 @@
   bool \
   Module_codegen_visitor:: x (ast::Node_if const& node)
 
+
 namespace sim {
 
   using namespace llvm;
+
 
   Module_codegen_visitor::Module_codegen_visitor(Llvm_codeblock& block)
     : Visitor_base(),
@@ -107,9 +110,9 @@ namespace sim {
       }
       std::cout << "found type " << type_id.identifier() << std::endl;
       m_types.push_back(type);
-    }  else if( typeid(def.type()) == typeid(ast::Array_type) ) {
+    } else if( typeid(def.type()) == typeid(ast::Array_type) ) {
       auto& array_type = dynamic_cast<ast::Array_type const&>(def.type());
-      auto& base_type_id = dynamic_cast<ast::Identifier const&>(array_type.base_type());
+      /*auto& base_type_id = dynamic_cast<ast::Identifier const&>(array_type.base_type());
 
       auto base_type = m_codeblock.get_type(base_type_id.identifier());
       if( !base_type ) {
@@ -121,6 +124,9 @@ namespace sim {
       }
 
       ArrayType* ty = ArrayType::get(base_type, array_type.size());
+      m_types.push_back(ty);
+*/
+      auto ty = make_llvm_array_type(array_type);
       m_types.push_back(ty);
     }
 
@@ -152,6 +158,32 @@ namespace sim {
     return rv;
   }
 
+
+  llvm::ArrayType*
+  Module_codegen_visitor::make_llvm_array_type(ast::Array_type const& type) {
+    if( typeid(type.base_type()) == typeid(ast::Array_type) ) {
+      auto& base_type = dynamic_cast<ast::Array_type const&>(type.base_type());
+      auto bt = make_llvm_array_type(base_type);
+
+      return ArrayType::get(bt, type.size());
+    } else if( typeid(type.base_type()) == typeid(ast::Identifier) ) {
+      auto& base_type = dynamic_cast<ast::Identifier const&>(type.base_type());
+      auto type_name = base_type.identifier();
+
+      auto ty = m_codeblock.get_type(type_name);
+      if( !ty ) {
+        std::stringstream strm;
+        strm << type.location() << ": type '"
+          << type_name
+          << "' not found";
+        throw std::runtime_error(strm.str());
+      }
+
+      return ArrayType::get(ty, type.size());
+    } else {
+      throw std::runtime_error("Array base type is neither array nor identifier.");
+    }
+  }
 
 }
 

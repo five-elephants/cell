@@ -2,6 +2,7 @@
 
 #include "ir/namespace_scanner.h"
 
+
 namespace ir {
 
   class Module_scanner : public Namespace_scanner {

@@ -7,6 +7,7 @@
 #include "find.hpp"
 #include "types.h"
 #include "streamop.h"
+#include "make_array_type.h"
 
 namespace ir {
 
@@ -215,19 +216,9 @@ namespace ir {
       }
     } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
       auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
-      auto& base_type = dynamic_cast<ast::Identifier const&>(ar_type.base_type());
-      auto type_name = base_type.identifier();
-      auto type = find_type(m_mod, type_name);
-      if( !type ) {
-        std::stringstream strm;
-        strm << node.type().location()
-          << ": typename '" << type_name << "' not found.";
-        throw std::runtime_error(strm.str());
-      }
 
-      obj->type = std::make_shared<Type>();
-      obj->type->name = type->name;
-      obj->type->array_size = ar_type.size();
+      obj->type = make_array_type(m_mod, ar_type);
+      m_mod.types[obj->type->name] = obj->type;
     }
 
     m_mod.objects[obj->name] = obj;

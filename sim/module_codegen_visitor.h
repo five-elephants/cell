@@ -2,6 +2,7 @@
 
 #include "ir/namespace.h"
 #include "ast/visitor.h"
+#include "ast/array_type.h"
 #include "sim/llvm_codeblock.h"
 
 #include <unordered_map>
@@ -45,6 +46,9 @@ namespace sim {
       bool m_has_init = false;
 
       unsigned int m_indent = 0;
+
+
+      llvm::ArrayType* make_llvm_array_type(ast::Array_type const& ar_type);
   };
 
 }
