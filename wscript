@@ -101,6 +101,7 @@ def build(bld):
       gtest/gtest-1.7.0/src/gtest_main.cc
       test/test_find_hierarchy.cpp
       test/test_simple_sim.cpp
+      test/test_scanner_base.cpp
     """
 
     bld.objects(
