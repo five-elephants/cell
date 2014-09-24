@@ -56,11 +56,10 @@ namespace ast {
       }
 
 
-      // matching free functions without arguments
+      // matching free functions and lambdas without arguments
       template<typename Function>
-      typename std::enable_if<std::is_same<typename std::remove_pointer<Function>::type, bool()>::value>::type
-      do_always(Node_function_list& list, 
-          Function func) {
+      auto do_always(Node_function_list& list, 
+          Function func) -> typename std::enable_if<std::is_same<decltype(func()), bool>::value>::type {
         Node_function wrapper = [func](Base&, ast::Node_if const&) -> bool {
           return func();
         };
@@ -80,6 +79,11 @@ namespace ast {
 
         list.push_back(wrapper);
       }
+
+
+
+
+      
 
 
     public:
