@@ -23,26 +23,27 @@ std::shared_ptr<ast::Node_if> generate_test_tree() {
 }
 
 bool do_no_enter() {
+  std::cout << "do_no_enter" << std::endl;
   return false;
 }
 
 class My_test_scanner : public ast::Scanner_base<My_test_scanner> {
   public:
-    bool enter_namespace_def(ast::Node_if const& node) {
+    bool enter_namespace_def(ast::Namespace_def const& node) {
       std::cout << "entering a namespace" << std::endl;
       return true;
     }
 
+    bool member_do_no_enter() {
+      std::cout << "member_do_no_enter" << std::endl;
+      return false;
+    }
 
 
     My_test_scanner() {
-      SCANNER_ENTER_IF_TYPE(ast::Namespace_def, {
-        std::cout << "hui" << std::endl;
-        return true;
-      });
-      enter_if_type<ast::Namespace_def>(&My_test_scanner::enter_namespace_def);
-
-      on_enter(&do_no_enter);
+      on_enter_if_type<ast::Namespace_def>(&My_test_scanner::enter_namespace_def);
+      on_enter(&My_test_scanner::member_do_no_enter);
+      on_enter(do_no_enter);
       //on_enter([]() -> bool { return false; });
       //std::function<bool()> f( []() -> bool { return false; } );
       //do_always(m_enter_callbacks, f);
@@ -57,3 +58,4 @@ TEST(ast, scanner_base) {
 
   tree->accept(scanner);
 }
+
