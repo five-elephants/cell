@@ -22,6 +22,9 @@ std::shared_ptr<ast::Node_if> generate_test_tree() {
   return std::shared_ptr<Node_if>(root);
 }
 
+bool do_no_enter() {
+  return false;
+}
 
 class My_test_scanner : public ast::Scanner_base<My_test_scanner> {
   public:
@@ -30,12 +33,19 @@ class My_test_scanner : public ast::Scanner_base<My_test_scanner> {
       return true;
     }
 
+
+
     My_test_scanner() {
-      enter_if_type<ast::Namespace_def>([](My_test_scanner&, ast::Node_if const& node) -> bool {
+      SCANNER_ENTER_IF_TYPE(ast::Namespace_def, {
         std::cout << "hui" << std::endl;
         return true;
       });
       enter_if_type<ast::Namespace_def>(&My_test_scanner::enter_namespace_def);
+
+      on_enter(&do_no_enter);
+      //on_enter([]() -> bool { return false; });
+      //std::function<bool()> f( []() -> bool { return false; } );
+      //do_always(m_enter_callbacks, f);
     }
 };
 
