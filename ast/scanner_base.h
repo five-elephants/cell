@@ -31,6 +31,7 @@ namespace ast {
       // overloaded methods for type matching
       //
 
+      // matching pointer to member function with argument
       template<typename Node_type, typename Function>
       typename std::enable_if<std::is_same<Function, bool(Base::*)(Node_type const&)>::value>::type
       do_if_type(Node_type_map& map, Function func) {
@@ -41,6 +42,38 @@ namespace ast {
         map.insert(std::make_pair(&typeid(Node_type), wrapper));
       }
 
+
+      // matching free functions (pointers)
+      template<typename Node_type, typename Function>
+      typename std::enable_if<std::is_same<typename std::remove_pointer<Function>::type, bool(Base&, Node_type const&)>::value>::type
+      do_if_type(Node_type_map& map, Function func) {
+        Node_function wrapper = [func](Base& b, ast::Node_if const& n) -> bool {
+          return (*func)(b, dynamic_cast<Node_type const&>(n));
+        };
+        map.insert(std::make_pair(&typeid(Node_type), wrapper));
+      }
+
+
+      // matching free functions (pointers) without arguments
+      template<typename Node_type, typename Function>
+      typename std::enable_if<std::is_same<typename std::remove_pointer<Function>::type, bool()>::value>::type
+      do_if_type(Node_type_map& map, Function func) {
+        Node_function wrapper = [func](Base& b, ast::Node_if const& n) -> bool {
+          return (*func)();
+        };
+        map.insert(std::make_pair(&typeid(Node_type), wrapper));
+      }
+
+
+      // matching free functions (pointers) with only node argument
+      template<typename Node_type, typename Function>
+      typename std::enable_if<std::is_same<typename std::remove_pointer<Function>::type, bool(Node_type const&)>::value>::type
+      do_if_type(Node_type_map& map, Function func) {
+        Node_function wrapper = [func](Base& b, ast::Node_if const& n) -> bool {
+          return (*func)(dynamic_cast<Node_type const&>(n));
+        };
+        map.insert(std::make_pair(&typeid(Node_type), wrapper));
+      }
 
 
       //

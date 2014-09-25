@@ -22,10 +22,30 @@ std::shared_ptr<ast::Node_if> generate_test_tree() {
   return std::shared_ptr<Node_if>(root);
 }
 
+class My_test_scanner;
+
+
 bool do_no_enter() {
   std::cout << "do_no_enter" << std::endl;
   return false;
 }
+
+
+bool free_enter_namespace_def(My_test_scanner& scanner, ast::Namespace_def const& node) {
+  std::cout << "entering namespace from free function." << std::endl;
+  return true;
+} 
+
+
+bool free_enter_namespace_def_node(ast::Namespace_def const& node) {
+  return true;
+}
+
+
+bool free_enter_namespace_def_noargs() {
+  return true;
+}
+
 
 class My_test_scanner : public ast::Scanner_base<My_test_scanner> {
   public:
@@ -42,6 +62,10 @@ class My_test_scanner : public ast::Scanner_base<My_test_scanner> {
 
     My_test_scanner() {
       on_enter_if_type<ast::Namespace_def>(&My_test_scanner::enter_namespace_def);
+      on_enter_if_type<ast::Namespace_def>(free_enter_namespace_def);
+      on_enter_if_type<ast::Namespace_def>(&free_enter_namespace_def);
+      on_enter_if_type<ast::Namespace_def>(free_enter_namespace_def_noargs);
+      on_enter_if_type<ast::Namespace_def>(free_enter_namespace_def_node);
       on_enter(&My_test_scanner::member_do_no_enter);
       on_enter(do_no_enter);
       on_enter([]() -> bool { std::cout << "hello" << std::endl; return true; });
