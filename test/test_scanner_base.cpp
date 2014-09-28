@@ -4,6 +4,7 @@
 
 #include "ast/ast.h"
 #include "ast/scanner_base.h"
+#include "ast/scanner_chain.h"
 
 
 std::shared_ptr<ast::Node_if> generate_test_tree() {
@@ -81,5 +82,17 @@ TEST(ast, scanner_base) {
   My_test_scanner scanner;
 
   tree->accept(scanner);
+}
+
+
+TEST(ast, scanner_chaining) {
+  auto tree = generate_test_tree();
+  My_test_scanner scanner;
+  //ast::Ast_printer printer;
+  My_test_scanner printer;
+  
+  ast::Scanner_chain chain(printer, scanner);
+
+  tree->accept(chain);
 }
 
