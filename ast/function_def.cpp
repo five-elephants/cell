@@ -13,7 +13,7 @@ namespace ast {
 		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(default_return_type) {
-        register_branches({&m_identifier, &default_return_type, m_body});
+        register_branches({&m_identifier, &default_return_type});
         register_branch_lists({&m_parameters});
 	}
 
@@ -21,7 +21,7 @@ namespace ast {
 		:	Tree_base(),
 			m_identifier(identifier),
  			m_return_type(return_type) {
-        register_branches({&identifier, &return_type, m_body});
+        register_branches({&identifier, &return_type});
         register_branch_lists({&m_parameters});
 	}
 
@@ -52,6 +52,7 @@ namespace ast {
 	void
 	Function_def::append_body(Node_if& node) {
 		m_body = &node;
+        register_branches({&m_identifier, &default_return_type, m_body});
 	}
 
 }
