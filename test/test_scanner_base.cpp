@@ -2,9 +2,11 @@
 #include <memory>
 #include <iostream>
 
+#include "parse_driver.h"
 #include "ast/ast.h"
 #include "ast/scanner_base.h"
 #include "ast/scanner_chain.h"
+#include "ast/ast_printer.h"
 
 
 std::shared_ptr<ast::Node_if> generate_test_tree() {
@@ -88,11 +90,19 @@ TEST(ast, scanner_base) {
 TEST(ast, scanner_chaining) {
   auto tree = generate_test_tree();
   My_test_scanner scanner;
-  //ast::Ast_printer printer;
-  My_test_scanner printer;
+  ast::Ast_printer printer(std::cout);
   
   ast::Scanner_chain chain(printer, scanner);
 
   tree->accept(chain);
+}
+
+
+TEST(ast, ast_printer) {
+  Parse_driver parser;
+  ast::Ast_printer printer(std::cout);
+
+  EXPECT_EQ(parser.parse("test/simulator_test/basic_process.mini"), 0);
+  parser.ast_root().accept(printer);
 }
 
