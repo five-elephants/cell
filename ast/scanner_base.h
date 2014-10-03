@@ -7,6 +7,7 @@
 #include <functional>
 #include <typeinfo>
 #include <type_traits>
+#include <stdexcept>
 
 
 namespace ast {

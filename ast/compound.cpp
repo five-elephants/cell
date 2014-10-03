@@ -25,4 +25,8 @@ namespace ast {
 		return m_statements;
 	}
 
+	std::vector<Node_if*> const&
+	Compound::statements() const {
+		return m_statements;
+	}
 }

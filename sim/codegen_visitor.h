@@ -1,7 +1,8 @@
 #pragma once
 
 #include "ir/namespace.h"
-#include "ast/visitor.h"
+#include "ast/ast.h"
+#include "ast/scanner_base.h"
 #include "sim/llvm_codeblock.h"
 
 #include <unordered_map>
@@ -10,24 +11,20 @@
 
 namespace sim {
 
-  class Codegen_visitor : public ast::Visitor_base {
+  class Codegen_visitor : public ast::Scanner_base<Codegen_visitor> {
     public:
       Codegen_visitor(ir::Namespace const& ns, Llvm_codeblock& block);
 
-      virtual bool enter(ast::Node_if const& node);
-      virtual bool visit(ast::Node_if const& node);
-      virtual bool leave(ast::Node_if const& node);
-
-      virtual bool compound_enter(ast::Node_if const& node);
-      virtual bool compound_leave(ast::Node_if const& node);
-      virtual bool var_def(ast::Node_if const& node);
-      virtual bool return_statement(ast::Node_if const& node);
-      virtual bool assignment(ast::Node_if const& node);
-      virtual bool op_plus(ast::Node_if const& node);
-      virtual bool literal_int(ast::Node_if const& node);
-      virtual bool literal_string(ast::Node_if const& node);
-      virtual bool var_ref(ast::Node_if const& node);
-      virtual bool function_call(ast::Node_if const& node);
+      virtual bool compound_enter(ast::Compound const& node);
+      virtual bool compound_leave(ast::Compound const& node);
+      virtual bool var_def(ast::Variable_def const& node);
+      virtual bool return_statement(ast::Return_statement const& node);
+      virtual bool assignment(ast::Assignment const& node);
+      virtual bool op_plus(ast::Op_plus const& node);
+      virtual bool literal_int(ast::Literal<int> const& node);
+      virtual bool literal_string(ast::Literal<std::string> const& node);
+      virtual bool var_ref(ast::Variable_ref const& node);
+      virtual bool function_call(ast::Function_call const& node);
 
       void add_named_value(std::string const& name, llvm::AllocaInst* value) {
         m_named_values[name] = value;
@@ -42,10 +39,6 @@ namespace sim {
 
       ir::Namespace const& m_ns;
       Llvm_codeblock& m_codeblock;
-
-      Node_type_map m_mappings_enter;
-      Node_type_map m_mappings_visit;
-      Node_type_map m_mappings_leave;
 
       Node_value_map m_values;
       Name_value_map m_named_values;
