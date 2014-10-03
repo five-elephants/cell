@@ -8,9 +8,8 @@
 namespace ir {
 
   //--------------------------------------------------------------------------------
-  Namespace_scanner::Namespace_scanner(Namespace& ns, Codegen_if& codegen)
+  Namespace_scanner::Namespace_scanner(Namespace& ns)
     : m_ns(ns),
-      m_codegen(codegen),
       m_root(true) {
 
     on_enter_if_type<ast::Namespace_def>(&Namespace_scanner::insert_namespace);
@@ -47,7 +46,7 @@ namespace ir {
       throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
 
     m->enclosing_ns = &m_ns;
-    scan_ast(*m, mod, m_codegen);
+    scan_ast(*m, mod);
     m_ns.modules[m->name] = m;
 
     return false;
@@ -61,7 +60,7 @@ namespace ir {
       throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
     n->enclosing_ns = &m_ns;
-    scan_ast(*n, ns, m_codegen);
+    scan_ast(*n, ns);
     m_ns.namespaces[n->name] = n;
 
     return false;
@@ -77,7 +76,7 @@ namespace ir {
       throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
 
     s->enclosing_ns = &m_ns;
-    scan_ast(*s, sock, m_codegen);
+    scan_ast(*s, sock);
     m_ns.sockets[s->name] = s;
     m_ns.types[s->name] = s;
 
@@ -87,22 +86,10 @@ namespace ir {
   bool
   Namespace_scanner::insert_function(ast::Function_def const& node) {
     auto func = create_function(node);
-
-    // generate code for function body
-    auto cb = make_codeblock();
-    cb->prototype(func);
-    cb->scan_ast(node.body());
-    func->code = cb;
-
     m_ns.functions[func->name] = func;
 
     return false;
   }
-  //--------------------------------------------------------------------------------
-  std::shared_ptr<Codeblock_if>
-  Namespace_scanner::make_codeblock() {
-    return m_codegen.make_codeblock(m_ns);
-  } 
   //--------------------------------------------------------------------------------
   std::shared_ptr<Function>
   Namespace_scanner::create_function(ast::Function_def const& node) {

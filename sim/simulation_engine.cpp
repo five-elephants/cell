@@ -140,9 +140,10 @@ namespace sim {
     if( driver.parse(filename) )
       throw std::runtime_error("parse failed");
 
-    std::tie(m_top_ns, m_code) = sim::compile(driver.ast_root());
+    m_top_ns = sim::compile(driver.ast_root());
 
-    m_top_mod = find_by_path(m_top_ns, &ir::Namespace::modules, toplevel);
+    // TODO
+    /*m_top_mod = find_by_path(m_top_ns, &ir::Namespace::modules, toplevel);
     if( !m_top_mod ) {
       cerr << "Can not find top level module '"
         << toplevel 
@@ -171,7 +172,7 @@ namespace sim {
       throw std::runtime_error(strm.str());
     }
 
-    m_layout = m_exe->getDataLayout();
+    m_layout = m_exe->getDataLayout();*/
   }
 
 

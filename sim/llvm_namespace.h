@@ -6,6 +6,11 @@
 namespace sim {
 
 	struct Llvm_type : public ir::Type {
+    Llvm_type() : Type() {}
+
+    Llvm_type(ir::Label _name)
+      : Type(_name) {
+    }
 	};
 
 
@@ -38,14 +43,31 @@ namespace sim {
 
 
 	struct Llvm_socket : public ir::Socket {
+    Llvm_socket() 
+      : Socket() {
+    }
 	};
 
 
 	struct Llvm_namespace : public ir::Namespace {
+    Llvm_namespace() 
+      : Namespace() {
+    }
+
+    Llvm_namespace(ir::Label const& _name)
+      : Namespace(_name) {
+    }
 	};
 
 
 	struct Llvm_module : public ir::Module {
+    Llvm_module() 
+      : Module() {
+    }
+
+    Llvm_module(ir::Label const& label)
+      : Module(label) {
+    }
 	};
 
 }

@@ -12,7 +12,7 @@
 #include "sim/llvm_codegen.h"
 #include "sim/module_inspector.h"
 #include "sim/instrumenter_if.h"
-#include "ir/namespace.h"
+#include "sim/llvm_namespace.h"
 #include "ir/time.h"
 
 
@@ -76,8 +76,8 @@ namespace sim {
 
       llvm::ExecutionEngine* m_exe = nullptr;
       llvm::DataLayout const* m_layout = nullptr;
-      std::shared_ptr<sim::Llvm_codegen> m_code;
-      ir::Namespace m_top_ns;
+      //std::shared_ptr<sim::Llvm_codegen> m_code;
+      sim::Llvm_namespace m_top_ns;
       std::shared_ptr<ir::Module> m_top_mod;
       Module_list m_modules;
       ir::Time m_time;

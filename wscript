@@ -77,10 +77,13 @@ def build(bld):
     """
 
     sim_src = """
+      sim/llvm_namespace_scanner.cpp
+      sim/llvm_function_scanner.cpp
       sim/llvm_codegen.cpp
       sim/llvm_codeblock.cpp
       sim/codegen_visitor.cpp
       sim/module_codegen_visitor.cpp
+      sim/scan_ast.cpp
       sim/compile.cpp
       sim/runtime.cpp
       sim/simulation_engine.cpp

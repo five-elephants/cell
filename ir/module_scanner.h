@@ -7,7 +7,7 @@ namespace ir {
 
   class Module_scanner : public Namespace_scanner {
     public:
-      Module_scanner(Module& mod, Codegen_if& codegen);
+      Module_scanner(Module& mod);
 
       virtual bool enter(ast::Node_if const& node); 
 
@@ -22,8 +22,6 @@ namespace ir {
       virtual bool insert_instantiation(ast::Module_instantiation const& node);
       virtual bool insert_process(ast::Process const& node);
       virtual bool insert_periodic(ast::Periodic const& node);
-
-      virtual std::shared_ptr<Codeblock_if> make_codeblock();
   };
 
 }
