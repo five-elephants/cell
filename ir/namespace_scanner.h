@@ -27,6 +27,8 @@ namespace ir {
       virtual bool insert_function(ast::Function_def const& func);
 
       virtual std::shared_ptr<Codeblock_if> make_codeblock();
+
+      virtual std::shared_ptr<ir::Function> create_function(ast::Function_def const& node);
   };
 
 }

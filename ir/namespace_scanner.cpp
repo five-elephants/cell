@@ -36,7 +36,7 @@ namespace ir {
   Namespace_scanner::visit(ast::Node_if const& node) {
     //std::cout << "Visit " << typeid(node).name() << '\n';
     m_root = false;
-    return true;
+    return Scanner_base::visit(node);
   }
   //--------------------------------------------------------------------------------
   bool
@@ -86,6 +86,26 @@ namespace ir {
   //--------------------------------------------------------------------------------
   bool
   Namespace_scanner::insert_function(ast::Function_def const& node) {
+    auto func = create_function(node);
+
+    // generate code for function body
+    auto cb = make_codeblock();
+    cb->prototype(func);
+    cb->scan_ast(node.body());
+    func->code = cb;
+
+    m_ns.functions[func->name] = func;
+
+    return false;
+  }
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Codeblock_if>
+  Namespace_scanner::make_codeblock() {
+    return m_codegen.make_codeblock(m_ns);
+  } 
+  //--------------------------------------------------------------------------------
+  std::shared_ptr<Function>
+  Namespace_scanner::create_function(ast::Function_def const& node) {
     std::shared_ptr<Function> func(new Function);
 
     // get name
@@ -136,21 +156,10 @@ namespace ir {
       func->parameters.push_back(p_ir);
     }
 
-    // generate code for function body
-    auto cb = make_codeblock();
-    cb->prototype(func);
-    cb->scan_ast(node.body());
-    func->code = cb;
-
     m_ns.functions[func->name] = func;
 
-    return false;
+    return func;
   }
-  //--------------------------------------------------------------------------------
-  std::shared_ptr<Codeblock_if>
-  Namespace_scanner::make_codeblock() {
-    return m_codegen.make_codeblock(m_ns);
-  } 
   //--------------------------------------------------------------------------------
 
 }
