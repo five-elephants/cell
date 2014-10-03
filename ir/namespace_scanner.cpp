@@ -8,6 +8,17 @@
 namespace ir {
 
   //--------------------------------------------------------------------------------
+  Namespace_scanner::Namespace_scanner(Namespace& ns, Codegen_if& codegen)
+    : m_ns(ns),
+      m_codegen(codegen),
+      m_root(true) {
+
+    on_enter_if_type<ast::Namespace_def>(&Namespace_scanner::insert_namespace);
+    on_enter_if_type<ast::Module_def>(&Namespace_scanner::insert_module);
+    on_enter_if_type<ast::Socket_def>(&Namespace_scanner::insert_socket);
+    on_enter_if_type<ast::Function_def>(&Namespace_scanner::insert_function);
+  }
+  //--------------------------------------------------------------------------------
   bool
   Namespace_scanner::enter(ast::Node_if const& node) {
     //using namespace std;
@@ -18,22 +29,7 @@ namespace ir {
       return true;
     }
 
-    //cout << "Entering " << typeid(node).name() << '\n';
-    if( typeid(node) == typeid(ast::Namespace_def) ) {
-      insert_namespace(dynamic_cast<ast::Namespace_def const&>(node));
-      return false;
-    } else if( typeid(node) == typeid(ast::Module_def) ) {
-      insert_module(dynamic_cast<ast::Module_def const&>(node));
-      return false;
-    } else if( typeid(node) == typeid(ast::Socket_def) ) {
-      insert_socket(dynamic_cast<ast::Socket_def const&>(node));
-      return false;
-    } else if( typeid(node) == typeid(ast::Function_def) ) {
-      insert_function(dynamic_cast<ast::Function_def const&>(node));
-      return false;
-    }
-
-    return true;
+    return Scanner_base::enter(node);
   }
   //--------------------------------------------------------------------------------
   bool
@@ -43,7 +39,7 @@ namespace ir {
     return true;
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Module>
+  bool
   Namespace_scanner::insert_module(ast::Module_def const& mod) {
     auto label = dynamic_cast<ast::Identifier const&>(mod.identifier()).identifier();
     auto m = std::shared_ptr<Module>(new Module(label));
@@ -54,10 +50,10 @@ namespace ir {
     scan_ast(*m, mod, m_codegen);
     m_ns.modules[m->name] = m;
 
-    return m;
+    return false;
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Namespace>
+  bool 
   Namespace_scanner::insert_namespace(ast::Namespace_def const& ns) {
     auto label = dynamic_cast<ast::Identifier const*>(&(ns.identifier()))->identifier();
     auto n = std::shared_ptr<Namespace>(new Namespace(label));
@@ -68,10 +64,10 @@ namespace ir {
     scan_ast(*n, ns, m_codegen);
     m_ns.namespaces[n->name] = n;
 
-    return n;
+    return false;
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Socket>
+  bool
   Namespace_scanner::insert_socket(ast::Socket_def const& sock) {
     auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
     auto s = std::shared_ptr<Socket>(new Socket(label));
@@ -85,10 +81,10 @@ namespace ir {
     m_ns.sockets[s->name] = s;
     m_ns.types[s->name] = s;
 
-    return s;
+    return false;
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Function>
+  bool
   Namespace_scanner::insert_function(ast::Function_def const& node) {
     std::shared_ptr<Function> func(new Function);
 
@@ -148,7 +144,7 @@ namespace ir {
 
     m_ns.functions[func->name] = func;
 
-    return func;
+    return false;
   }
   //--------------------------------------------------------------------------------
   std::shared_ptr<Codeblock_if>

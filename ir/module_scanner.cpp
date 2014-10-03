@@ -5,12 +5,21 @@
 #include <stdexcept>
 
 #include "find.hpp"
+#include "scan_ast.h"
 #include "types.h"
 #include "streamop.h"
 #include "make_array_type.h"
 
 namespace ir {
 
+  Module_scanner::Module_scanner(Module& mod, Codegen_if& codegen) 
+    : Namespace_scanner(mod, codegen),
+      m_mod(mod) {
+    on_enter_if_type<ast::Variable_def>(&Module_scanner::insert_object);
+    on_enter_if_type<ast::Module_instantiation>(&Module_scanner::insert_instantiation);
+    on_enter_if_type<ast::Process>(&Module_scanner::insert_process);
+    on_enter_if_type<ast::Periodic>(&Module_scanner::insert_periodic);
+  }
   //--------------------------------------------------------------------------------
   bool
   Module_scanner::enter(ast::Node_if const& node) {
@@ -33,7 +42,7 @@ namespace ir {
           }
         } else if( typeid(mod.socket()) == typeid(ast::Socket_def) ) {
           auto& sock = dynamic_cast<ast::Socket_def const&>(mod.socket());
-          m_mod.socket = insert_socket(sock);
+          return insert_socket(sock);
         }
       } else {
         m_mod.socket = Builtins::null_socket;
@@ -48,30 +57,90 @@ namespace ir {
       return true;
     }
 
-    if( typeid(node) == typeid(ast::Function_def) ) {
-      auto f = Namespace_scanner::insert_function(dynamic_cast<ast::Function_def const&>(node));
-      f->within_module = true;
-      return false;
-    } else if( !Namespace_scanner::enter(node) ) {
-      return false;
-    } else if( typeid(node) == typeid(ast::Variable_def) ) {
-      insert_object(dynamic_cast<ast::Variable_def const&>(node));
-      return false;
-    } else if( typeid(node) == typeid(ast::Module_instantiation) ) {
-      insert_instantiation(dynamic_cast<ast::Module_instantiation const&>(node));
-      return false;
-    } else if( typeid(node) == typeid(ast::Process) ) {
-      insert_process(dynamic_cast<ast::Process const&>(node));
-      return false;
-    } else if( typeid(node) == typeid(ast::Periodic) ) {
-      insert_periodic(dynamic_cast<ast::Periodic const&>(node));
-      return false;
-    }
-    
-    return true;
+    return Namespace_scanner::enter(node);
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Instantiation> 
+  bool
+  Module_scanner::insert_function(ast::Function_def const& node) {
+    std::shared_ptr<Function> func(new Function);
+
+    // get name
+    func->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
+    if( m_ns.functions.count(func->name) > 0 )
+      throw std::runtime_error(std::string("Function with name ")+ func->name +std::string(" already exists"));
+
+    // get return type
+    auto type_name = dynamic_cast<ast::Identifier const*>(&(node.return_type()))->identifier();
+    func->return_type = find_type(m_ns, type_name);
+    if( !func->return_type ) {
+      std::stringstream strm;
+      strm << node.return_type().location();
+      strm << ": return type '" << type_name << "' not found.";
+      throw std::runtime_error(strm.str());
+    }
+
+    // get parameters
+    auto params = node.parameters();
+    for(auto p_node : params) {
+      if( typeid(*p_node) != typeid(ast::Function_param) )
+        throw std::runtime_error("function parameter is not of type Function_param ("
+            + std::string(typeid(p_node).name())
+            + std::string(" instead)"));
+
+      auto p = dynamic_cast<ast::Function_param*>(p_node);
+      auto p_ir = std::make_shared<Object>();
+      p_ir->name = dynamic_cast<ast::Identifier const&>(p->identifier()).identifier();
+      //if( func->parameters.count(p_ir->name) > 0 )
+      if( std::any_of(func->parameters.begin(),
+            func->parameters.end(),
+            [p_ir](std::shared_ptr<Object> const& i) { return i->name == p_ir->name; }) ) {
+        throw std::runtime_error(std::string("Parameter with name ")
+            + p_ir->name
+            + std::string(" already defined"));
+      }
+
+      auto type_name = dynamic_cast<ast::Identifier const&>(p->type()).identifier();
+      p_ir->type = find_type(m_ns, type_name);
+      if( !p_ir->type ) {
+        std::stringstream strm;
+        strm << p->type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+
+      //func->parameters[p_ir->name] = p_ir;
+      func->parameters.push_back(p_ir);
+    }
+
+    // generate code for function body
+    auto cb = make_codeblock();
+    cb->prototype(func);
+    cb->scan_ast(node.body());
+    func->code = cb;
+    func->within_module = true;
+
+    m_ns.functions[func->name] = func;
+
+    return false;
+  }
+  //--------------------------------------------------------------------------------
+  bool
+  Module_scanner::insert_socket(ast::Socket_def const& sock) {
+    auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
+    auto s = std::shared_ptr<Socket>(new Socket(label));
+    if( m_ns.sockets.count(s->name) > 0 )
+      throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
+    if( m_ns.types.count(s->name) > 0 )
+      throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
+
+    s->enclosing_ns = &m_ns;
+    scan_ast(*s, sock, m_codegen);
+    m_mod.socket = s;
+
+    return false;
+  }
+  //--------------------------------------------------------------------------------
+  bool
   Module_scanner::insert_instantiation(ast::Module_instantiation const& node) {
     std::shared_ptr<Instantiation> inst(new Instantiation);
     inst->name = dynamic_cast<ast::Identifier const&>(node.instance_name()).identifier();
@@ -190,10 +259,10 @@ namespace ir {
 
     m_mod.instantiations[inst->name] = inst;
 
-    return inst;
+    return false;
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Object>
+  bool
   Module_scanner::insert_object(ast::Variable_def const& node) {
     std::shared_ptr<Object> obj(new Object);
 
@@ -222,10 +291,10 @@ namespace ir {
     }
 
     m_mod.objects[obj->name] = obj;
-    return obj;
+    return false;
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Process>
+  bool
   Module_scanner::insert_process(ast::Process const& node) {
     auto rv = std::make_shared<Process>();
 
@@ -237,10 +306,10 @@ namespace ir {
 
     m_mod.processes.push_back(rv);
 
-    return rv;
+    return false;
   }
   //--------------------------------------------------------------------------------
-  std::shared_ptr<Process>
+  bool
   Module_scanner::insert_periodic(ast::Periodic const& node) {
     auto rv = std::make_shared<Periodic>();
 
@@ -254,7 +323,7 @@ namespace ir {
 
     m_mod.periodicals.push_back(rv);
 
-    return rv;
+    return false;
   }
   //--------------------------------------------------------------------------------
   std::shared_ptr<Codeblock_if>

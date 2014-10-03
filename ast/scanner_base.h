@@ -43,6 +43,19 @@ namespace ast {
       }
 
 
+      // matching pointer to member function of a derived class
+      template<typename Node_type, typename Derived>
+      typename std::enable_if<std::is_base_of<Base, Derived>::value>::type
+      do_if_type(Node_type_map& map, bool(Derived::*func) (Node_type const&)) {
+        Node_function wrapper = [func](Base& b, ast::Node_if const& n) -> bool {
+          Derived& deriv = static_cast<Derived&>(b);
+          return (deriv.*func)(dynamic_cast<Node_type const&>(n));
+        };
+
+        map.insert(std::make_pair(&typeid(Node_type), wrapper));
+      }
+
+
       // matching free functions (pointers)
       template<typename Node_type, typename Function>
       typename std::enable_if<std::is_same<typename std::remove_pointer<Function>::type, bool(Base&, Node_type const&)>::value>::type
