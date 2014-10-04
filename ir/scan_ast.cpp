@@ -61,6 +61,7 @@ namespace ir {
     tree.accept(scanner);
   }
   //--------------------------------------------------------------------------------
+  
   void scan_ast(Namespace& ns, ast::Node_if const& tree) {
     Namespace_scanner scanner(ns);
     tree.accept(scanner);

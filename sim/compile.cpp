@@ -1,16 +1,19 @@
 #include "sim/compile.h"
 
 #include "sim/scan_ast.h"
+#include "sim/llvm_namespace_scanner.h"
 
 #include <memory>
 
 namespace sim {
 
-  sim::Llvm_namespace compile(ast::Node_if const& ast_root,
+  sim::Llvm_library compile(ast::Node_if const& ast_root,
       std::string const& defaultname) {
-    sim::Llvm_namespace rv(defaultname);
+    ir::Library<Llvm_impl> rv;
 
-    scan_ast(rv, ast_root);
+    Llvm_namespace_scanner scanner(*rv.ns, rv);
+    ast_root.accept(scanner);
+
     return rv;
   }
 

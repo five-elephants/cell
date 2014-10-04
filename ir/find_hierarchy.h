@@ -44,14 +44,14 @@ namespace ir {
   }
  
 
-  template<typename T>
-  std::shared_ptr<T> find_by_path(Namespace const& ns,
-      std::map<Label, std::shared_ptr<T>> Namespace::*field,
+  template<typename T, typename Impl>
+  std::shared_ptr<T> find_by_path(Namespace<Impl> const& ns,
+      std::map<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
       std::string const& path) {
     auto path_elems = parse_path(path, ".");
 
     std::cout << "PATH: " << path << "\n";
-    Namespace const* cur_ns = &ns;
+    Namespace<Impl> const* cur_ns = &ns;
     for(auto it=path_elems.begin();
         (path_elems.size() > 1) && (it != --(path_elems.end()));
         ++it) {

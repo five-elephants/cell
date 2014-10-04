@@ -248,10 +248,10 @@ namespace ir {
     auto rv = std::make_shared<Process>();
 
     // generate code for process body
-    auto cb = make_codeblock();
-    cb->process(rv);
-    cb->scan_ast(node.body());
-    rv->code = cb;
+    //auto cb = make_codeblock();
+    //cb->process(rv);
+    //cb->scan_ast(node.body());
+    //rv->code = cb;
 
     m_mod.processes.push_back(rv);
 
@@ -265,10 +265,10 @@ namespace ir {
     rv->period = Time(2, Time::ns);
 
     // generate code for process body
-    auto cb = make_codeblock();
-    cb->process(rv);
-    cb->scan_ast(node.body());
-    rv->code = cb;
+    //auto cb = make_codeblock();
+    //cb->process(rv);
+    //cb->scan_ast(node.body());
+    //rv->code = cb;
 
     m_mod.periodicals.push_back(rv);
 

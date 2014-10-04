@@ -3,7 +3,8 @@
 #include "namespace.h"
 
 namespace ir {
-  inline bool type_compatible(Type const& a, Type const& b) {
+  template<typename Impl>
+  bool type_compatible(Type<Impl> const& a, Type<Impl> const& b) {
     return (a.name == b.name);
   }
 }

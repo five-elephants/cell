@@ -4,5 +4,8 @@
 #include "namespace.h"
 
 
-std::ostream& operator << (std::ostream& os, ir::Type const& type); 
+template<typename Impl>
+std::ostream& operator << (std::ostream& os, ir::Type<Impl> const& type) {
+  return os << type.name;
+}
 

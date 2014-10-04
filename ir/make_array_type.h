@@ -11,14 +11,15 @@
 
 namespace ir {
 
-  inline std::shared_ptr<Type> make_array_type(Namespace const& ns, ast::Array_type const& type) {
+  template<typename Impl>
+  std::shared_ptr<Type<Impl>> make_array_type(Namespace<Impl> const& ns, ast::Array_type const& type) {
     if( typeid(type.base_type()) == typeid(ast::Array_type) ) {
       auto& base_type = dynamic_cast<ast::Array_type const&>(type.base_type());
       auto bt = make_array_type(ns, base_type);
 
       std::stringstream strm;
       strm << bt->name << "[" << type.size() << "]";
-      auto new_type = std::make_shared<Type>();
+      auto new_type = std::make_shared<Type<Impl>>();
       new_type->name = strm.str();
       new_type->array_size = type.size();
 
@@ -37,7 +38,7 @@ namespace ir {
 
       std::stringstream strm;
       strm << ir_type->name << "[" << type.size() << "]";
-      auto new_type = std::make_shared<Type>();
+      auto new_type = std::make_shared<Type<Impl>>();
       new_type->name = strm.str();
       new_type->array_size = type.size();
 

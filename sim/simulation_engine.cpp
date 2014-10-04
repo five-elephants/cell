@@ -140,7 +140,7 @@ namespace sim {
     if( driver.parse(filename) )
       throw std::runtime_error("parse failed");
 
-    m_top_ns = sim::compile(driver.ast_root());
+    //m_top_ns = sim::compile(driver.ast_root());
 
     // TODO
     /*m_top_mod = find_by_path(m_top_ns, &ir::Namespace::modules, toplevel);

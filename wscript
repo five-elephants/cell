@@ -65,31 +65,28 @@ def build(bld):
       ast/variable_ref.cpp
       ast/array_type.cpp
       parse_driver.cpp
-      ir/namespace.cpp
-      ir/builtins.cpp
-      ir/analyze.cpp
-      ir/streamop.cpp
-      ir/namespace_scanner.cpp
-      ir/module_scanner.cpp
-      ir/scan_ast.cpp
-      ir/codegen.cpp
-      ir/codeblock.cpp
     """
 
     sim_src = """
       sim/llvm_namespace_scanner.cpp
       sim/llvm_function_scanner.cpp
-      sim/llvm_codegen.cpp
-      sim/llvm_codeblock.cpp
-      sim/codegen_visitor.cpp
-      sim/module_codegen_visitor.cpp
-      sim/scan_ast.cpp
       sim/compile.cpp
-      sim/runtime.cpp
-      sim/simulation_engine.cpp
-      sim/module_inspector.cpp
-      sim/stream_instrumenter.cpp
     """
+
+    #sim_src = """
+      #sim/llvm_namespace_scanner.cpp
+      #sim/llvm_function_scanner.cpp
+      #sim/llvm_codegen.cpp
+      #sim/llvm_codeblock.cpp
+      #sim/codegen_visitor.cpp
+      #sim/module_codegen_visitor.cpp
+      #sim/scan_ast.cpp
+      #sim/compile.cpp
+      #sim/runtime.cpp
+      #sim/simulation_engine.cpp
+      #sim/module_inspector.cpp
+      #sim/stream_instrumenter.cpp
+    #"""
 
     bindings_src = """
       bindings/ir.swig
@@ -103,9 +100,9 @@ def build(bld):
     test_src = """
       gtest/gtest-1.7.0/src/gtest_main.cc
       test/test_find_hierarchy.cpp
-      test/test_simple_sim.cpp
       test/test_scanner_base.cpp
     """
+    #test/test_simple_sim.cpp
 
     bld.objects(
       source = core_src,
@@ -123,29 +120,29 @@ def build(bld):
       use = 'BOOST LLVM'
     )
 
-    bld.program(
-        source = 'frontend.cpp ',
-        target = 'frontend',
-        includes = '.',
-        cxxflags = '-std=c++11 -ggdb',
-        use = 'core',
-    )
+    #bld.program(
+        #source = 'frontend.cpp ',
+        #target = 'frontend',
+        #includes = '.',
+        #cxxflags = '-std=c++11 -ggdb',
+        #use = 'core',
+    #)
 
-    bld.program(
-      source = 'sim/compiler.cpp',
-      target = 'compiler',
-      includes = '.',
-      cxxflags = '-std=c++11 -ggdb',
-      use = 'core sim LLVM'
-    )
+    #bld.program(
+      #source = 'sim/compiler.cpp',
+      #target = 'compiler',
+      #includes = '.',
+      #cxxflags = '-std=c++11 -ggdb',
+      #use = 'core sim LLVM'
+    #)
 
-    bld.program(
-      source = 'sim/simulator.cpp',
-      target = 'simulator',
-      includes = '.',
-      cxxflags = '-std=c++11 -ggdb -fPIC',
-      use = 'core sim LLVM'
-    )
+    #bld.program(
+      #source = 'sim/simulator.cpp',
+      #target = 'simulator',
+      #includes = '.',
+      #cxxflags = '-std=c++11 -ggdb -fPIC',
+      #use = 'core sim LLVM'
+    #)
 
     if False:
       bindings_lib = bld(
