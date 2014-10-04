@@ -1,75 +1,48 @@
-#include "namespace_scanner.h"
-
-#include "find.hpp"
-#include "scan_ast.h"
-
-#include <sstream>
 
 namespace ir {
 
-  //--------------------------------------------------------------------------------
-  Namespace_scanner::Namespace_scanner(Namespace& ns)
-    : m_ns(ns),
-      m_root(true) {
-
-    on_enter_if_type<ast::Namespace_def>(&Namespace_scanner::insert_namespace);
-    on_enter_if_type<ast::Module_def>(&Namespace_scanner::insert_module);
-    on_enter_if_type<ast::Socket_def>(&Namespace_scanner::insert_socket);
-    on_enter_if_type<ast::Function_def>(&Namespace_scanner::insert_function);
-  }
-  //--------------------------------------------------------------------------------
+  template<typename Impl>
   bool
-  Namespace_scanner::enter(ast::Node_if const& node) {
-    //using namespace std;
-
-    if( m_root ) {
-      m_root = false;
-      //cout << "[root] Entering " << typeid(node).name() << '\n';
-      return true;
-    }
-
-    return Scanner_base::enter(node);
-  }
-  //--------------------------------------------------------------------------------
-  bool
-  Namespace_scanner::visit(ast::Node_if const& node) {
-    //std::cout << "Visit " << typeid(node).name() << '\n';
-    m_root = false;
-    return Scanner_base::visit(node);
-  }
-  //--------------------------------------------------------------------------------
-  bool
-  Namespace_scanner::insert_module(ast::Module_def const& mod) {
+  Namespace_scanner<Impl>::insert_module(ast::Module_def const& mod) {
     auto label = dynamic_cast<ast::Identifier const&>(mod.identifier()).identifier();
-    auto m = std::shared_ptr<Module>(new Module(label));
+    auto m = std::make_shared<Module<Impl>>(label);
     if( m_ns.modules.count(m->name) > 0 )
       throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
 
     m->enclosing_ns = &m_ns;
-    scan_ast(*m, mod);
+    Module_scanner<Impl> scanner(*m);
+    mod.accept(scanner);
     m_ns.modules[m->name] = m;
 
     return false;
   }
-  //--------------------------------------------------------------------------------
-  bool 
-  Namespace_scanner::insert_namespace(ast::Namespace_def const& ns) {
+
+  template<typename Impl>
+  bool
+  Namespace_scanner<Impl>::insert_namespace(ast::Namespace_def const& ns) {
     auto label = dynamic_cast<ast::Identifier const*>(&(ns.identifier()))->identifier();
-    auto n = std::shared_ptr<Namespace>(new Namespace(label));
+    auto n = std::make_shared<Namespace<Impl>>(label);
+    //auto n = std::shared_ptr<Namespace<Impl>>(new Namespace(label));
     if( m_ns.namespaces.count(n->name) > 0 )
       throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
     n->enclosing_ns = &m_ns;
-    scan_ast(*n, ns);
+
+    Namespace_scanner<Impl> scanner(*n);
+    ns.accept(scanner);
+
     m_ns.namespaces[n->name] = n;
 
     return false;
   }
-  //--------------------------------------------------------------------------------
+
+
+  template<typename Impl>
   bool
-  Namespace_scanner::insert_socket(ast::Socket_def const& sock) {
+  Namespace_scanner<Impl>::insert_socket(ast::Socket_def const& sock) {
     auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
-    auto s = std::shared_ptr<Socket>(new Socket(label));
+    auto s = std::make_shared<Socket<Impl>>(label);
+    //auto s = std::shared_ptr<Socket>(new Socket(label));
     if( m_ns.sockets.count(s->name) > 0 )
       throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
     if( m_ns.types.count(s->name) > 0 )
@@ -82,18 +55,22 @@ namespace ir {
 
     return false;
   }
-  //--------------------------------------------------------------------------------
+
+
+  template<typename Impl>
   bool
-  Namespace_scanner::insert_function(ast::Function_def const& node) {
+  Namespace_scanner<Impl>::insert_function(ast::Function_def const& node) {
     auto func = create_function(node);
     m_ns.functions[func->name] = func;
 
     return false;
   }
-  //--------------------------------------------------------------------------------
-  std::shared_ptr<Function>
-  Namespace_scanner::create_function(ast::Function_def const& node) {
-    std::shared_ptr<Function> func(new Function);
+
+
+  template<typename Impl>
+  std::shared_ptr<ir::Function<Impl>>
+  Namespace_scanner<Impl>::create_function(ast::Function_def const& node) {
+    std::shared_ptr<Function<Impl>> func(new Function<Impl>());
 
     // get name
     func->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
@@ -119,12 +96,12 @@ namespace ir {
             + std::string(" instead)"));
 
       auto p = dynamic_cast<ast::Function_param*>(p_node);
-      auto p_ir = std::make_shared<Object>();
+      auto p_ir = std::make_shared<Object<Impl>>();
       p_ir->name = dynamic_cast<ast::Identifier const&>(p->identifier()).identifier();
       //if( func->parameters.count(p_ir->name) > 0 )
       if( std::any_of(func->parameters.begin(),
             func->parameters.end(),
-            [p_ir](std::shared_ptr<Object> const& i) { return i->name == p_ir->name; }) ) {
+            [p_ir](std::shared_ptr<Object<Impl>> const& i) { return i->name == p_ir->name; }) ) {
         throw std::runtime_error(std::string("Parameter with name ")
             + p_ir->name
             + std::string(" already defined"));
@@ -147,6 +124,5 @@ namespace ir {
 
     return func;
   }
-  //--------------------------------------------------------------------------------
 
 }
