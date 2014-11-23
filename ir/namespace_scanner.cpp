@@ -20,7 +20,7 @@ namespace ir {
   template<typename Impl>
   bool
   Namespace_scanner<Impl>::insert_namespace(ast::Namespace_def const& ns) {
-    auto label = dynamic_cast<ast::Identifier const*>(&(ns.identifier()))->identifier();
+    auto label = dynamic_cast<ast::Identifier const&>(ns.identifier()).identifier();
     auto n = std::make_shared<Namespace<Impl>>(label);
     //auto n = std::shared_ptr<Namespace<Impl>>(new Namespace(label));
     if( m_ns.namespaces.count(n->name) > 0 )

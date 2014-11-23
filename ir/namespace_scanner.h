@@ -14,12 +14,7 @@
 #include <stdexcept>
 
 
-//#include <iostream>
-
 namespace ir {
-
-  //template<typename Impl = No_impl> class Module_scanner;
-
 
   template<typename Impl = No_impl>
   class Namespace_scanner : public ast::Scanner_base<Namespace_scanner<Impl>> {

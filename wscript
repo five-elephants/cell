@@ -101,6 +101,7 @@ def build(bld):
       gtest/gtest-1.7.0/src/gtest_main.cc
       test/test_find_hierarchy.cpp
       test/test_scanner_base.cpp
+      test/test_codegen.cpp
     """
     #test/test_simple_sim.cpp
 
@@ -128,13 +129,13 @@ def build(bld):
         #use = 'core',
     #)
 
-    #bld.program(
-      #source = 'sim/compiler.cpp',
-      #target = 'compiler',
-      #includes = '.',
-      #cxxflags = '-std=c++11 -ggdb',
-      #use = 'core sim LLVM'
-    #)
+    bld.program(
+      source = 'sim/compiler.cpp',
+      target = 'compiler',
+      includes = '.',
+      cxxflags = '-std=c++11 -ggdb',
+      use = 'core sim LLVM'
+    )
 
     #bld.program(
       #source = 'sim/simulator.cpp',
