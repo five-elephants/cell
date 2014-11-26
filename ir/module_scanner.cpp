@@ -3,6 +3,7 @@ namespace ir {
   template<typename Impl>
   bool
   Module_scanner<Impl>::insert_function(ast::Function_def const& node) {
+    std::cout << "Module_scanner::insert_function" << std::endl;
     auto func = this->create_function(node);
     func->within_module = true;
 

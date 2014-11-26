@@ -10,7 +10,7 @@
 
 TEST(Codegen_test, empty_module) {
   Parse_driver driver;
-  if( driver.parse("test/simulator_test/empty_module.mini") )
+  if( driver.parse("test/simulator_test/function_in_module.mini") )
     throw std::runtime_error("parse failed");
 
   ir::Library<sim::Llvm_impl> lib;
@@ -21,7 +21,7 @@ TEST(Codegen_test, empty_module) {
   ast::Ast_printer printer(std::cout);
   driver.ast_root().accept(printer);
 
-  sim::Llvm_namespace_scanner scanner(*lib.ns, lib);
+  sim::Llvm_namespace_scanner scanner(*lib.ns);
   driver.ast_root().accept(scanner);
 }
 

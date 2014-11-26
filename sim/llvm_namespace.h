@@ -31,6 +31,7 @@ namespace sim {
 	typedef ir::Periodic<Llvm_impl> Llvm_periodic;
 	typedef ir::Socket<Llvm_impl> Llvm_socket;
 	typedef ir::Namespace<Llvm_impl> Llvm_namespace;
+	typedef ir::Module<Llvm_impl> Llvm_module;
 	typedef ir::Library<Llvm_impl> Llvm_library;
 
 }

@@ -62,6 +62,11 @@ class My_test_scanner : public ast::Scanner_base<My_test_scanner> {
       return false;
     }
 
+    virtual bool virtual_member(ast::Namespace_def const& node) {
+      std::cout << "virtual_member" << std::endl;
+      return true;
+    }
+
 
     My_test_scanner() {
       on_enter_if_type<ast::Namespace_def>(&My_test_scanner::enter_namespace_def);
@@ -74,9 +79,30 @@ class My_test_scanner : public ast::Scanner_base<My_test_scanner> {
       on_enter([]() -> bool { std::cout << "hello" << std::endl; return true; });
       //std::function<bool()> f( []() -> bool { return false; } );
       //do_always(m_enter_callbacks, f);
+
+      on_enter_if_type<ast::Namespace_def>(&My_test_scanner::virtual_member);
     }
 };
 
+
+class My_derived_test_scanner : public My_test_scanner {
+  public:
+    bool m_derived_ran = false;
+
+    My_derived_test_scanner()
+      : My_test_scanner() {
+    }
+    
+
+    virtual bool virtual_member(ast::Namespace_def const& node) {
+      m_derived_ran = true;
+      std::cout << "derived virtual_member" << std::endl;
+      return true;
+    }
+
+};
+
+    
 
 
 TEST(ast, scanner_base) {
@@ -104,5 +130,16 @@ TEST(ast, ast_printer) {
 
   EXPECT_EQ(parser.parse("test/simulator_test/basic_process.mini"), 0);
   parser.ast_root().accept(printer);
+}
+
+
+
+TEST(ast, scanner_virtual_derived) {
+  auto tree = generate_test_tree();
+  My_derived_test_scanner scanner;
+
+  tree->accept(scanner);
+
+  EXPECT_EQ(scanner.m_derived_ran, true);
 }
 

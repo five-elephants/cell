@@ -4,12 +4,9 @@ namespace ir {
   template<typename Impl>
   bool
   Namespace_scanner<Impl>::insert_module(ast::Module_def const& mod) {
-    auto label = dynamic_cast<ast::Identifier const&>(mod.identifier()).identifier();
-    auto m = std::make_shared<Module<Impl>>(label);
-    if( m_ns.modules.count(m->name) > 0 )
-      throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
+    std::cout << "Namespace_scanner::insert_module" << std::endl;
+    auto m = create_module(mod);
 
-    m->enclosing_ns = &m_ns;
     Module_scanner<Impl> scanner(*m);
     mod.accept(scanner);
     m_ns.modules[m->name] = m;
@@ -20,13 +17,9 @@ namespace ir {
   template<typename Impl>
   bool
   Namespace_scanner<Impl>::insert_namespace(ast::Namespace_def const& ns) {
-    auto label = dynamic_cast<ast::Identifier const&>(ns.identifier()).identifier();
-    auto n = std::make_shared<Namespace<Impl>>(label);
-    //auto n = std::shared_ptr<Namespace<Impl>>(new Namespace(label));
-    if( m_ns.namespaces.count(n->name) > 0 )
-      throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
+    std::cout << "Namespace_scanner::insert_namespace" << std::endl;
 
-    n->enclosing_ns = &m_ns;
+    auto n = create_namespace(ns);
 
     Namespace_scanner<Impl> scanner(*n);
     ns.accept(scanner);
@@ -64,6 +57,21 @@ namespace ir {
     m_ns.functions[func->name] = func;
 
     return false;
+  }
+
+
+  template<typename Impl>
+  std::shared_ptr<ir::Namespace<Impl>>
+  Namespace_scanner<Impl>::create_namespace(ast::Namespace_def const& ns) {
+    auto label = dynamic_cast<ast::Identifier const&>(ns.identifier()).identifier();
+    auto n = std::make_shared<Namespace<Impl>>(label);
+    //auto n = std::shared_ptr<Namespace<Impl>>(new Namespace(label));
+    if( m_ns.namespaces.count(n->name) > 0 )
+      throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
+
+    n->enclosing_ns = &m_ns;
+
+    return n;
   }
 
 
@@ -125,4 +133,17 @@ namespace ir {
     return func;
   }
 
+
+  template<typename Impl>
+  std::shared_ptr<Module<Impl>>
+  Namespace_scanner<Impl>::create_module(ast::Module_def const& mod) {
+    auto label = dynamic_cast<ast::Identifier const&>(mod.identifier()).identifier();
+    auto m = std::make_shared<Module<Impl>>(label);
+    if( m_ns.modules.count(m->name) > 0 )
+      throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
+
+    m->enclosing_ns = &m_ns;
+
+    return m;
+  }
 }

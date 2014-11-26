@@ -18,7 +18,7 @@ namespace sim {
     ast::Ast_printer printer(std::cout);
     ast_root.accept(printer);
 
-    Llvm_namespace_scanner scanner(*rv.ns, rv);
+    Llvm_namespace_scanner scanner(*rv.ns);
     ast_root.accept(scanner);
 
     return rv;

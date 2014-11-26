@@ -9,12 +9,12 @@ namespace sim {
 
   class Llvm_namespace_scanner : public ir::Namespace_scanner<Llvm_impl> {
     public:
-      Llvm_namespace_scanner(Llvm_namespace& ns, Llvm_library& library);
+      Llvm_namespace_scanner(Llvm_namespace& ns);
+
 
     protected:
-      Llvm_library& m_library;
-      Llvm_namespace& m_llvm_ns;
-
+      virtual bool insert_namespace(ast::Namespace_def const& ns);
+      virtual bool insert_module(ast::Module_def const& mod);
       virtual bool insert_function(ast::Function_def const& func); 
   };
 

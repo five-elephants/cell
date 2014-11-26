@@ -69,6 +69,7 @@ def build(bld):
 
     sim_src = """
       sim/llvm_namespace_scanner.cpp
+      sim/llvm_module_scanner.cpp
       sim/llvm_function_scanner.cpp
       sim/compile.cpp
     """

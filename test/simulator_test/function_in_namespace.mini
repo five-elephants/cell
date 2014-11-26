@@ -1,0 +1,6 @@
+namespace test = {
+
+	def func() = {
+	}
+
+}

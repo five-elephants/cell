@@ -18,7 +18,7 @@ namespace ir {
 
   template<typename Impl = No_impl>
   class Namespace_scanner : public ast::Scanner_base<Namespace_scanner<Impl>> {
-    using Scanner_base = ast::Scanner_base<Namespace_scanner<Impl>>;
+    //using Scanner_base = ast::Scanner_base<Namespace_scanner<Impl>>;
 
     public:
       Namespace_scanner(Namespace<Impl>& ns)
@@ -38,13 +38,13 @@ namespace ir {
           return true;
         }
 
-        return Scanner_base::enter(node);
+        return ast::Scanner_base<Namespace_scanner<Impl>>::enter(node);
       }
 
 
       virtual bool visit(ast::Node_if const& node) {
         m_root = false;
-        return Scanner_base::visit(node);
+        return ast::Scanner_base<Namespace_scanner<Impl>>::visit(node);
       }
 
 
@@ -56,6 +56,9 @@ namespace ir {
       virtual bool insert_namespace(ast::Namespace_def const& ns); 
       virtual bool insert_socket(ast::Socket_def const& sock);
       virtual bool insert_function(ast::Function_def const& node); 
+
+      virtual std::shared_ptr<ir::Namespace<Impl>> create_namespace(ast::Namespace_def const& node);
+      virtual std::shared_ptr<ir::Module<Impl>> create_module(ast::Module_def const& node);
       virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node); 
   };
 
@@ -63,11 +66,11 @@ namespace ir {
 
   template<typename Impl = No_impl>
   class Module_scanner : public Namespace_scanner<Impl> {
-    using Namespace_scanner = Namespace_scanner<Impl>;
+    //using Base = Namespace_scanner<Impl>;
 
     public:
       Module_scanner(Module<Impl>& mod)
-        : Namespace_scanner(mod),
+        : Namespace_scanner<Impl>(mod),
           m_mod(mod) {
         this->template on_enter_if_type<ast::Variable_def>(&Module_scanner::insert_object);
         this->template on_enter_if_type<ast::Module_instantiation>(&Module_scanner::insert_instantiation);
@@ -112,7 +115,7 @@ namespace ir {
           return true;
         }
 
-        return Namespace_scanner::enter(node);
+        return Namespace_scanner<Impl>::enter(node);
       }
 
 
@@ -128,7 +131,7 @@ namespace ir {
   };
 
 }
-  
+ 
 
 #include "namespace_scanner.cpp"
 #include "module_scanner.cpp"
