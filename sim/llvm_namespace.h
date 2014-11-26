@@ -2,6 +2,11 @@
 
 #include "ir/namespace.h"
 
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/PassManager.h>
+
 
 namespace sim {
 	
@@ -11,13 +16,23 @@ namespace sim {
     struct Object {};
     struct Port_assignment {};
     struct Instantiation {};
-    struct Function {};
+
+    struct Function {
+			std::unique_ptr<llvm::Function> code;
+		};
+
     struct Process {};
     struct Periodic {};
     struct Socket {};
     struct Namespace {};
     struct Module {};
-    struct Library {};
+		
+    struct Library {
+			std::unique_ptr<llvm::LLVMContext> context;
+			std::unique_ptr<llvm::IRBuilder<>> builder;
+			std::unique_ptr<llvm::Module> module;
+      std::unique_ptr<llvm::FunctionPassManager> m_fpm;
+		};
   };
 
 

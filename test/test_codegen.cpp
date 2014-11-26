@@ -13,15 +13,16 @@ TEST(Codegen_test, empty_module) {
   if( driver.parse("test/simulator_test/function_in_module.mini") )
     throw std::runtime_error("parse failed");
 
-  ir::Library<sim::Llvm_impl> lib;
+  auto lib = std::make_shared<ir::Library<sim::Llvm_impl>>();
 
-  lib.name = "main";
-  lib.ns = std::make_shared<sim::Llvm_namespace>();
+  lib->name = "main";
+  lib->ns = std::make_shared<sim::Llvm_namespace>();
+  lib->ns->enclosing_library = lib;
 
   ast::Ast_printer printer(std::cout);
   driver.ast_root().accept(printer);
 
-  sim::Llvm_namespace_scanner scanner(*lib.ns);
+  sim::Llvm_namespace_scanner scanner(*(lib->ns));
   driver.ast_root().accept(scanner);
 }
 

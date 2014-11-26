@@ -70,6 +70,7 @@ namespace ir {
       throw std::runtime_error(std::string("Namespace with name ")+ n->name +std::string(" already exists"));
 
     n->enclosing_ns = &m_ns;
+    n->enclosing_library = m_ns.enclosing_library;
 
     return n;
   }
@@ -143,6 +144,7 @@ namespace ir {
       throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
 
     m->enclosing_ns = &m_ns;
+    m->enclosing_library = m_ns.enclosing_library;
 
     return m;
   }

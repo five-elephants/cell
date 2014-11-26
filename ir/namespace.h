@@ -29,6 +29,7 @@ namespace ir {
   template<typename Impl> struct Module;
   template<typename Impl> struct Namespace;
   template<typename Impl> struct Port;
+  template<typename Impl> struct Library;
 
   typedef std::string Label;
 
@@ -151,6 +152,8 @@ namespace ir {
 
     Label name;
     Namespace<Impl>* enclosing_ns;
+    std::weak_ptr<Library<Impl>> enclosing_library;
+
     std::map<Label, std::shared_ptr<Module<Impl>>> modules;
     std::map<Label, std::shared_ptr<Namespace<Impl>>> namespaces;
     std::map<Label, std::shared_ptr<Socket<Impl>>> sockets;
