@@ -6,6 +6,7 @@ namespace sim {
   Llvm_function_scanner::Llvm_function_scanner(Llvm_namespace& ns, Llvm_function& function)
     : m_ns(ns),
       m_function(function) {
+
   }
 
 }

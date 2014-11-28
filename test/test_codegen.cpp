@@ -18,6 +18,7 @@ TEST(Codegen_test, empty_module) {
   lib->name = "main";
   lib->ns = std::make_shared<sim::Llvm_namespace>();
   lib->ns->enclosing_library = lib;
+  lib->impl = sim::create_library_impl(lib->name);
 
   ast::Ast_printer printer(std::cout);
   driver.ast_root().accept(printer);
