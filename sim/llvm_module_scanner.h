@@ -12,7 +12,10 @@ namespace sim {
       Llvm_module_scanner(Llvm_module& mod);
 
     protected:
+      std::vector<llvm::Type*> m_member_types;
+
       virtual bool insert_function(ast::Function_def const& func); 
+      virtual bool insert_object(ast::Variable_def const& var);
   };
 
 }

@@ -1,5 +1,8 @@
 mod m = {
+	var a : int
+
 	def func() = {
 	}
+
 }
 

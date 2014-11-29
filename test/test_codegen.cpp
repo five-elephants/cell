@@ -6,9 +6,12 @@
 #include "sim/scan_ast.h"
 #include "sim/llvm_namespace_scanner.h"
 #include "ast/ast_printer.h"
+#include "ir/builtins.h"
 
 
 TEST(Codegen_test, empty_module) {
+  using namespace std;
+
   Parse_driver driver;
   if( driver.parse("test/simulator_test/function_in_module.mini") )
     throw std::runtime_error("parse failed");
@@ -20,11 +23,23 @@ TEST(Codegen_test, empty_module) {
   lib->ns->enclosing_library = lib;
   lib->impl = sim::create_library_impl(lib->name);
 
+  // init builtins
+  auto& context = lib->impl.context;
+  ir::Builtins<sim::Llvm_impl>::types.at("int")->impl.type = llvm::Type::getInt64Ty(context);
+  ir::Builtins<sim::Llvm_impl>::types.at("void")->impl.type = llvm::Type::getVoidTy(context);
+  ir::Builtins<sim::Llvm_impl>::types.at("string")->impl.type = llvm::TypeBuilder<char*, false>::get(context);
+
+
   ast::Ast_printer printer(std::cout);
   driver.ast_root().accept(printer);
 
   sim::Llvm_namespace_scanner scanner(*(lib->ns));
   driver.ast_root().accept(scanner);
+
+  cout << "Generated code:\n=====\n";
+  lib->impl.module->dump();
+  cout << "\n====="
+    << endl;
 }
 
 

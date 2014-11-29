@@ -1,6 +1,7 @@
 #include "llvm_module_scanner.h"
 
 #include "sim/llvm_function_scanner.h"
+#include "ir/find.hpp"
 
 
 #include <iostream>
@@ -13,7 +14,19 @@ namespace sim {
 
   Llvm_module_scanner::Llvm_module_scanner(Llvm_module& mod)
     : Module_scanner(mod) {
-  } 
+    using namespace llvm;
+
+    // prepare module type
+    auto lib = find_library(mod);
+    mod.impl.mod_type = llvm::StructType::create(lib->impl.context);
+
+    // create ctor
+    mod.impl.ctor = Function::Create(
+        FunctionType::get(mod.impl.mod_type, false),
+        Function::ExternalLinkage,
+        "ctor",
+        lib->impl.module.get());
+  }
 
 
   bool
@@ -30,6 +43,19 @@ namespace sim {
 
     return false;
   }
+
+
+  bool
+  Llvm_module_scanner::insert_object(ast::Variable_def const& node) {
+    auto obj = create_object(node);
+    m_mod.objects[obj->name] = obj;
+
+    m_member_types.push_back(obj->type->impl.type);
+    m_mod.impl.mod_type->setBody(m_member_types);
+
+    return false;
+  }
+
 
 }
 

@@ -128,6 +128,8 @@ namespace ir {
       virtual bool insert_instantiation(ast::Module_instantiation const& node); 
       virtual bool insert_process(ast::Process const& node);
       virtual bool insert_periodic(ast::Periodic const& node); 
+
+      virtual std::shared_ptr<ir::Object<Impl>> create_object(ast::Variable_def const& node);
   };
 
 }

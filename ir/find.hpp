@@ -93,4 +93,16 @@ namespace ir {
 
     return std::shared_ptr<Port<Impl>>(nullptr);
   }
+
+
+  template<typename Impl = No_impl>
+  std::shared_ptr<Library<Impl>> find_library(Namespace<Impl> const& ns) {
+    auto lib = ns.enclosing_library.lock();
+    if( !lib )
+      throw std::runtime_error("Failed to get enclosing library");
+
+    return lib;
+  }
+
+
 }

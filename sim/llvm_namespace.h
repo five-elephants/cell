@@ -16,7 +16,10 @@
 namespace sim {
   
   struct Llvm_impl {
-    struct Type {};
+    struct Type {
+      llvm::Type* type;
+    };
+
     struct Port {};
     struct Object {};
     struct Port_assignment {};
@@ -24,14 +27,18 @@ namespace sim {
 
     struct Function {
       std::unique_ptr<llvm::Function> code;
-      std::unique_ptr<llvm::FunctionType> func_type;
+      llvm::FunctionType* func_type;
     };
 
     struct Process {};
     struct Periodic {};
     struct Socket {};
     struct Namespace {};
-    struct Module {};
+
+    struct Module {
+      llvm::StructType* mod_type;
+      llvm::Function* ctor;
+    };
     
     struct Library {
       llvm::LLVMContext& context;
@@ -58,7 +65,10 @@ namespace sim {
         builder = std::move(o.builder);
         module = std::move(o.module);
         fpm = std::move(o.fpm);
+
+        return *this;
       }
+
     };
   };
 

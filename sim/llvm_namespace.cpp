@@ -3,12 +3,13 @@
 
 namespace sim {
 
+
   Llvm_impl::Library
   create_library_impl(std::string const& name) {
     Llvm_impl::Library rv;
 
     rv.builder.reset(new llvm::IRBuilder<>(rv.context));
-    rv.module.reset(new llvm::Module("library", rv.context));
+    rv.module.reset(new llvm::Module(name, rv.context));
     rv.fpm.reset(new llvm::FunctionPassManager(rv.module.get()));
 
     rv.fpm->add(llvm::createBasicAliasAnalysisPass());

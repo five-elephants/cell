@@ -37,32 +37,7 @@ namespace ir {
   template<typename Impl>
   bool
   Module_scanner<Impl>::insert_object(ast::Variable_def const& node) {
-    std::shared_ptr<Object<Impl>> obj(new Object<Impl>());
-
-    // get name
-    obj->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
-    if( m_mod.objects.count(obj->name) > 0 )
-      throw std::runtime_error(std::string("Variable with name ")
-          + obj->name
-          + std::string(" already exists"));
-
-    // get type
-    if( typeid(node.type()) == typeid(ast::Identifier) ) {
-      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
-      obj->type = find_type(m_mod, type_name);
-      if( !obj->type ) {
-        std::stringstream strm;
-        strm << node.type().location();
-        strm << ": typename '" << type_name << "' not found.";
-        throw std::runtime_error(strm.str());
-      }
-    } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
-      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
-
-      obj->type = make_array_type(m_mod, ar_type);
-      m_mod.types[obj->type->name] = obj->type;
-    }
-
+    auto obj = create_object(node);
     m_mod.objects[obj->name] = obj;
     return false;
   }
@@ -225,6 +200,41 @@ namespace ir {
 
     return false;
   }
+
+
+  template<typename Impl>
+  std::shared_ptr<Object<Impl>>
+  Module_scanner<Impl>::create_object(ast::Variable_def const& node) {
+    std::shared_ptr<Object<Impl>> obj(new Object<Impl>());
+
+    // get name
+    obj->name = dynamic_cast<ast::Identifier const&>(node.identifier()).identifier();
+    if( m_mod.objects.count(obj->name) > 0 )
+      throw std::runtime_error(std::string("Variable with name ")
+          + obj->name
+          + std::string(" already exists"));
+
+    // get type
+    if( typeid(node.type()) == typeid(ast::Identifier) ) {
+      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
+      obj->type = find_type(m_mod, type_name);
+      if( !obj->type ) {
+        std::stringstream strm;
+        strm << node.type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+    } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
+      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
+
+      obj->type = make_array_type(m_mod, ar_type);
+      m_mod.types[obj->type->name] = obj->type;
+    }
+
+    return obj;
+  }
+
+
 }
 
 /* vim: set et fenc=utf-8 ff=unix sts=2 sw=2 ts=2 : */
