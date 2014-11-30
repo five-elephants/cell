@@ -74,6 +74,39 @@ namespace ir {
     return std::shared_ptr<T>(nullptr);
   }
 
+
+
+  template<typename Impl>
+  std::string hierarchical_name(Namespace<Impl> const& ns, std::string const& suffix, char const separator = '.') {
+    std::string rv;
+    std::deque<std::string> path;
+    size_t rv_sz = 0;
+
+    Namespace<Impl> const* cur_ns = &ns;
+    for( ; cur_ns->enclosing_ns != nullptr; cur_ns = cur_ns->enclosing_ns) {
+      rv_sz += cur_ns->name.size();
+      path.push_front(cur_ns->name);
+    }
+
+    auto lib = cur_ns->enclosing_library.lock();
+    path.push_front(lib->name);
+    rv_sz += lib->name.size();
+
+    rv.reserve(rv_sz + suffix.size() + path.size() + 1);
+    for(auto p = std::begin(path); p != std::end(path); ++p) {
+      rv += *p;
+
+      if( p != std::end(path) -1 )
+        rv += separator;
+    }
+
+    if( !suffix.empty() ) {
+      rv += separator;
+      rv += suffix;
+    }
+
+    return rv;
+  }
 }
 
 /* vim: set et fenc= ff=unix sts=0 sw=2 ts=2 : */

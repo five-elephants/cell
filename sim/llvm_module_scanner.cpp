@@ -2,6 +2,7 @@
 
 #include "sim/llvm_function_scanner.h"
 #include "ir/find.hpp"
+#include "ir/find_hierarchy.h"
 
 
 #include <iostream>
@@ -18,13 +19,14 @@ namespace sim {
 
     // prepare module type
     auto lib = find_library(mod);
-    mod.impl.mod_type = llvm::StructType::create(lib->impl.context);
+    auto hier_name = hierarchical_name(mod, "mod");
+    mod.impl.mod_type = llvm::StructType::create(lib->impl.context, hier_name);
 
     // create ctor
     mod.impl.ctor = Function::Create(
         FunctionType::get(mod.impl.mod_type, false),
         Function::ExternalLinkage,
-        "ctor",
+        hierarchical_name(mod, "ctor"),
         lib->impl.module.get());
   }
 

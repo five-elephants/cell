@@ -123,4 +123,5 @@ TEST(general, regex) {
   EXPECT_THROW(regex integer("(\\+|-)?[[:digit:]]+"), regex_error);
 }
 
+
 /* vim: set et fenc= ff=unix sts=0 sw=2 ts=2 : */
