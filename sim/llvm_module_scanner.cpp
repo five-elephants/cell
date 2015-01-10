@@ -40,7 +40,7 @@ namespace sim {
     m_ns.functions[func->name] = func;
 
     // code generation
-    Llvm_function_scanner scanner(m_ns, *func);
+    Llvm_function_scanner scanner(m_mod, *func);
     node.accept(scanner);
 
     return false;

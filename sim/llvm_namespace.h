@@ -26,7 +26,7 @@ namespace sim {
     struct Instantiation {};
 
     struct Function {
-      std::unique_ptr<llvm::Function> code;
+      llvm::Function* code;
       llvm::FunctionType* func_type;
     };
 

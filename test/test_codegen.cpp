@@ -30,12 +30,15 @@ TEST(Codegen_test, empty_module) {
   ir::Builtins<sim::Llvm_impl>::types.at("string")->impl.type = llvm::TypeBuilder<char*, false>::get(context);
 
 
+  // print AST
   ast::Ast_printer printer(std::cout);
   driver.ast_root().accept(printer);
 
+  // generate code
   sim::Llvm_namespace_scanner scanner(*(lib->ns));
   driver.ast_root().accept(scanner);
 
+  // show generated code
   cout << "Generated code:\n=====\n";
   lib->impl.module->dump();
   cout << "\n====="
