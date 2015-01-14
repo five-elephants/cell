@@ -1,7 +1,7 @@
 mod m = {
 	var a : int
 
-	def func(a : int, b : int) = {
+	def func(a : int, b : int) -> int = {
 	}
 
 }

@@ -69,6 +69,7 @@
 %token        ELSE                    "else"
 %token        WHILE                   "while"
 %token        COLON                   ":"
+%token        ARROW_RIGHT             "->"
 %token        COMMA                   ","
 %token        RETURN                  "return"
 %token <sval> IDENTIFIER              "identifier"
@@ -195,7 +196,7 @@ socket_direction: CMP_LT_EQ     { $$ = ast::Socket_input; }
     | BIDIR                     { $$ = ast::Socket_bidirectional; };
 
 
-func: "def" identifier "(" func_params ")" ":" identifier "=" statement
+func: "def" identifier "(" func_params ")" "->" identifier "=" statement
                                  { $$ = new ast::Function_def(*$2, *$7); 
                                    $$->append_body(*$9);
                                    $$->append_parameter(*$4);
