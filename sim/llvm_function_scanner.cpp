@@ -67,7 +67,7 @@ namespace sim {
       args.push_back(p->type->impl.type);
     }
 
-    return FunctionType::get(Type::getVoidTy(lib->impl.context),
+    return FunctionType::get(function.return_type->impl.type,
         args,
         false);
   }
