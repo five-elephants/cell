@@ -72,12 +72,9 @@ namespace sim {
 
   void
   Llvm_function_scanner::init_scanner() {
-    this->template on_leave_if_type<ast::Return_statement>(
-      &Llvm_function_scanner::insert_return
-    );
-    this->template on_enter_if_type<ast::Variable_ref>(
-      &Llvm_function_scanner::insert_variable_ref
-    );
+    this->template on_leave_if_type<ast::Return_statement>(&Llvm_function_scanner::insert_return);
+    this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
+    this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
   }
 
 
@@ -138,6 +135,18 @@ namespace sim {
     }
 
     return true; 
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_literal_int(ast::Literal<int> const& node) {
+    using namespace llvm;
+
+    auto v = ConstantInt::get(getGlobalContext(), 
+        APInt(64, node.value(), true));
+    m_values[&node] = v;
+
+    return true;
   }
 
 }

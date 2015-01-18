@@ -59,6 +59,10 @@ namespace sim {
     Llvm_function_scanner scanner(m_ns, *func);
     node.accept(scanner);
 
+    // (XXX unsure if this is needed) optimize code
+    //auto lib = ir::find_library(m_ns);
+    //lib->impl.fpm->run(*(func->impl.code));
+
     return false;
   }
 
