@@ -3,6 +3,7 @@
 #include "ast/scanner_base.h"
 
 #include "llvm_namespace.h"
+#include "ast/ast.h"
 
 
 namespace sim {
@@ -14,12 +15,26 @@ namespace sim {
 
 
     private:
+      typedef std::unordered_map<ast::Node_if const*, llvm::Value*> Node_value_map;
+      typedef std::unordered_map<ir::Label, llvm::AllocaInst*> Name_value_map;
+
       Llvm_namespace& m_ns;
       Llvm_module* m_mod = nullptr; 
       Llvm_function& m_function;
+      llvm::IRBuilder<> m_builder;
+      Node_value_map m_values;
+      Name_value_map m_named_values;
 
+
+      void init_function();
+      void init_scanner();
       llvm::FunctionType* get_function_type(Llvm_function const& function) const;
       llvm::ArrayType* read_mask_type() const;
+
+
+      // scanner callbacks
+      virtual bool insert_return(ast::Return_statement const& node);
+      virtual bool insert_variable_ref(ast::Variable_ref const& node);
   };
 
 }

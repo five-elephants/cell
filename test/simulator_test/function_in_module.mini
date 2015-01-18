@@ -1,7 +1,16 @@
 mod m = {
 	var a : int
 
-	def func(a : int, b : int) -> int = {
+	def test_return(a : int) -> int = {
+		return a
 	}
+
+
+	/*def func(a : int, b : int) -> int = {*/
+		/*if( a == b )*/
+			/*return 1*/
+		/*else*/
+			/*return 0*/
+	/*}*/
 
 }
