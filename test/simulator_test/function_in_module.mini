@@ -1,5 +1,6 @@
 mod m = {
 	var a : int
+	var z : bool
 
 	def test_return(a : int) -> int = {
 		return a

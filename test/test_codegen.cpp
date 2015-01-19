@@ -25,6 +25,7 @@ TEST(Codegen_test, empty_module) {
 
   // init builtins
   auto& context = lib->impl.context;
+  ir::Builtins<sim::Llvm_impl>::types.at("bool")->impl.type = llvm::Type::getInt1Ty(context);
   ir::Builtins<sim::Llvm_impl>::types.at("int")->impl.type = llvm::Type::getInt64Ty(context);
   ir::Builtins<sim::Llvm_impl>::types.at("void")->impl.type = llvm::Type::getVoidTy(context);
   ir::Builtins<sim::Llvm_impl>::types.at("string")->impl.type = llvm::TypeBuilder<char*, false>::get(context);
