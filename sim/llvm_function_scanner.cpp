@@ -169,7 +169,19 @@ namespace sim {
   Llvm_function_scanner::insert_op_equal(ast::Op_equal const& node) {
     using namespace std;
 
-    auto ty_target = m_types.at(m_type_targets.back());
+    // check with expected target type
+    if( !m_type_targets.empty() ) {
+      auto ty_target = m_types.at(m_type_targets.back());
+      if( ty_target != ir::Builtins<Llvm_impl>::types["bool"] ) {
+        std::stringstream strm;
+        strm << node.location() << ": expected type '"
+          << ty_target->name
+          << "' but operator == returns 'bool' instead";
+        throw std::runtime_error(strm.str());
+      }
+    }
+
+    // get types and values
     auto ty_left = m_types.at(&(node.left()));
     auto ty_right = m_types.at(&(node.right()));
     auto v_left = m_values.at(&(node.left()));
@@ -179,14 +191,15 @@ namespace sim {
       << ty_left->name
       << "] == ["
       << ty_right->name
-      << "] -> ["
-      << ty_target->name
-      << "]" << endl;
+      << "] -> [bool]" << endl;
 
-    if( (ty_left == ty_right) && (ty_target == ir::Builtins<Llvm_impl>::types["bool"]) ) {
+    // select an operator
+    
+
+    if( ty_left == ty_right ) {
       auto v_cmp = m_builder.CreateICmpEQ(v_left, v_right, "cmp_op_equal");
       m_values[&node] = v_cmp;
-      m_types[&node] = ty_target;
+      m_types[&node] = ir::Builtins<Llvm_impl>::types["bool"];
     }
 
     return true;

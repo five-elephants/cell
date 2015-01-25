@@ -7,7 +7,7 @@ mod m = {
 	}
 
 
-	def func(a : int, b : int, z : bool) -> int = {
+	def func(a : int, b : int, z : int) -> int = {
 		z = a == b
 		// if( a == b )
 		// 	return 1
