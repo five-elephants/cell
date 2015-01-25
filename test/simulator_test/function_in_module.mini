@@ -7,11 +7,12 @@ mod m = {
 	}
 
 
-	def func(a : int, b : int) -> int = {
-		if( a == b )
-			return 1
-		else
-			return 0
+	def func(a : int, b : int, z : bool) -> int = {
+		z = a == b
+		// if( a == b )
+		// 	return 1
+		// else
+		// 	return 0
 	}
 
 }

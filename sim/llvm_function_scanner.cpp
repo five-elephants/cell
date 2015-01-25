@@ -53,9 +53,10 @@ namespace sim {
 
     for(auto arg_name : m_function.parameters) {
       (++arg_i)->setName(arg_name->name);
+      m_named_types[arg_name->name] = arg_name->type;
     }
 
-    // create function body
+    // create function entry code 
     auto bb = BasicBlock::Create(getGlobalContext(), "entry", m_function.impl.code);
     m_builder.SetInsertPoint(bb);
 
@@ -67,6 +68,11 @@ namespace sim {
       auto v = m_builder.CreateStore(i, ptr);
       m_named_values[i->getName().str()] = ptr;
     }
+    
+    // create function body
+    auto bb_body = BasicBlock::Create(getGlobalContext(), "body", m_function.impl.code);
+    m_builder.CreateBr(bb_body);
+    m_builder.SetInsertPoint(bb_body);
   }
 
 
@@ -75,6 +81,9 @@ namespace sim {
     this->template on_leave_if_type<ast::Return_statement>(&Llvm_function_scanner::insert_return);
     this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
+    this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
+    this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
+    this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
   }
 
 
@@ -128,11 +137,17 @@ namespace sim {
   bool
   Llvm_function_scanner::insert_variable_ref(ast::Variable_ref const& node) {
     auto id = dynamic_cast<ast::Identifier const&>(node.identifier());
+
+    // load value
     auto p = m_named_values.find(id.identifier());
 
     if( p != m_named_values.end() ) {
       m_values[&node] = m_builder.CreateLoad(p->second, "loadtmp");
     }
+
+    // propagate type
+    auto ty = m_named_types.at(id.identifier());
+    m_types[&node] = ty;
 
     return true; 
   }
@@ -146,6 +161,67 @@ namespace sim {
         APInt(64, node.value(), true));
     m_values[&node] = v;
 
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_equal(ast::Op_equal const& node) {
+    using namespace std;
+
+    auto ty_target = m_types.at(m_type_targets.back());
+    auto ty_left = m_types.at(&(node.left()));
+    auto ty_right = m_types.at(&(node.right()));
+    auto v_left = m_values.at(&(node.left()));
+    auto v_right = m_values.at(&(node.right()));
+
+    cout << "insert_op_equal: ["
+      << ty_left->name
+      << "] == ["
+      << ty_right->name
+      << "] -> ["
+      << ty_target->name
+      << "]" << endl;
+
+    if( (ty_left == ty_right) && (ty_target == ir::Builtins<Llvm_impl>::types["bool"]) ) {
+      auto v_cmp = m_builder.CreateICmpEQ(v_left, v_right, "cmp_op_equal");
+      m_values[&node] = v_cmp;
+      m_types[&node] = ty_target;
+    }
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::enter_assignment(ast::Assignment const& node) {
+    std::cout << "enter_assignment" << std::endl;
+    auto target_id = dynamic_cast<ast::Identifier const&>(node.identifier());
+
+    // propagate type
+    auto ty = m_named_types.at(target_id.identifier());
+    m_types[&target_id] = ty;
+    m_types[&node] = ty;
+
+    m_type_targets.push_back(&target_id);
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_assignment(ast::Assignment const& node) {
+    std::cout << "leave_assignment" << std::endl;
+    auto target_id = dynamic_cast<ast::Identifier const&>(node.identifier());
+
+    // get right-side value
+    auto rval = m_values.at(&(node.expression()));
+
+    // store value
+    auto p = m_named_values.at(target_id.identifier());
+    auto lval = m_builder.CreateStore(rval, p);
+    m_values[&node] = lval;
+
+    m_type_targets.pop_back();
     return true;
   }
 
