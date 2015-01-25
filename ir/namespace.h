@@ -89,6 +89,15 @@ namespace ir {
   };
 
   template<typename Impl = No_impl>
+  struct Operator {
+    Label name;
+    std::shared_ptr<Type<Impl>> return_type;
+    std::shared_ptr<Type<Impl>> left, right;
+
+    typename Impl::Operator impl;
+  };
+
+  template<typename Impl = No_impl>
   struct Process {
     typename Impl::Process impl;
   };
@@ -159,6 +168,7 @@ namespace ir {
     std::map<Label, std::shared_ptr<Socket<Impl>>> sockets;
     std::map<Label, std::shared_ptr<Type<Impl>>> types;
     std::map<Label, std::shared_ptr<Function<Impl>>> functions;
+    std::multimap<Label, std::shared_ptr<Operator<Impl>>> operators;
 
     typename Impl::Namespace impl;
   };

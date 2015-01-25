@@ -9,6 +9,7 @@ namespace ir {
     static std::map<Label, std::shared_ptr<Type<Impl>>> types;
     static std::map<Label, std::shared_ptr<Object<Impl>>> objects;
     static std::map<Label, std::shared_ptr<Function<Impl>>> functions;
+    static std::multimap<Label, std::shared_ptr<Operator<Impl>>> operators;
 
     static std::shared_ptr<Socket<Impl>> null_socket;
 
@@ -38,6 +39,10 @@ namespace ir {
   template<typename Impl>
 	std::map<Label, std::shared_ptr<Function<Impl>>> Builtins<Impl>::functions {
 	};
+
+  template<typename Impl>
+  std::multimap<Label, std::shared_ptr<Operator<Impl>>> Builtins<Impl>::operators {
+  };
 
 
   template<typename Impl>

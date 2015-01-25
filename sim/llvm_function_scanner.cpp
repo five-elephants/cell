@@ -169,10 +169,12 @@ namespace sim {
   Llvm_function_scanner::insert_op_equal(ast::Op_equal const& node) {
     using namespace std;
 
+    auto ret_ty = ir::Builtins<Llvm_impl>::types["bool"];
+
     // check with expected target type
     if( !m_type_targets.empty() ) {
       auto ty_target = m_types.at(m_type_targets.back());
-      if( ty_target != ir::Builtins<Llvm_impl>::types["bool"] ) {
+      if( ty_target != ret_ty ) {
         std::stringstream strm;
         strm << node.location() << ": expected type '"
           << ty_target->name
@@ -194,12 +196,21 @@ namespace sim {
       << "] -> [bool]" << endl;
 
     // select an operator
-    
-
-    if( ty_left == ty_right ) {
-      auto v_cmp = m_builder.CreateICmpEQ(v_left, v_right, "cmp_op_equal");
+    std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns, "==", ret_ty, ty_left, ty_right);
+    if( op ) {
+      auto v_cmp = op->impl.insert_func(m_builder, v_left, v_right);
       m_values[&node] = v_cmp;
-      m_types[&node] = ir::Builtins<Llvm_impl>::types["bool"];
+      m_types[&node] = ret_ty;
+    } else {
+      std::stringstream strm;
+      strm << node.location() << ": failed to find operator '==' with signature: ["
+        << ty_left->name
+        << "] == [" 
+        << ty_right->name
+        << "] -> ["
+        << ret_ty->name
+        << "]";
+      throw std::runtime_error(strm.str());
     }
 
     return true;

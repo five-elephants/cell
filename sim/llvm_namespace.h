@@ -30,6 +30,10 @@ namespace sim {
       llvm::FunctionType* func_type;
     };
 
+    struct Operator {
+      std::function<llvm::Value* (llvm::IRBuilder<>, llvm::Value* left, llvm::Value* right)> insert_func;
+    };
+
     struct Process {};
     struct Periodic {};
     struct Socket {};
@@ -79,6 +83,7 @@ namespace sim {
   typedef ir::Port_assignment<Llvm_impl> Llvm_port_assignment;
   typedef ir::Instantiation<Llvm_impl> Llvm_instantiation;
   typedef ir::Function<Llvm_impl> Llvm_function;
+  typedef ir::Operator<Llvm_impl> Llvm_operator;
   typedef ir::Process<Llvm_impl> Llvm_process;
   typedef ir::Periodic<Llvm_impl> Llvm_periodic;
   typedef ir::Socket<Llvm_impl> Llvm_socket;
