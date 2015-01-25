@@ -6,7 +6,7 @@
 #include "sim/scan_ast.h"
 #include "sim/llvm_namespace_scanner.h"
 #include "ast/ast_printer.h"
-#include "ir/builtins.h"
+#include "sim/llvm_builtins.h"
 
 
 
@@ -25,28 +25,7 @@ TEST(Codegen_test, empty_module) {
   lib->impl = sim::create_library_impl(lib->name);
 
   // init builtins
-  auto& context = lib->impl.context;
-  auto& builtin_types = ir::Builtins<sim::Llvm_impl>::types;
-  builtin_types.at("bool")->impl.type = llvm::Type::getInt1Ty(context);
-  builtin_types.at("int")->impl.type = llvm::Type::getInt64Ty(context);
-  builtin_types.at("void")->impl.type = llvm::Type::getVoidTy(context);
-  builtin_types.at("string")->impl.type = llvm::TypeBuilder<char*, false>::get(context);
-
-  //
-  // add operators
-  //
-  {
-    auto op = std::make_shared<sim::Llvm_operator>();
-    op->name = "==";
-    op->return_type = builtin_types["bool"];
-    op->left = builtin_types["int"];
-    op->right = builtin_types["int"];
-    //op->impl.insert_func = insert_op_equal;
-    op->impl.insert_func = [](llvm::IRBuilder<> bld, llvm::Value* left, llvm::Value* right) -> llvm::Value* {
-      return bld.CreateICmpEQ(left, right, "cmp_op_equal");
-    };
-    ir::Builtins<sim::Llvm_impl>::operators.insert(std::make_pair("==", op));
-  }
+  init_builtins(lib);
 
 
   // print AST

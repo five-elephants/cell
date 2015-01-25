@@ -72,6 +72,7 @@ def build(bld):
       sim/llvm_module_scanner.cpp
       sim/llvm_function_scanner.cpp
       sim/llvm_namespace.cpp
+      sim/llvm_builtins.cpp
       sim/compile.cpp
     """
 

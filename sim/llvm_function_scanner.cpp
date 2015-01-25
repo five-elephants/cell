@@ -167,8 +167,6 @@ namespace sim {
 
   bool
   Llvm_function_scanner::insert_op_equal(ast::Op_equal const& node) {
-    using namespace std;
-
     auto ret_ty = ir::Builtins<Llvm_impl>::types["bool"];
 
     // check with expected target type
@@ -189,11 +187,11 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
 
-    cout << "insert_op_equal: ["
-      << ty_left->name
-      << "] == ["
-      << ty_right->name
-      << "] -> [bool]" << endl;
+    //cout << "insert_op_equal: ["
+      //<< ty_left->name
+      //<< "] == ["
+      //<< ty_right->name
+      //<< "] -> [bool]" << endl;
 
     // select an operator
     std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns, "==", ret_ty, ty_left, ty_right);
