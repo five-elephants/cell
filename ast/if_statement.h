@@ -14,7 +14,9 @@ namespace ast {
 			virtual void visit();
 
 			Node_if& condition() { return m_condition; }
+			Node_if const& condition() const { return m_condition; }
 			Node_if& body() { return m_body; }
+			Node_if const& body() const { return m_body; }
       bool has_else_body() const { return m_else_body != nullptr; }
       void else_body(Node_if& body) { 
         if( m_else_body != nullptr )
@@ -23,6 +25,12 @@ namespace ast {
         m_nodes.push_back(m_else_body);
       }
       Node_if& else_body() { 
+        if( !has_else_body() )
+          throw std::runtime_error("If_statement does not have else body");
+        return *m_else_body;
+      }
+
+      Node_if const& else_body() const { 
         if( !has_else_body() )
           throw std::runtime_error("If_statement does not have else body");
         return *m_else_body;

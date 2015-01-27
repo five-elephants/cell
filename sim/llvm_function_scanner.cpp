@@ -84,6 +84,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
     this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
+    this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
   }
 
 
@@ -247,6 +248,37 @@ namespace sim {
     return true;
   }
 
+
+  bool
+  Llvm_function_scanner::enter_if_statement(ast::If_statement const& node) {
+    using namespace llvm;
+
+    node.condition().accept(*this);
+
+    // get condition result and create basic blocks
+    auto cond_val = m_values.at(&(node.condition()));
+    auto bb_true = BasicBlock::Create(getGlobalContext(), "if_true", m_function.impl.code);
+    auto bb_false = BasicBlock::Create(getGlobalContext(), "if_false", m_function.impl.code);
+    auto bb_resume = BasicBlock::Create(getGlobalContext(), "if_resume", m_function.impl.code);
+
+    // create conditional branch instruction
+    m_builder.CreateCondBr(cond_val, bb_true, bb_false);
+    
+    // generate code for true branch
+    m_builder.SetInsertPoint(bb_true);
+    node.body().accept(*this);
+    m_builder.CreateBr(bb_resume);
+
+    // generate code for false branch
+    m_builder.SetInsertPoint(bb_false);
+    if( node.has_else_body() )
+      node.else_body().accept(*this);
+    m_builder.CreateBr(bb_resume);
+
+    m_builder.SetInsertPoint(bb_resume);
+
+    return false;
+  }
 }
 
 /* vim: set et fenc= ff=unix sts=0 sw=2 ts=2 : */
