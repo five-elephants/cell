@@ -1,4 +1,7 @@
 mod m = {
+	def zero() -> int = 0
+	def add(a : int, b : int) -> int = a + b
+
 	def zero() -> int = {
 		return 0
 	}
@@ -7,4 +10,5 @@ mod m = {
 	// def add(a :int, b : int) -> int = {
 	// 	return 0 
 	// }
+
 }
