@@ -18,7 +18,7 @@ static void add_operator(ir::Label const& name,
   op->right = builtin_types.at(right_name);
   op->impl.insert_func = insert_func;
     
-  ir::Builtins<sim::Llvm_impl>::operators.insert(std::make_pair("==", op));
+  ir::Builtins<sim::Llvm_impl>::operators.insert(std::make_pair(name, op));
 }
 
 
@@ -42,6 +42,9 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
 
   add_operator("==", "bool", "int", "int", OP_LAMBDA {
         return bld.CreateICmpEQ(left, right, "cmp_op_equal");
+      });
+  add_operator("+", "int", "int", "int", OP_LAMBDA {
+        return bld.CreateAdd(left, right, "add");
       });
 }
 

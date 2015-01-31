@@ -73,6 +73,9 @@ namespace sim {
     auto bb_body = BasicBlock::Create(getGlobalContext(), "body", m_function.impl.code);
     m_builder.CreateBr(bb_body);
     m_builder.SetInsertPoint(bb_body);
+
+    // set target type
+    m_type_targets.push_back(m_function.return_type);
   }
 
 
@@ -82,6 +85,7 @@ namespace sim {
     this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
     this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
+    this->template on_leave_if_type<ast::Op_plus>(&Llvm_function_scanner::insert_op_plus);
     this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
@@ -167,52 +171,17 @@ namespace sim {
   }
 
 
+
   bool
   Llvm_function_scanner::insert_op_equal(ast::Op_equal const& node) {
-    auto ret_ty = ir::Builtins<Llvm_impl>::types["bool"];
+    insert_bin_op(node, "==");
+    return true;
+  }
 
-    // check with expected target type
-    if( !m_type_targets.empty() ) {
-      auto ty_target = m_types.at(m_type_targets.back());
-      if( ty_target != ret_ty ) {
-        std::stringstream strm;
-        strm << node.location() << ": expected type '"
-          << ty_target->name
-          << "' but operator == returns 'bool' instead";
-        throw std::runtime_error(strm.str());
-      }
-    }
 
-    // get types and values
-    auto ty_left = m_types.at(&(node.left()));
-    auto ty_right = m_types.at(&(node.right()));
-    auto v_left = m_values.at(&(node.left()));
-    auto v_right = m_values.at(&(node.right()));
-
-    //cout << "insert_op_equal: ["
-      //<< ty_left->name
-      //<< "] == ["
-      //<< ty_right->name
-      //<< "] -> [bool]" << endl;
-
-    // select an operator
-    std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns, "==", ret_ty, ty_left, ty_right);
-    if( op ) {
-      auto v_cmp = op->impl.insert_func(m_builder, v_left, v_right);
-      m_values[&node] = v_cmp;
-      m_types[&node] = ret_ty;
-    } else {
-      std::stringstream strm;
-      strm << node.location() << ": failed to find operator '==' with signature: ["
-        << ty_left->name
-        << "] == [" 
-        << ty_right->name
-        << "] -> ["
-        << ret_ty->name
-        << "]";
-      throw std::runtime_error(strm.str());
-    }
-
+  bool
+  Llvm_function_scanner::insert_op_plus(ast::Op_plus const& node) {
+    insert_bin_op(node, "+");
     return true;
   }
 
@@ -227,7 +196,7 @@ namespace sim {
     m_types[&target_id] = ty;
     m_types[&node] = ty;
 
-    m_type_targets.push_back(&target_id);
+    m_type_targets.push_back(ty);
     return true;
   }
 
@@ -286,6 +255,7 @@ namespace sim {
   Llvm_function_scanner::leave_function_def(ast::Function_def const& node) {
     auto v = m_values.at(&(node.body()));
     m_values[&node] = m_builder.CreateRet(v);
+    m_type_targets.pop_back();
 
     return true;
   }

@@ -1,7 +1,7 @@
 mod m = {
 	def zero() -> int = 0
-
-	// def add(a : int, b : int) -> int = a + b
+	def test(a : int, b : int) -> bool = a == b
+	def add(a : int, b : int) -> int = a + b
 
 	// def cond(z : bool, a : int, b : int) -> int = if( z ) a else b
 
