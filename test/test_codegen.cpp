@@ -105,7 +105,7 @@ TEST(Codegen_test, functions) {
     // get a pointer to function
     auto zero_func = lib->impl.module->getFunction("main.m.zero");
     if( !zero_func )
-      throw std::runtime_error("Failed to find function 'm.zero'");
+      throw std::runtime_error("Failed to find function 'main.m.zero'");
 
     void* ptr = exe->getPointerToFunction(zero_func);
     int(*zerof)() = (int(*)())(ptr);
