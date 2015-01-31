@@ -48,6 +48,8 @@ namespace sim {
       virtual bool leave_assignment(ast::Assignment const& node);
 
       virtual bool enter_if_statement(ast::If_statement const& node);
+
+      virtual bool leave_function_def(ast::Function_def const& node);
   };
 
 }

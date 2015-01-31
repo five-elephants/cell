@@ -71,6 +71,7 @@
 %token        COLON                   ":"
 %token        ARROW_RIGHT             "->"
 %token        COMMA                   ","
+%token        SEMICOLON               ";"
 %token        RETURN                  "return"
 %token <sval> IDENTIFIER              "identifier"
 %token <ival> NUMBER                  "number"
@@ -109,6 +110,8 @@
 %type <node> func_call
 %type <list> exp_list
 %type <list> exp_list_
+%type <node> literal
+%type <node> bin_exp
 %type <node> exp
 %type <node> identifier
 %type <node> compound
@@ -196,12 +199,12 @@ socket_direction: CMP_LT_EQ     { $$ = ast::Socket_input; }
     | BIDIR                     { $$ = ast::Socket_bidirectional; };
 
 
-func: "def" identifier "(" func_params ")" "->" identifier "=" statement
+func: "def" identifier "(" func_params ")" "->" identifier "=" exp
                                  { $$ = new ast::Function_def(*$2, *$7); 
                                    $$->append_body(*$9);
                                    $$->append_parameter(*$4);
                                    $$->location(@$); }
-func: "def" identifier "(" func_params ")" "=" statement
+func: "def" identifier "(" func_params ")" "=" exp
                                  { $$ = new ast::Function_def(*$2); 
                                    $$->append_body(*$7);
                                    $$->append_parameter(*$4); 
@@ -248,13 +251,17 @@ periodic: "periodic" "(" exp identifier ")" "=" statement
 
 statements: statements statement { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };
-statement: if_statement          { $$ = $1; }
-  | while_statement              { $$ = $1; }
-  | var_def                      { $$ = $1; }
-  | compound                     { $$ = $1; }
-  | func_call                    { $$ = $1; }
-  | return_statement             { $$ = $1; }
-  | assignment                   { $$ = $1; };
+
+statement: var_def               { $$ = $1; }
+  | exp ';'                      { $$ = $1; };
+
+/*statement: if_statement          { $$ = $1; }*/
+  /*| while_statement              { $$ = $1; }*/
+  /*| var_def                      { $$ = $1; }*/
+  /*| compound                     { $$ = $1; }*/
+  /*| func_call                    { $$ = $1; }*/
+  /*| return_statement             { $$ = $1; }*/
+  /*| assignment                   { $$ = $1; };*/
 compound: CURL_OPEN statements CURL_CLOSE
                                  { auto v = new ast::Compound(); v->statements(*$2); $$ = v; };
 
@@ -273,11 +280,13 @@ return_statement: "return" exp   { auto v = new ast::Return_statement({$2}); $$ 
 assignment: identifier "=" exp
                                  { auto v = new ast::Assignment(*$1, *$3); $$ = v; };
 
-exp_list: exp_list_              { $$ = $1; }
-  | exp_list_ COMMA              { $$ = $1; };
-exp_list_: exp_list_ COMMA exp   { $$ = $1; $1->push_back($3); }
-  | exp                          { $$ = new ast::Node_list; $$->push_back($1); };
-exp: exp '+' exp                 { $$ = new ast::Op_plus(*$1, *$3); }
+literal: 
+  "number"                       { $$ = new ast::Literal<int>($1); }
+  | "bitstring"                  { $$ = new ast::Bitstring_literal(*$1); }
+  | "string"                     { $$ = new ast::Literal<std::string>(*$1); };
+
+bin_exp:
+  exp '+' exp                    { $$ = new ast::Op_plus(*$1, *$3); }
   | exp '-' exp                  { $$ = new ast::Op_minus(*$1, *$3); }
   | exp '*' exp                  { $$ = new ast::Op_mult(*$1, *$3); }
   | exp '/' exp                  { $$ = new ast::Op_div(*$1, *$3); }
@@ -286,17 +295,28 @@ exp: exp '+' exp                 { $$ = new ast::Op_plus(*$1, *$3); }
   | exp "==" exp                 { $$ = new ast::Op_equal(*$1, *$3); }
   | exp "!=" exp                 { $$ = new ast::Op_not_equal(*$1, *$3); }
   | exp ">=" exp                 { $$ = new ast::Op_greater_or_equal_then(*$1, *$3); }
-  | exp "<=" exp                 { $$ = new ast::Op_lesser_or_equal_then(*$1, *$3); }
+  | exp "<=" exp                 { $$ = new ast::Op_lesser_or_equal_then(*$1, *$3); };
+
+exp_list: exp_list_              { $$ = $1; }
+  | exp_list_ COMMA              { $$ = $1; };
+exp_list_: exp_list_ COMMA exp   { $$ = $1; $1->push_back($3); }
+  | exp                          { $$ = new ast::Node_list; $$->push_back($1); };
+
+exp: 
+  bin_exp                        { $$ = $1; }
+  | if_statement                 { $$ = $1; }
+  | assignment                   { $$ = $1; }
+  | compound                     { $$ = $1; }
   | var_ref                      { $$ = $1; }
-  | "number"                     { $$ = new ast::Literal<int>($1); }
-  | "bitstring"                  { $$ = new ast::Bitstring_literal(*$1); }
-  | "string"                     { $$ = new ast::Literal<std::string>(*$1); }
+  | literal                      { $$ = $1; }
   | func_call                    { $$ = $1; };
+
 var_ref: identifier              { $$ = new ast::Variable_ref(*$1); };
 identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; $$->location(@$); };
 type_identifier: identifier      { $$ = $1; }
   | type_identifier "[" "number" "]"
                                  { $$ = new ast::Array_type(*$1, $3); };
+
 
 %%
 

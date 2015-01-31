@@ -84,6 +84,7 @@ blank      [ \t]
 ":"         return token::COLON;
 "->"        return token::ARROW_RIGHT;
 ","         return token::COMMA;
+";"         return token::SEMICOLON;
 "in"        return token::IN;
 "out"       return token::OUT;
 "bidir"     return token::BIDIR2;

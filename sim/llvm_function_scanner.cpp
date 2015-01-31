@@ -85,6 +85,7 @@ namespace sim {
     this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
+    this->template on_leave_if_type<ast::Function_def>(&Llvm_function_scanner::leave_function_def);
   }
 
 
@@ -278,6 +279,15 @@ namespace sim {
     m_builder.SetInsertPoint(bb_resume);
 
     return false;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_function_def(ast::Function_def const& node) {
+    auto v = m_values.at(&(node.body()));
+    m_values[&node] = m_builder.CreateRet(v);
+
+    return true;
   }
 }
 
