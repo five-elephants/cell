@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <llvm/IR/DataLayout.h>
+#include <llvm/ExecutionEngine/JIT.h>
 
 
 namespace sim {
@@ -17,7 +18,8 @@ namespace sim {
       Module_inspector(std::shared_ptr<Llvm_module> module,
           void* this_ptr,
           llvm::StructLayout const* layout,
-          unsigned num_elements);
+          unsigned num_elements,
+          llvm::ExecutionEngine* exe);
 
       template<typename T>
       T get(ir::Label const& var_name) {
@@ -56,11 +58,22 @@ namespace sim {
 
       unsigned num_elements() const { return m_num_elements; }
 
+
+      template<typename Func>
+      Func* get_function_ptr(ir::Label const& name) {
+        auto func = m_module->functions.at(name);
+        void* ptr = m_exe->getPointerToFunction(func->impl.code);
+
+        return reinterpret_cast<Func*>(ptr);
+      }
+
+
     private:
       std::shared_ptr<Llvm_module> m_module;
       char* m_this_ptr;
       llvm::StructLayout const* m_layout;
       unsigned m_num_elements;
+      llvm::ExecutionEngine* m_exe;
   };
 
 }

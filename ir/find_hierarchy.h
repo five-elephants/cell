@@ -50,13 +50,13 @@ namespace ir {
       std::string const& path) {
     auto path_elems = parse_path(path, ".");
 
-    std::cout << "PATH: " << path << "\n";
+    //std::cout << "PATH: " << path << "\n";
     Namespace<Impl> const* cur_ns = &ns;
     for(auto it=path_elems.begin();
         (path_elems.size() > 1) && (it != --(path_elems.end()));
         ++it) {
       auto i = *it;
-      std::cout << "   '" << i << "'\n";
+      //std::cout << "   '" << i << "'\n";
       
       if( cur_ns->namespaces.count(i) )
         cur_ns = cur_ns->namespaces.at(i).get();

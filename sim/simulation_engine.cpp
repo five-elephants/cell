@@ -53,18 +53,18 @@ namespace sim {
     init_builtins(m_lib);
     
     // print AST
-    ast::Ast_printer printer(std::cout);
-    driver.ast_root().accept(printer);
+    //ast::Ast_printer printer(std::cout);
+    //driver.ast_root().accept(printer);
 
     // generate code
     sim::Llvm_namespace_scanner scanner(*(m_lib->ns));
     driver.ast_root().accept(scanner);
     
     // show generated code
-    cout << "Generated code:\n=====\n";
-    m_lib->impl.module->dump();
-    cout << "\n====="
-      << endl;
+    //cout << "Generated code:\n=====\n";
+    //m_lib->impl.module->dump();
+    //cout << "\n====="
+      //<< endl;
 
     verifyModule(*(m_lib->impl.module));
 
@@ -84,7 +84,6 @@ namespace sim {
 
     m_layout = m_exe->getDataLayout();
 
-    // TODO
     m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
     if( !m_top_mod ) {
       cerr << "Can not find top level module '"
@@ -99,22 +98,6 @@ namespace sim {
 
       return;
     }
-
-    /*verifyModule(*(m_code->module())); 
-
-    EngineBuilder exe_bld(m_code->module().get());
-    std::string err_str;
-    exe_bld.setErrorStr(&err_str);
-    exe_bld.setEngineKind(EngineKind::JIT);
-    m_exe = exe_bld.create();
-    m_exe->DisableSymbolSearching(false);
-    if( !m_exe ) {
-      std::stringstream strm;
-      strm << "Failed to create execution engine!: " << err_str;
-      throw std::runtime_error(strm.str());
-    }
-
-    m_layout = m_exe->getDataLayout();*/
   }
 
 
@@ -183,8 +166,8 @@ namespace sim {
     }
 
     m_modules.push_back(mod);
-    m_setup_complete = true;
 */
+    m_setup_complete = true;
   }
 
 
@@ -212,14 +195,22 @@ namespace sim {
     if( !m_setup_complete )
       throw std::runtime_error("Call Simulation_engine::setup() before Simulation_engine::inspect_module()");
 
-    // TODO lookup module in hierarchy
-    /*auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
-    auto layout = m_layout->getStructLayout(m_code->get_module_type(m_top_mod.get()));
-    auto num_elements = m_code->get_module_type(m_top_mod.get())->getNumElements();
+    std::shared_ptr<sim::Llvm_module> mod = ir::find_by_path<sim::Llvm_module>(*(m_lib->ns),
+        &ir::Namespace<sim::Llvm_impl>::modules,
+        "m");
+    if( !mod )
+      throw std::runtime_error("failed to find module in design hierarchy");
 
-    Module_inspector rv(m_top_mod, root_ptr, layout, num_elements);
+    // TODO get pointer to actual memory of module
+    auto mod_sz = m_layout->getTypeAllocSize(mod->impl.mod_type);
+    char* this_ptr = new char [mod_sz];
 
-    return rv;*/
+    auto layout = m_layout->getStructLayout(mod->impl.mod_type);
+    auto num_elements = mod->impl.mod_type->getNumElements();
+
+    Module_inspector rv(mod, this_ptr, layout, num_elements, m_exe);
+
+    return rv;
   }
 
 

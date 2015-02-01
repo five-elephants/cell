@@ -57,6 +57,23 @@ TEST_F(Simulator_test, empty_module) {
 }
 
 
+TEST_F(Simulator_test, functions) {
+  sim::Simulation_engine engine("test/simulator_test/functions.cell", "m");
+
+  engine.setup();
+
+  auto insp = engine.inspect_module("m");
+
+  auto addf = insp.get_function_ptr<int(char*,char*,char*,int,int)>("add");
+
+  ASSERT_EQ(addf(nullptr, nullptr, nullptr, 1, 2), 3);
+  ASSERT_EQ(addf(nullptr, nullptr, nullptr, 0, 0), 0);
+  ASSERT_EQ(addf(nullptr, nullptr, nullptr, -1, 15), 14);
+
+  engine.teardown();
+}
+
+
 //TEST_F(Simulator_test, basic_logging) {
   //sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test.basic_periodic");
 
