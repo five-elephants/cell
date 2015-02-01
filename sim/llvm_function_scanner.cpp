@@ -2,6 +2,7 @@
 
 #include "ir/find.hpp"
 #include "ir/find_hierarchy.h"
+#include "ir/builtins.h"
 
 
 namespace sim {
@@ -226,7 +227,9 @@ namespace sim {
       m_values[&node] = m_values.at(node.statements().back());
       m_types[&node] = m_types.at(node.statements().back());
     } else {
-      throw std::runtime_error("not implemented yet");
+      auto ty = ir::Builtins<Llvm_impl>::types.at("unit");
+      m_values[&node] = llvm::Constant::getNullValue(ty->impl.type);
+      m_types[&node] = ty;
     }
 
     return true;

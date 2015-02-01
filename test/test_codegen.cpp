@@ -101,7 +101,8 @@ TEST(Codegen_test, functions) {
       strm << "Failed to create execution engine!: " << err_str;
       throw std::runtime_error(strm.str());
     }
-    exe->DisableSymbolSearching(false);
+    // no lookup using dlsym
+    exe->DisableSymbolSearching(true);
 
     // allocate module data structure
     DataLayout const* layout = exe->getDataLayout();

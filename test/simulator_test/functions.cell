@@ -1,4 +1,5 @@
 mod m = {
+	def nothing() = {}
 	def zero() -> int = 0
 	def test(a : int, b : int) -> bool = { a == b }
 	def add(a : int, b : int) -> int = { a + b }

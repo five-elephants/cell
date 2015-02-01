@@ -9,9 +9,10 @@
 #include <llvm/Analysis/Verifier.h>
 
 #include "parse_driver.h"
-#include "sim/compile.h"
+#include "sim/llvm_namespace_scanner.h"
+#include "ast/ast_printer.h"
+#include "sim/llvm_builtins.h"
 #include "ir/find_hierarchy.h"
-#include "ir/builtins.h"
 #include "sim/runtime.h"
 
 namespace sim {
@@ -30,11 +31,100 @@ namespace sim {
 
 
   void
+  Simulation_engine::init(std::string const& filename, std::string const& toplevel) {
+    using namespace llvm;
+    using namespace std;
+
+    Parse_driver driver;
+    if( driver.parse(filename) )
+      throw std::runtime_error("parse failed");
+
+    m_lib = std::make_shared<ir::Library<sim::Llvm_impl>>();
+
+    m_lib->name = "main";
+    m_lib->ns = std::make_shared<sim::Llvm_namespace>();
+    m_lib->ns->enclosing_library = m_lib;
+    m_lib->impl = sim::create_library_impl(m_lib->name);
+
+    // LLVM initialization
+    llvm::InitializeNativeTarget();
+    
+    // init builtins
+    init_builtins(m_lib);
+    
+    // print AST
+    ast::Ast_printer printer(std::cout);
+    driver.ast_root().accept(printer);
+
+    // generate code
+    sim::Llvm_namespace_scanner scanner(*(m_lib->ns));
+    driver.ast_root().accept(scanner);
+    
+    // show generated code
+    cout << "Generated code:\n=====\n";
+    m_lib->impl.module->dump();
+    cout << "\n====="
+      << endl;
+
+    verifyModule(*(m_lib->impl.module));
+
+    EngineBuilder exe_bld(m_lib->impl.module.get());
+    string err_str;
+    exe_bld.setErrorStr(&err_str);
+    exe_bld.setEngineKind(EngineKind::JIT);
+    
+    m_exe = exe_bld.create();
+    if( !m_exe ) {
+      stringstream strm;
+      strm << "Failed to create execution engine!: " << err_str;
+      throw std::runtime_error(strm.str());
+    }
+    // no lookup using dlsym
+    m_exe->DisableSymbolSearching(true);
+
+    m_layout = m_exe->getDataLayout();
+
+    // TODO
+    m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
+    if( !m_top_mod ) {
+      cerr << "Can not find top level module '"
+        << toplevel 
+        << "'\n";
+      cerr << "The following modules were found in toplevel namespace '"
+        << m_lib->ns->name 
+        << "':\n";
+      for(auto m : m_lib->ns->modules) {
+        cerr << "    " << m.first << '\n';
+      }
+
+      return;
+    }
+
+    /*verifyModule(*(m_code->module())); 
+
+    EngineBuilder exe_bld(m_code->module().get());
+    std::string err_str;
+    exe_bld.setErrorStr(&err_str);
+    exe_bld.setEngineKind(EngineKind::JIT);
+    m_exe = exe_bld.create();
+    m_exe->DisableSymbolSearching(false);
+    if( !m_exe ) {
+      std::stringstream strm;
+      strm << "Failed to create execution engine!: " << err_str;
+      throw std::runtime_error(strm.str());
+    }
+
+    m_layout = m_exe->getDataLayout();*/
+  }
+
+
+  void
   Simulation_engine::setup() {
     using namespace std;
 
     cout << "setup for simulation..." << endl;
 
+/*
     // add mappings for runtime functions
     m_exe->addGlobalMapping(m_code->get_function(ir::Builtins::functions.at("print")),
         (void*)(&print));
@@ -94,6 +184,7 @@ namespace sim {
 
     m_modules.push_back(mod);
     m_setup_complete = true;
+*/
   }
 
 
@@ -122,57 +213,13 @@ namespace sim {
       throw std::runtime_error("Call Simulation_engine::setup() before Simulation_engine::inspect_module()");
 
     // TODO lookup module in hierarchy
-    auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
+    /*auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
     auto layout = m_layout->getStructLayout(m_code->get_module_type(m_top_mod.get()));
     auto num_elements = m_code->get_module_type(m_top_mod.get())->getNumElements();
 
     Module_inspector rv(m_top_mod, root_ptr, layout, num_elements);
 
-    return rv;
-  }
-
-  void
-  Simulation_engine::init(std::string const& filename, std::string const& toplevel) {
-    using namespace llvm;
-    using namespace std;
-
-    Parse_driver driver;
-    if( driver.parse(filename) )
-      throw std::runtime_error("parse failed");
-
-    //m_top_ns = sim::compile(driver.ast_root());
-
-    // TODO
-    /*m_top_mod = find_by_path(m_top_ns, &ir::Namespace::modules, toplevel);
-    if( !m_top_mod ) {
-      cerr << "Can not find top level module '"
-        << toplevel 
-        << "'\n";
-      cerr << "The following modules were found in toplevel namespace '"
-        << m_top_ns.name 
-        << "':\n";
-      for(auto m : m_top_ns.modules) {
-        cerr << "    " << m.first << '\n';
-      }
-
-      return;
-    }
-
-    verifyModule(*(m_code->module())); 
-
-    EngineBuilder exe_bld(m_code->module().get());
-    std::string err_str;
-    exe_bld.setErrorStr(&err_str);
-    exe_bld.setEngineKind(EngineKind::JIT);
-    m_exe = exe_bld.create();
-    m_exe->DisableSymbolSearching(false);
-    if( !m_exe ) {
-      std::stringstream strm;
-      strm << "Failed to create execution engine!: " << err_str;
-      throw std::runtime_error(strm.str());
-    }
-
-    m_layout = m_exe->getDataLayout();*/
+    return rv;*/
   }
 
 
@@ -309,7 +356,7 @@ namespace sim {
 
   void
   Instrumented_simulation_engine::simulate(ir::Time const& duration) {
-    for(ir::Time t=m_time; t<(m_time + duration); ) {
+    /*for(ir::Time t=m_time; t<(m_time + duration); ) {
       t = simulate_step(t, duration);
 
       if( m_instrumenter ) {
@@ -318,6 +365,6 @@ namespace sim {
           m_instrumenter->module(t, insp);
         }
       }
-    }
+    }*/
   }
 }

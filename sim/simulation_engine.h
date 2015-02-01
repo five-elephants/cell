@@ -9,7 +9,6 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 
-#include "sim/llvm_codegen.h"
 #include "sim/module_inspector.h"
 #include "sim/instrumenter_if.h"
 #include "sim/llvm_namespace.h"
@@ -76,9 +75,8 @@ namespace sim {
 
       llvm::ExecutionEngine* m_exe = nullptr;
       llvm::DataLayout const* m_layout = nullptr;
-      //std::shared_ptr<sim::Llvm_codegen> m_code;
-      sim::Llvm_namespace m_top_ns;
-      std::shared_ptr<ir::Module> m_top_mod;
+      std::shared_ptr<sim::Llvm_library> m_lib;
+      std::shared_ptr<Llvm_module> m_top_mod;
       Module_list m_modules;
       ir::Time m_time;
       bool m_setup_complete = false;

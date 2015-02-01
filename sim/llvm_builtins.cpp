@@ -30,6 +30,7 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   // builtin types
   //
 
+  builtin_types.at("unit")->impl.type = llvm::StructType::get(context, true);
   builtin_types.at("bool")->impl.type = llvm::Type::getInt1Ty(context);
   builtin_types.at("int")->impl.type = llvm::Type::getInt64Ty(context);
   builtin_types.at("void")->impl.type = llvm::Type::getVoidTy(context);

@@ -73,6 +73,7 @@ def build(bld):
       sim/llvm_function_scanner.cpp
       sim/llvm_namespace.cpp
       sim/llvm_builtins.cpp
+      sim/simulation_engine.cpp
       sim/compile.cpp
     """
 
@@ -104,6 +105,7 @@ def build(bld):
       gtest/gtest-1.7.0/src/gtest_main.cc
       test/test_find_hierarchy.cpp
       test/test_scanner_base.cpp
+      test/test_simple_sim.cpp
       test/test_codegen.cpp
     """
     #test/test_simple_sim.cpp

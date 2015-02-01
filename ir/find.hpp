@@ -3,6 +3,8 @@
 #include "namespace.h"
 #include "builtins.h"
 
+#include <stdexcept>
+
 namespace ir {
 
   template<typename T, typename Impl>

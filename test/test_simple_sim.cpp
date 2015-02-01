@@ -8,8 +8,8 @@
 class Simulator_test : public ::testing::Test {
   protected:
     virtual void SetUp() {
-      llvm::InitializeNativeTarget();
-      ir::Builtins::init();
+      //llvm::InitializeNativeTarget();
+      //ir::Builtins::init();
     }
 };
 

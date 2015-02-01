@@ -7,7 +7,7 @@
 
 namespace ast {
 
-	static Identifier default_return_type = Identifier("void");
+	static Identifier default_return_type = Identifier("unit");
 
 	Function_def::Function_def(Node_if& identifier)
 		:	Tree_base(),

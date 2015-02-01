@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ir/namespace.h"
+#include "sim/llvm_namespace.h"
 #include "ir/find.hpp"
 
 #include <algorithm>
@@ -14,7 +14,7 @@ namespace sim {
   class Module_inspector {
     public:
       Module_inspector();
-      Module_inspector(std::shared_ptr<ir::Module> module,
+      Module_inspector(std::shared_ptr<Llvm_module> module,
           void* this_ptr,
           llvm::StructLayout const* layout,
           unsigned num_elements);
@@ -57,7 +57,7 @@ namespace sim {
       unsigned num_elements() const { return m_num_elements; }
 
     private:
-      std::shared_ptr<ir::Module> m_module;
+      std::shared_ptr<Llvm_module> m_module;
       char* m_this_ptr;
       llvm::StructLayout const* m_layout;
       unsigned m_num_elements;

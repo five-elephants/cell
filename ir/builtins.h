@@ -25,6 +25,7 @@ namespace ir {
 
   template<typename Impl>
 	std::map<Label, std::shared_ptr<Type<Impl>>> Builtins<Impl>::types {
+    {"unit",    std::shared_ptr<Type<Impl>>(new Type<Impl>{"unit"})},
 		{"void",		std::shared_ptr<Type<Impl>>(new Type<Impl>{"void"})},
 		{"bool",		std::shared_ptr<Type<Impl>>(new Type<Impl>{"bool"})},
 		{"int",			std::shared_ptr<Type<Impl>>(new Type<Impl>{"int"})},
