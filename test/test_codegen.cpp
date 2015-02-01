@@ -9,6 +9,7 @@
 #include "sim/llvm_namespace_scanner.h"
 #include "ast/ast_printer.h"
 #include "sim/llvm_builtins.h"
+#include "ir/find_hierarchy.h"
 
 
 
@@ -102,15 +103,45 @@ TEST(Codegen_test, functions) {
     }
     exe->DisableSymbolSearching(false);
 
+    // allocate module data structure
+    DataLayout const* layout = exe->getDataLayout();
+    std::shared_ptr<sim::Llvm_module> mod = ir::find_by_path<sim::Llvm_module>(*(lib->ns), &ir::Namespace<sim::Llvm_impl>::modules, "m");
+    if( !mod )
+      throw std::runtime_error("could not find module");
+    uint64_t mod_sz = layout->getTypeAllocSize(mod->impl.mod_type);
+
+    char* mod_a_ptr = new char [mod_sz];
+    char* mod_b_ptr = new char [mod_sz];
+    char* read_mask_ptr = nullptr;
+
+
     // get a pointer to function
-    auto zero_func = lib->impl.module->getFunction("main.m.zero");
-    if( !zero_func )
-      throw std::runtime_error("Failed to find function 'main.m.zero'");
+    {
+      auto zero_func = lib->impl.module->getFunction("main.m.zero");
+      if( !zero_func )
+        throw std::runtime_error("Failed to find function 'main.m.zero'");
 
-    void* ptr = exe->getPointerToFunction(zero_func);
-    int(*zerof)() = (int(*)())(ptr);
+      void* ptr = exe->getPointerToFunction(zero_func);
+      int(*zerof)() = (int(*)())(ptr);
 
-    ASSERT_EQ(zerof(), 0);
+      ASSERT_EQ(zerof(), 0);
+    }
+
+    {
+      auto test_func = lib->impl.module->getFunction("main.m.test");
+      if( !test_func )
+        throw std::runtime_error("Failed to find function 'main.m.test'");
+
+      void* ptr = exe->getPointerToFunction(test_func);
+      bool(*testf)(char*,char*,char*,int a, int b) = (bool(*)(char*, char*, char*, int, int))(ptr);
+
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 1, 1), true);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 1, 0), false);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 5, 1), false);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, -5, 5), false);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 5, 5), true);
+    }
+
   }
 }
 

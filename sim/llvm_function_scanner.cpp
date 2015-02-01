@@ -88,6 +88,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Op_plus>(&Llvm_function_scanner::insert_op_plus);
     this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
+    this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
     this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
     this->template on_leave_if_type<ast::Function_def>(&Llvm_function_scanner::leave_function_def);
   }
@@ -215,6 +216,19 @@ namespace sim {
     m_values[&node] = lval;
 
     m_type_targets.pop_back();
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_compound(ast::Compound const& node) {
+    if( node.return_last() ) {
+      m_values[&node] = m_values.at(node.statements().back());
+      m_types[&node] = m_types.at(node.statements().back());
+    } else {
+      throw std::runtime_error("not implemented yet");
+    }
+
     return true;
   }
 

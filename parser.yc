@@ -249,11 +249,11 @@ process: "process" "=" statement { $$ = new ast::Process(*$3); };
 periodic: "periodic" "(" exp identifier ")" "=" statement
                                  { auto v = new ast::Periodic(*$3, *$4, *$7); $$ = v; };
 
-statements: statements statement { $$ = $1; $1->push_back($2); }
+statements: statements statement ";" { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };
 
 statement: var_def               { $$ = $1; }
-  | exp ';'                      { $$ = $1; };
+  | exp                          { $$ = $1; };
 
 /*statement: if_statement          { $$ = $1; }*/
   /*| while_statement              { $$ = $1; }*/
@@ -263,7 +263,16 @@ statement: var_def               { $$ = $1; }
   /*| return_statement             { $$ = $1; }*/
   /*| assignment                   { $$ = $1; };*/
 compound: CURL_OPEN statements CURL_CLOSE
-                                 { auto v = new ast::Compound(); v->statements(*$2); $$ = v; };
+                                 { auto v = new ast::Compound(); v->statements(*$2); $$ = v; }
+  | CURL_OPEN statements exp CURL_CLOSE
+                                 { 
+                                    auto v = new ast::Compound();
+                                    $2->push_back($3);
+                                    v->statements(*$2); 
+                                    v->return_last(true);
+                                    $$ = v;
+                                 };
+
 
 if_statement: "if" PAREN_OPEN exp PAREN_CLOSE statement 
                                  { $$ = new ast::If_statement(*$3, *$5); }

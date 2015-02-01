@@ -28,6 +28,9 @@ namespace sim {
         Function::ExternalLinkage,
         hierarchical_name(mod, "ctor"),
         lib->impl.module.get());
+
+    // register scanner callback functions
+    this->template on_leave_if_type<ast::Module_def>(&Llvm_module_scanner::leave_module);
   }
 
 
@@ -53,9 +56,15 @@ namespace sim {
     m_mod.objects[obj->name] = obj;
 
     m_member_types.push_back(obj->type->impl.type);
-    m_mod.impl.mod_type->setBody(m_member_types);
 
     return false;
+  }
+
+
+  bool
+  Llvm_module_scanner::leave_module(ast::Module_def const& node) {
+    m_mod.impl.mod_type->setBody(m_member_types);
+    return true;
   }
 
 

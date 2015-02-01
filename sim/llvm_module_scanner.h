@@ -16,6 +16,7 @@ namespace sim {
 
       virtual bool insert_function(ast::Function_def const& func); 
       virtual bool insert_object(ast::Variable_def const& var);
+      virtual bool leave_module(ast::Module_def const& node);
   };
 
 }
