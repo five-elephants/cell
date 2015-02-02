@@ -58,17 +58,37 @@ TEST_F(Simulator_test, empty_module) {
 
 
 TEST_F(Simulator_test, functions) {
+  using namespace std::placeholders;
+
   sim::Simulation_engine engine("test/simulator_test/functions.cell", "m");
 
   engine.setup();
 
   auto insp = engine.inspect_module("m");
 
-  auto addf = insp.get_function_ptr<int(char*,char*,char*,int,int)>("add");
+  auto addf = std::bind(insp.get_function_ptr<int(char*,char*,char*,int,int)>("add"),
+      nullptr,
+      nullptr,
+      nullptr,
+      _1,
+      _2);
 
-  ASSERT_EQ(addf(nullptr, nullptr, nullptr, 1, 2), 3);
-  ASSERT_EQ(addf(nullptr, nullptr, nullptr, 0, 0), 0);
-  ASSERT_EQ(addf(nullptr, nullptr, nullptr, -1, 15), 14);
+  ASSERT_EQ(addf(1, 2), 3);
+  ASSERT_EQ(addf(0, 0), 0);
+  ASSERT_EQ(addf(-1, 15), 14);
+
+
+  auto testf = std::bind(insp.get_function_ptr<bool(char*,char*,char*,int,int)>("test"),
+      nullptr,
+      nullptr,
+      nullptr,
+      _1,
+      _2);
+
+  ASSERT_EQ(testf(0, 0), true);
+  ASSERT_EQ(testf(0, 1), false);
+  ASSERT_EQ(testf(-500, 2), false);
+
 
   engine.teardown();
 }
