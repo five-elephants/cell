@@ -101,6 +101,16 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(condf(true, 1, 2), 1);
   ASSERT_EQ(condf(false, 1, 2), 2);
 
+
+  auto cond2f = std::bind(insp.get_function_ptr<int(char*,char*,char*,bool,int)>("cond2"),
+      nullptr,
+      nullptr,
+      nullptr,
+      _1,
+      _2);
+
+  ASSERT_EQ(cond2f(true, 3), 6);
+  ASSERT_EQ(cond2f(false, 3), 3);
   engine.teardown();
 }
 

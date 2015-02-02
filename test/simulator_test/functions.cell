@@ -4,6 +4,7 @@ mod m = {
 	def test(a : int, b : int) -> bool = { a == b }
 	def add(a : int, b : int) -> int = { a + b }
 	def cond(z : bool, a : int, b : int) -> int = if( z ) a else b
+	def cond2(z : bool, a : int) -> int = a + if( z ) a
 
 	// def zero() -> int = {
 	// 	return 0

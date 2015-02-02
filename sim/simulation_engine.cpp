@@ -61,10 +61,10 @@ namespace sim {
     driver.ast_root().accept(scanner);
     
     // show generated code
-    //cout << "Generated code:\n=====\n";
-    //m_lib->impl.module->dump();
-    //cout << "\n====="
-      //<< endl;
+    cout << "Generated code:\n=====\n";
+    m_lib->impl.module->dump();
+    cout << "\n====="
+      << endl;
 
     verifyModule(*(m_lib->impl.module));
 
