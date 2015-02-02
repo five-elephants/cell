@@ -274,9 +274,9 @@ compound: CURL_OPEN statements CURL_CLOSE
                                  };
 
 
-if_statement: "if" PAREN_OPEN exp PAREN_CLOSE statement 
+if_statement: "if" PAREN_OPEN exp PAREN_CLOSE exp 
                                  { $$ = new ast::If_statement(*$3, *$5); }
-  | "if" PAREN_OPEN exp PAREN_CLOSE statement "else" statement
+  | "if" PAREN_OPEN exp PAREN_CLOSE exp "else" exp 
                                  { auto v = new ast::If_statement(*$3, *$5); v->else_body(*$7); $$ = v; };
 while_statement: "while" PAREN_OPEN exp PAREN_CLOSE statement
                                  { $$ = new ast::While_statement(*$3, *$5); };

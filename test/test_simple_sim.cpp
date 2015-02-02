@@ -90,6 +90,17 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(testf(-500, 2), false);
 
 
+  auto condf = std::bind(insp.get_function_ptr<int(char*,char*,char*,bool,int,int)>("cond"),
+      nullptr,
+      nullptr,
+      nullptr,
+      _1,
+      _2,
+      _3);
+
+  ASSERT_EQ(condf(true, 1, 2), 1);
+  ASSERT_EQ(condf(false, 1, 2), 2);
+
   engine.teardown();
 }
 

@@ -242,6 +242,7 @@ namespace sim {
 
     node.condition().accept(*this);
 
+
     // get condition result and create basic blocks
     auto cond_val = m_values.at(&(node.condition()));
     auto bb_true = BasicBlock::Create(getGlobalContext(), "if_true", m_function.impl.code);
@@ -255,14 +256,36 @@ namespace sim {
     m_builder.SetInsertPoint(bb_true);
     node.body().accept(*this);
     m_builder.CreateBr(bb_resume);
+    bb_true = m_builder.GetInsertBlock();
+    auto val_true = m_values[&(node.body())];
+
+    // check matching result types
+    auto res_ty = m_types[&(node.body())];
 
     // generate code for false branch
     m_builder.SetInsertPoint(bb_false);
-    if( node.has_else_body() )
+    Value* val_false = nullptr;
+    if( node.has_else_body() ) {
       node.else_body().accept(*this);
+      val_false = m_values[&(node.else_body())];
+
+      if( res_ty != m_types[&(node.else_body())] )
+        throw std::runtime_error("if expression does not have matching types in both branches");
+    } else {
+      val_false = Constant::getNullValue(res_ty->impl.type);
+    }
     m_builder.CreateBr(bb_resume);
+    bb_false = m_builder.GetInsertBlock();
 
     m_builder.SetInsertPoint(bb_resume);
+
+    // insert phi instruction
+    auto pn = m_builder.CreatePHI(res_ty->impl.type, 2, "iftmp");
+    pn->addIncoming(val_true, bb_true);
+    pn->addIncoming(val_false, bb_false);
+
+    m_types[&node] = res_ty;
+    m_values[&node] = pn;
 
     return false;
   }
