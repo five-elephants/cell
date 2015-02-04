@@ -111,6 +111,21 @@ TEST_F(Simulator_test, functions) {
 
   ASSERT_EQ(cond2f(true, 3), 6);
   ASSERT_EQ(cond2f(false, 3), 3);
+
+  auto facf = std::bind(insp.get_function_ptr<int(char*,char*,char*,int)>("fac"),
+      nullptr,
+      nullptr,
+      nullptr,
+      _1);
+
+  {
+    int f = 1;
+    for(int i=0; i<10; i++) {
+      ASSERT_EQ(facf(i), f);
+      f *= i+1;
+    }
+  }
+
   engine.teardown();
 }
 

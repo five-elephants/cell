@@ -46,6 +46,9 @@ namespace sim {
       virtual bool insert_literal_int(ast::Literal<int> const& node);
       virtual bool insert_op_equal(ast::Op_equal const& node);
       virtual bool insert_op_plus(ast::Op_plus const& node);
+      virtual bool insert_op_minus(ast::Op_minus const& node);
+      virtual bool insert_op_mult(ast::Op_mult const& node);
+      virtual bool insert_op_div(ast::Op_div const& node);
       virtual bool enter_assignment(ast::Assignment const& node);
       virtual bool leave_assignment(ast::Assignment const& node);
       virtual bool leave_compound(ast::Compound const& node);

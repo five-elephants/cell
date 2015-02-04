@@ -5,8 +5,6 @@ mod m = {
 	def add(a : int, b : int) -> int = { a + b }
 	def cond(z : bool, a : int, b : int) -> int = if( z ) a else b
 	def cond2(z : bool, a : int) -> int = a + if( z ) a
-
-
-	def fac(x : int) -> int = if( x == 0 ) 1 else fac(x)
+	def fac(x : int) -> int = if( x == 0 ) 1 else x * fac(x-1)
 
 }

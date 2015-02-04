@@ -87,6 +87,9 @@ namespace sim {
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
     this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
     this->template on_leave_if_type<ast::Op_plus>(&Llvm_function_scanner::insert_op_plus);
+    this->template on_leave_if_type<ast::Op_minus>(&Llvm_function_scanner::insert_op_minus);
+    this->template on_leave_if_type<ast::Op_mult>(&Llvm_function_scanner::insert_op_mult);
+    this->template on_leave_if_type<ast::Op_div>(&Llvm_function_scanner::insert_op_div);
     this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
@@ -187,6 +190,27 @@ namespace sim {
   bool
   Llvm_function_scanner::insert_op_plus(ast::Op_plus const& node) {
     insert_bin_op(node, "+");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_minus(ast::Op_minus const& node) {
+    insert_bin_op(node, "-");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_mult(ast::Op_mult const& node) {
+    insert_bin_op(node, "*");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_div(ast::Op_div const& node) {
+    insert_bin_op(node, "/");
     return true;
   }
 

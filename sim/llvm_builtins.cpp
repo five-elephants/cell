@@ -47,6 +47,15 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   add_operator("+", "int", "int", "int", OP_LAMBDA {
         return bld.CreateAdd(left, right, "add");
       });
+  add_operator("-", "int", "int", "int", OP_LAMBDA {
+        return bld.CreateSub(left, right, "sub");
+      });
+  add_operator("*", "int", "int", "int", OP_LAMBDA {
+        return bld.CreateMul(left, right, "mul");
+      });
+  add_operator("/", "int", "int", "int", OP_LAMBDA {
+        return bld.CreateSDiv(left, right, "sdiv");
+      });
 }
 
 
