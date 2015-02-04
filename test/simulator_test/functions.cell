@@ -6,13 +6,7 @@ mod m = {
 	def cond(z : bool, a : int, b : int) -> int = if( z ) a else b
 	def cond2(z : bool, a : int) -> int = a + if( z ) a
 
-	// def zero() -> int = {
-	// 	return 0
-	// }
 
-
-	// def add(a :int, b : int) -> int = {
-	// 	return 0 
-	// }
+	def fac(x : int) -> int = if( x == 0 ) 1 else fac(x)
 
 }

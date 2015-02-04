@@ -91,6 +91,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
     this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
+    this->template on_leave_if_type<ast::Function_call>(&Llvm_function_scanner::leave_function_call);
     this->template on_leave_if_type<ast::Function_def>(&Llvm_function_scanner::leave_function_def);
   }
 
@@ -167,7 +168,9 @@ namespace sim {
 
     auto v = ConstantInt::get(getGlobalContext(), 
         APInt(64, node.value(), true));
+    auto ty = ir::Builtins<Llvm_impl>::types.at("int");
     m_values[&node] = v;
+    m_types[&node] = ty;
 
     return true;
   }
@@ -240,7 +243,9 @@ namespace sim {
   Llvm_function_scanner::enter_if_statement(ast::If_statement const& node) {
     using namespace llvm;
 
+    m_type_targets.push_back(ir::Builtins<Llvm_impl>::types.at("bool"));
     node.condition().accept(*this);
+    m_type_targets.pop_back();
 
 
     // get condition result and create basic blocks
@@ -288,6 +293,53 @@ namespace sim {
     m_values[&node] = pn;
 
     return false;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_function_call(ast::Function_call const& node) {
+    auto& callee_id = dynamic_cast<ast::Identifier const&>(node.identifier());
+
+    std::vector<llvm::Value*> args;
+
+    // find function
+    auto func = ir::find_function(m_ns, callee_id.identifier());
+    if( !func ) {
+      std::stringstream strm;
+      strm << "Unable to find function '" << callee_id.identifier()
+        << "' to call ("
+        << __func__
+        << ")";
+      throw std::runtime_error(strm.str());
+    }
+
+    // add module arguments
+    if( func->within_module ) {
+      auto this_out_v = m_builder.CreateLoad(m_named_values.at("this_out"),
+          "this_out_tmp");
+      args.push_back(this_out_v);
+      
+      auto this_in_v = m_builder.CreateLoad(m_named_values.at("this_in"),
+          "this_in_tmp");
+      args.push_back(this_in_v);
+
+      auto read_mask_v = m_builder.CreateLoad(m_named_values.at("read_mask"),
+          "read_mask_tmp");
+      args.push_back(read_mask_v);
+    }
+
+    // add parameter values
+    for(auto i : node.expressions()) {
+      args.push_back(m_values.at(i));
+    }
+
+    // insert function call
+    auto v = m_builder.CreateCall(func->impl.code, args, "callres");
+
+    m_values[&node] = v;
+    m_types[&node] = func->return_type;
+
+    return true;
   }
 
 

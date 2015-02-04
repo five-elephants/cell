@@ -5,7 +5,6 @@ namespace ir {
   Module_scanner<Impl>::insert_function(ast::Function_def const& node) {
     std::cout << "Module_scanner::insert_function" << std::endl;
     auto func = this->create_function(node);
-    func->within_module = true;
 
     // TODO generate code for function body
 
@@ -232,6 +231,16 @@ namespace ir {
     }
 
     return obj;
+  }
+
+
+
+  template<typename Impl>
+  std::shared_ptr<ir::Function<Impl>>
+  Module_scanner<Impl>::create_function(ast::Function_def const& node) {
+    auto rv = Namespace_scanner<Impl>::create_function(node);
+    rv->within_module = true;
+    return rv;
   }
 
 
