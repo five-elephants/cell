@@ -168,6 +168,12 @@ namespace sim {
         m_values[&node] = m_builder.CreateLoad(ptr_v, "mod_loadtmp");
         m_types[&node] = p->second->type;
         found = true;
+
+        // log read access in read_mask
+        auto read_mask = m_named_values.at("read_mask");
+        auto read_mask_elem = m_builder.CreateConstGEP2_32(read_mask, 0, index, "read_mask_elem");
+        m_builder.CreateStore(llvm::ConstantInt::get(llvm::getGlobalContext(),
+              llvm::APInt(1, 1, false)), read_mask_elem);
       }
     }
     
@@ -361,17 +367,6 @@ namespace sim {
       args.push_back(m_named_values.at("this_out"));
       args.push_back(m_named_values.at("this_in"));
       args.push_back(m_named_values.at("read_mask"));
-      //auto this_out_v = m_builder.CreateLoad(m_named_values.at("this_out"),
-          //"this_out_tmp");
-      //args.push_back(this_out_v);
-      
-      //auto this_in_v = m_builder.CreateLoad(m_named_values.at("this_in"),
-          //"this_in_tmp");
-      //args.push_back(this_in_v);
-
-      //auto read_mask_v = m_builder.CreateLoad(m_named_values.at("read_mask"),
-          //"read_mask_tmp");
-      //args.push_back(read_mask_v);
     }
 
     // add parameter values
