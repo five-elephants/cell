@@ -14,4 +14,9 @@ mod m = {
 			0
 	}
 
+	def test_b() -> int = {
+		b
+	}
+
+	var b : int
 }

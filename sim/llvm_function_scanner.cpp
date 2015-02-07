@@ -44,30 +44,29 @@ namespace sim {
         name,
         lib->impl.module.get());
 
-    // name arguments
-    auto arg_i = m_function.impl.code->arg_begin();
-    if( m_mod ) {
-      arg_i->setName("this_out");
-      (++arg_i)->setName("this_in");
-      (++arg_i)->setName("read_mask");
-    }
-
-    for(auto arg_name : m_function.parameters) {
-      (++arg_i)->setName(arg_name->name);
-      m_named_types[arg_name->name] = arg_name->type;
-    }
-
     // create function entry code 
     auto bb = BasicBlock::Create(getGlobalContext(), "entry", m_function.impl.code);
     m_builder.SetInsertPoint(bb);
 
-    // prepare symbol table with arguments
-    for(auto i = m_function.impl.code->arg_begin();
-        i != m_function.impl.code->arg_end();
-        ++i) {
-      auto ptr = m_builder.CreateAlloca(i->getType(), 0, i->getName());
-      auto v = m_builder.CreateStore(i, ptr);
-      m_named_values[i->getName().str()] = ptr;
+    // name arguments
+    auto arg_i = m_function.impl.code->arg_begin();
+    if( m_mod ) {
+      arg_i->setName("this_out");
+      m_named_values["this_out"] = arg_i;
+      (++arg_i)->setName("this_in");
+      m_named_values["this_in"] = arg_i;
+      (++arg_i)->setName("read_mask");
+      m_named_values["read_mask"] = arg_i;
+    }
+
+    // allocate other arguments on stack
+    for(auto arg_name : m_function.parameters) {
+      (++arg_i)->setName(arg_name->name);
+      auto ptr = m_builder.CreateAlloca(arg_i->getType(), 0, arg_i->getName());
+      auto v = m_builder.CreateStore(arg_i, ptr);
+
+      m_named_values[arg_i->getName().str()] = ptr;
+      m_named_types[arg_name->name] = arg_name->type;
     }
     
     // create function body
@@ -149,17 +148,37 @@ namespace sim {
   bool
   Llvm_function_scanner::insert_variable_ref(ast::Variable_ref const& node) {
     auto id = dynamic_cast<ast::Identifier const&>(node.identifier());
+    bool found = false;
 
     // load value
     auto p = m_named_values.find(id.identifier());
 
     if( p != m_named_values.end() ) {
       m_values[&node] = m_builder.CreateLoad(p->second, "loadtmp");
-    }
+      m_types[&node] = m_named_types.at(id.identifier());
+      found = true;
+    } else if( m_mod ) {
+      // lookup name in module
+      auto p = m_mod->objects.find(id.identifier());
+      if( p != m_mod->objects.end() ) {
+        auto this_in = m_named_values.at("this_in");
+        auto index = p->second->impl.struct_index;
+        auto ptr_v = m_builder.CreateStructGEP(this_in, index, "elem_ptr");
 
-    // propagate type
-    auto ty = m_named_types.at(id.identifier());
-    m_types[&node] = ty;
+        m_values[&node] = m_builder.CreateLoad(ptr_v, "mod_loadtmp");
+        m_types[&node] = p->second->type;
+        found = true;
+      }
+    }
+    
+    if( !found ) {
+      std::stringstream strm;
+      strm << node.location()
+        << ": unable to find symbol '"
+        << id.identifier()
+        << "' (" << __func__ << ")";
+      throw std::runtime_error(strm.str());
+    }
 
     return true; 
   }
@@ -339,17 +358,20 @@ namespace sim {
 
     // add module arguments
     if( func->within_module ) {
-      auto this_out_v = m_builder.CreateLoad(m_named_values.at("this_out"),
-          "this_out_tmp");
-      args.push_back(this_out_v);
+      args.push_back(m_named_values.at("this_out"));
+      args.push_back(m_named_values.at("this_in"));
+      args.push_back(m_named_values.at("read_mask"));
+      //auto this_out_v = m_builder.CreateLoad(m_named_values.at("this_out"),
+          //"this_out_tmp");
+      //args.push_back(this_out_v);
       
-      auto this_in_v = m_builder.CreateLoad(m_named_values.at("this_in"),
-          "this_in_tmp");
-      args.push_back(this_in_v);
+      //auto this_in_v = m_builder.CreateLoad(m_named_values.at("this_in"),
+          //"this_in_tmp");
+      //args.push_back(this_in_v);
 
-      auto read_mask_v = m_builder.CreateLoad(m_named_values.at("read_mask"),
-          "read_mask_tmp");
-      args.push_back(read_mask_v);
+      //auto read_mask_v = m_builder.CreateLoad(m_named_values.at("read_mask"),
+          //"read_mask_tmp");
+      //args.push_back(read_mask_v);
     }
 
     // add parameter values

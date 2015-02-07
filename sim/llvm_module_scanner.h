@@ -12,7 +12,12 @@ namespace sim {
       Llvm_module_scanner(Llvm_module& mod);
 
     protected:
+      typedef std::tuple< std::shared_ptr<Llvm_function>, ast::Node_if const* > Function_node_tuple;
+      typedef std::vector<Function_node_tuple> Function_todo_list;
+
       std::vector<llvm::Type*> m_member_types;
+      Function_todo_list m_todo_functions;
+      
 
       virtual bool insert_function(ast::Function_def const& func); 
       virtual bool insert_object(ast::Variable_def const& var);

@@ -42,9 +42,8 @@ namespace sim {
     
     m_ns.functions[func->name] = func;
 
-    // code generation
-    Llvm_function_scanner scanner(m_mod, *func);
-    node.accept(scanner);
+    // code generation at leave of module node
+    m_todo_functions.push_back(std::make_tuple(func, &node));
 
     return false;
   }
@@ -55,6 +54,8 @@ namespace sim {
     auto obj = create_object(node);
     m_mod.objects[obj->name] = obj;
 
+    obj->impl.struct_index = m_member_types.size();
+
     m_member_types.push_back(obj->type->impl.type);
 
     return false;
@@ -64,6 +65,14 @@ namespace sim {
   bool
   Llvm_module_scanner::leave_module(ast::Module_def const& node) {
     m_mod.impl.mod_type->setBody(m_member_types);
+
+    for(auto f : m_todo_functions) {
+      Llvm_function_scanner scanner(m_mod, *std::get<0>(f));
+      std::get<1>(f)->accept(scanner);
+    }
+
+    m_todo_functions.clear();
+
     return true;
   }
 

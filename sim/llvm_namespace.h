@@ -21,7 +21,11 @@ namespace sim {
     };
 
     struct Port {};
-    struct Object {};
+
+    struct Object {
+      std::size_t struct_index;
+    };
+
     struct Port_assignment {};
     struct Instantiation {};
 

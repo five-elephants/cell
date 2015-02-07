@@ -18,7 +18,8 @@ namespace sim {
 
     private:
       typedef std::unordered_map<ast::Node_if const*, llvm::Value*> Node_value_map;
-      typedef std::unordered_map<ir::Label, llvm::AllocaInst*> Name_value_map;
+      //typedef std::unordered_map<ir::Label, llvm::AllocaInst*> Name_value_map;
+      typedef std::unordered_map<ir::Label, llvm::Value*> Name_value_map;
       typedef std::unordered_map<ast::Node_if const*, std::shared_ptr<Llvm_type>> Node_type_map;
       typedef std::unordered_map<ir::Label, std::shared_ptr<Llvm_type>> Name_type_map;
       typedef std::vector<std::shared_ptr<Llvm_type>> Type_stack;
