@@ -3,15 +3,15 @@ mod m = {
 	var z : bool
 
 	def test_return(a : int) -> int = {
-		return a
+		a
 	}
 
 
 	def func(a : int, b : int) -> int = {
 		if( a == b )
-			return 1
+			1
 		else
-			return 0
+			0
 	}
 
 }
