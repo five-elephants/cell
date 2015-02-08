@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sim/llvm_namespace.h"
+#include "sim/memory.h"
 #include "ir/find.hpp"
 
 #include <algorithm>
@@ -18,7 +19,8 @@ namespace sim {
       Module_inspector(std::shared_ptr<Llvm_module> module,
           llvm::StructLayout const* layout,
           unsigned num_elements,
-          llvm::ExecutionEngine* exe);
+          llvm::ExecutionEngine* exe,
+          Memory const& memory);
 
       /** get value of a member variable */
       template<typename T>
@@ -64,6 +66,58 @@ namespace sim {
       unsigned num_elements() const { return m_num_elements; }
 
 
+      /**
+       * Directyl call a function in the module
+       *
+       * This version return a return value by reference as the first argument.
+       * */
+      template<typename Ret, typename ... Args>
+      void call(Ret& ret, ir::Label const& name, Args ... args) {
+        auto raw_func = get_function_ptr<Ret(char*,char*,char*,Args...)>(name);
+        auto this_out = m_memory.allocate_module_frame(m_module);
+        auto read_mask = m_memory.allocate_read_mask(m_module);
+
+        std::copy_n(m_module->impl.frame.get(),
+            m_memory.module_frame_size(m_module),
+            this_out.get());
+
+        ret = raw_func(this_out.get(),
+            m_module->impl.frame.get(),
+            read_mask.get(),
+            args...);
+
+        std::copy_n(this_out.get(),
+            m_memory.module_frame_size(m_module),
+            m_module->impl.frame.get());
+      }
+
+
+      /**
+       * Directly call a function in the module
+       *
+       * This version does not return anything.
+       * */
+      template<typename ... Args>
+      void call(ir::Label const& name, Args ... args) {
+        auto raw_func = get_function_ptr<void(char*,char*,char*,Args...)>(name);
+        auto this_out = m_memory.allocate_module_frame(m_module);
+        auto read_mask = m_memory.allocate_read_mask(m_module);
+
+        std::copy_n(m_module->impl.frame.get(),
+            m_memory.module_frame_size(m_module),
+            this_out.get());
+
+        raw_func(this_out.get(),
+            m_module->impl.frame.get(),
+            read_mask.get(),
+            args...);
+
+        std::copy_n(this_out.get(),
+            m_memory.module_frame_size(m_module),
+            m_module->impl.frame.get());
+      }
+
+
       /** get a pointer to a function in the module */
       template<typename Func>
       Func* get_function_ptr(ir::Label const& name) {
@@ -71,10 +125,6 @@ namespace sim {
         void* ptr = m_exe->getPointerToFunction(func->impl.code);
 
         return reinterpret_cast<Func*>(ptr);
-      }
-
-      Llvm_impl::Module::Frame& get_frame() {
-        return m_module->impl.frame;
       }
 
 
@@ -88,6 +138,7 @@ namespace sim {
       llvm::StructLayout const* m_layout;
       unsigned m_num_elements;
       llvm::ExecutionEngine* m_exe;
+      Memory m_memory;
   };
 
 }

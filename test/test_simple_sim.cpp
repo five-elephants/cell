@@ -138,22 +138,11 @@ TEST_F(Simulator_test, module_access) {
 
   engine.setup();
   auto insp = engine.inspect_module("m");
-  sim::Llvm_impl::Module::Frame& frame = insp.get_frame();
-  sim::Llvm_impl::Module::Read_mask read_mask = engine.allocate_read_mask(insp.module());
 
-  auto set_a = std::bind(insp.get_function_ptr<void(char*,char*,char*,int)>("set_a"),
-      frame.get(),
-      frame.get(),
-      read_mask.get(),
-      _1);
-
-  auto get_a = std::bind(insp.get_function_ptr<int(char*,char*,char*)>("get_a"),
-      frame.get(),
-      frame.get(),
-      read_mask.get());
-
-  set_a(5);
-  ASSERT_EQ(get_a(), 5);
+  insp.call("set_a", 5);
+  int a;
+  insp.call(a, "get_a");
+  ASSERT_EQ(5, a);
 
   engine.teardown();
 }

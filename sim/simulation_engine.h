@@ -9,6 +9,7 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 
+#include "sim/memory.h"
 #include "sim/module_inspector.h"
 #include "sim/instrumenter_if.h"
 #include "sim/llvm_namespace.h"
@@ -82,6 +83,7 @@ namespace sim {
       static unsigned const max_cycles = 20;
 
 
+      Memory m_memory;
       llvm::ExecutionEngine* m_exe = nullptr;
       llvm::DataLayout const* m_layout = nullptr;
       std::shared_ptr<sim::Llvm_library> m_lib;
@@ -96,9 +98,6 @@ namespace sim {
       bool simulate_cycle();
 
 
-    public:
-      Llvm_impl::Module::Frame allocate_module_frame(std::shared_ptr<Llvm_module> mod);
-      Llvm_impl::Module::Read_mask allocate_read_mask(std::shared_ptr<Llvm_module> mod);
   };
 
 

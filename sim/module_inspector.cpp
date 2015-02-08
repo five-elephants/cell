@@ -12,11 +12,13 @@ namespace sim {
   Module_inspector::Module_inspector(std::shared_ptr<Llvm_module> mod,
       llvm::StructLayout const* layout,
       unsigned num_elements,
-      llvm::ExecutionEngine* exe)
+      llvm::ExecutionEngine* exe,
+      Memory const& memory)
     : m_module(mod),
       m_layout(layout),
       m_num_elements(num_elements),
-      m_exe(exe) {
+      m_exe(exe),
+      m_memory(memory) {
   }
 
 }
