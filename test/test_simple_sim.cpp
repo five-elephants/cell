@@ -64,6 +64,8 @@ TEST_F(Simulator_test, functions) {
 
   engine.setup();
 
+  int tmp;
+  bool tmpb;
   auto insp = engine.inspect_module("m");
 
   auto addf = std::bind(insp.get_function_ptr<int(char*,char*,char*,int,int)>("add"),
@@ -77,6 +79,9 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(addf(0, 0), 0);
   ASSERT_EQ(addf(-1, 15), 14);
 
+  insp.call(tmp, "add", 1, 2);
+  ASSERT_EQ(3, tmp);
+
 
   auto testf = std::bind(insp.get_function_ptr<bool(char*,char*,char*,int,int)>("test"),
       nullptr,
@@ -89,6 +94,11 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(testf(0, 1), false);
   ASSERT_EQ(testf(-500, 2), false);
 
+  insp.call(tmpb, "test", 0, 0);
+  ASSERT_EQ(tmpb, true);
+  insp.call(tmpb, "test", -500, 2);
+  ASSERT_EQ(tmpb, false);
+
 
   auto condf = std::bind(insp.get_function_ptr<int(char*,char*,char*,bool,int,int)>("cond"),
       nullptr,
@@ -100,6 +110,9 @@ TEST_F(Simulator_test, functions) {
 
   ASSERT_EQ(condf(true, 1, 2), 1);
   ASSERT_EQ(condf(false, 1, 2), 2);
+
+  insp.call(tmp, "cond", true, 1, 2);
+  ASSERT_EQ(tmp, 1);
 
 
   auto cond2f = std::bind(insp.get_function_ptr<int(char*,char*,char*,bool,int)>("cond2"),
@@ -122,6 +135,10 @@ TEST_F(Simulator_test, functions) {
     int f = 1;
     for(int i=0; i<10; i++) {
       ASSERT_EQ(facf(i), f);
+
+      insp.call(tmp, "fac", i);
+      ASSERT_EQ(f, tmp);
+
       f *= i+1;
     }
   }
