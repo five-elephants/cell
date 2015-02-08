@@ -114,7 +114,7 @@ namespace ir {
     Output,
     Bidirectional
   };
-  
+
   template<typename Impl = No_impl>
   struct Port {
     Label name;
@@ -126,7 +126,7 @@ namespace ir {
 
   template<typename Impl = No_impl>
   struct Socket : public Type<Impl> {
-    Socket() 
+    Socket()
       : Type<Impl>() {
     }
 
@@ -134,7 +134,7 @@ namespace ir {
         : enclosing_ns(nullptr) {
       this->name = name;
     }
-    
+
     Namespace<Impl>* enclosing_ns;
     std::map<Label, std::shared_ptr<Port<Impl>>> ports;
 
@@ -144,7 +144,7 @@ namespace ir {
 
   template<typename Impl = No_impl>
   struct Namespace {
-    Namespace() 
+    Namespace()
       : enclosing_ns(nullptr) {
     }
 
@@ -176,7 +176,7 @@ namespace ir {
 
   template<typename Impl = No_impl>
   struct Module : public Namespace<Impl> {
-    Module() 
+    Module()
       : Namespace<Impl>() {
     }
 

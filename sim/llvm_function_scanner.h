@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "ast/scanner_base.h"
 
@@ -25,14 +25,14 @@ namespace sim {
       typedef std::vector<std::shared_ptr<Llvm_type>> Type_stack;
 
       Llvm_namespace& m_ns;
-      Llvm_module* m_mod = nullptr; 
+      Llvm_module* m_mod = nullptr;
       Llvm_function& m_function;
       llvm::IRBuilder<> m_builder;
       Node_value_map m_values;
       Name_value_map m_named_values;
       Node_type_map m_types;
       Name_type_map m_named_types;
-      Type_stack m_type_targets; 
+      Type_stack m_type_targets;
 
 
       void init_function();
@@ -101,7 +101,7 @@ namespace sim {
             << opname
             << "' with signature: ["
             << ty_left->name
-            << "] == [" 
+            << "] == ["
             << ty_right->name
             << "] -> ["
             << ret_ty->name

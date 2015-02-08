@@ -108,6 +108,10 @@ namespace sim {
 
     cout << "setup for simulation..." << endl;
 
+    // allocate memory for modules
+    // TODO for all instantiated modules
+    m_top_mod->impl.frame = allocate_module_frame(m_top_mod);
+
 /*
     // add mappings for runtime functions
     m_exe->addGlobalMapping(m_code->get_function(ir::Builtins::functions.at("print")),
@@ -202,14 +206,10 @@ namespace sim {
     if( !mod )
       throw std::runtime_error("failed to find module in design hierarchy");
 
-    // TODO get pointer to actual memory of module
-    auto mod_sz = m_layout->getTypeAllocSize(mod->impl.mod_type);
-    char* this_ptr = new char [mod_sz];
-
     auto layout = m_layout->getStructLayout(mod->impl.mod_type);
     auto num_elements = mod->impl.mod_type->getNumElements();
 
-    Module_inspector rv(mod, this_ptr, layout, num_elements, m_exe);
+    Module_inspector rv(mod, layout, num_elements, m_exe);
 
     return rv;
   }
@@ -343,6 +343,24 @@ namespace sim {
   }
 
 
+  Llvm_impl::Module::Frame
+  Simulation_engine::allocate_module_frame(std::shared_ptr<Llvm_module> mod) {
+    auto mod_sz = m_layout->getTypeAllocSize(mod->impl.mod_type);
+    return Llvm_impl::Module::Frame(new char [mod_sz]);
+  }
+
+
+
+  Llvm_impl::Module::Read_mask
+  Simulation_engine::allocate_read_mask(std::shared_ptr<Llvm_module> mod) {
+    auto mod_type = mod->impl.mod_type;
+    auto read_mask_ty = llvm::ArrayType::get(
+        llvm::IntegerType::get(llvm::getGlobalContext(), 1),
+        mod_type->getNumElements()
+      );
+    auto sz = m_layout->getTypeAllocSize(read_mask_ty);
+    return Llvm_impl::Module::Read_mask(new char [sz]);
+  }
 
 
 
@@ -359,4 +377,5 @@ namespace sim {
       }
     }*/
   }
+
 }

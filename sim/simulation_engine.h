@@ -19,9 +19,18 @@ namespace sim {
 
   class Simulation_engine {
     public:
+      //
+      // constructors
+      //
+
       Simulation_engine(std::string const& filename,
           std::string const& toplevel);
       ~Simulation_engine();
+
+
+      //
+      // public member functions
+      //
 
       void setup();
       void simulate(ir::Time const& duration);
@@ -85,6 +94,11 @@ namespace sim {
       void init(std::string const& filename, std::string const& toplevel);
       ir::Time simulate_step(ir::Time const& t, ir::Time const& duration);
       bool simulate_cycle();
+
+
+    public:
+      Llvm_impl::Module::Frame allocate_module_frame(std::shared_ptr<Llvm_module> mod);
+      Llvm_impl::Module::Read_mask allocate_read_mask(std::shared_ptr<Llvm_module> mod);
   };
 
 
