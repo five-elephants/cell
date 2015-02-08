@@ -130,6 +130,32 @@ TEST_F(Simulator_test, functions) {
 }
 
 
+TEST_F(Simulator_test, module_access) {
+  using namespace std::placeholders;
+
+  sim::Simulation_engine engine("test/simulator_test/function_in_module.mini",
+    "m");
+
+  engine.setup();
+  auto insp = engine.inspect_module("m");
+
+  auto set_a = std::bind(insp.get_function_ptr<void(char*,char*,char*,int)>("set_a"),
+      nullptr,
+      nullptr,
+      nullptr,
+      _1);
+
+  auto get_a = std::bind(insp.get_function_ptr<int(char*,char*,char*)>("get_a"),
+      nullptr,
+      nullptr,
+      nullptr);
+
+  set_a(5);
+  ASSERT_EQ(get_a(), 5);
+
+  engine.teardown();
+}
+
 //TEST_F(Simulator_test, basic_logging) {
   //sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test.basic_periodic");
 

@@ -14,7 +14,7 @@
 
 
 namespace sim {
-  
+
   struct Llvm_impl {
     struct Type {
       llvm::Type* type;
@@ -47,7 +47,7 @@ namespace sim {
       llvm::StructType* mod_type;
       llvm::Function* ctor;
     };
-    
+
     struct Library {
       llvm::LLVMContext& context;
       std::unique_ptr<llvm::IRBuilder<>> builder;
@@ -55,7 +55,7 @@ namespace sim {
       std::unique_ptr<llvm::FunctionPassManager> fpm;
 
 
-      Library() 
+      Library()
         : context(llvm::getGlobalContext()) {
       }
 

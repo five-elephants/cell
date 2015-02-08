@@ -14,9 +14,14 @@ mod m = {
 			0
 	}
 
-	def test_b() -> int = {
-		b
-	}
+
+	def set_a(x : int) = { a = x; }
+	def set_z(x : bool) = { z = x; }
+	def set_b(x : int) = { b = x; }
+
+	def get_a() -> int = a
+	def get_z() -> bool = z
+	def get_b() -> int = b
 
 	var b : int
 }

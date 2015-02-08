@@ -44,7 +44,7 @@ namespace sim {
         name,
         lib->impl.module.get());
 
-    // create function entry code 
+    // create function entry code
     auto bb = BasicBlock::Create(getGlobalContext(), "entry", m_function.impl.code);
     m_builder.SetInsertPoint(bb);
 
@@ -68,7 +68,7 @@ namespace sim {
       m_named_values[arg_i->getName().str()] = ptr;
       m_named_types[arg_name->name] = arg_name->type;
     }
-    
+
     // create function body
     auto bb_body = BasicBlock::Create(getGlobalContext(), "body", m_function.impl.code);
     m_builder.CreateBr(bb_body);
@@ -123,7 +123,7 @@ namespace sim {
 
 
   llvm::ArrayType*
-  Llvm_function_scanner::read_mask_type() const { 
+  Llvm_function_scanner::read_mask_type() const {
     if( m_mod ) {
       auto lib = ir::find_library(m_ns);
       auto mod_type = m_mod->impl.mod_type;
@@ -136,7 +136,7 @@ namespace sim {
     return nullptr;
   }
 
-  
+
   bool
   Llvm_function_scanner::insert_return(ast::Return_statement const& node) {
     auto v = m_values.at(node.objects()[0]);
@@ -176,7 +176,7 @@ namespace sim {
               llvm::APInt(1, 1, false)), read_mask_elem);
       }
     }
-    
+
     if( !found ) {
       std::stringstream strm;
       strm << node.location()
@@ -186,7 +186,7 @@ namespace sim {
       throw std::runtime_error(strm.str());
     }
 
-    return true; 
+    return true;
   }
 
 
@@ -194,7 +194,7 @@ namespace sim {
   Llvm_function_scanner::insert_literal_int(ast::Literal<int> const& node) {
     using namespace llvm;
 
-    auto v = ConstantInt::get(getGlobalContext(), 
+    auto v = ConstantInt::get(getGlobalContext(),
         APInt(64, node.value(), true));
     auto ty = ir::Builtins<Llvm_impl>::types.at("int");
     m_values[&node] = v;
@@ -245,8 +245,35 @@ namespace sim {
     std::cout << "enter_assignment" << std::endl;
     auto target_id = dynamic_cast<ast::Identifier const&>(node.identifier());
 
+    // find target symbol
+    std::shared_ptr<Llvm_type> ty;
+    bool found = false;
+
+    auto it = m_named_types.find(target_id.identifier());
+    if( it != m_named_types.end() ) {
+      ty = it->second;
+      found = true;
+    } else if( m_mod ) {
+      // lookup name in module
+      auto p = m_mod->objects.find(target_id.identifier());
+      if( p != m_mod->objects.end() ) {
+        ty = p->second->type;
+        found = true;
+      }
+    }
+
+    if( !found) {
+      std::stringstream strm;
+      strm << node.location()
+        << ": unable to find symbol '"
+        << target_id.identifier()
+        << "' for assignment ("
+        << __func__
+        << ")";
+      throw std::runtime_error(strm.str());
+    }
+
     // propagate type
-    auto ty = m_named_types.at(target_id.identifier());
     m_types[&target_id] = ty;
     m_types[&node] = ty;
 
@@ -264,9 +291,35 @@ namespace sim {
     auto rval = m_values.at(&(node.expression()));
 
     // store value
-    auto p = m_named_values.at(target_id.identifier());
-    auto lval = m_builder.CreateStore(rval, p);
-    m_values[&node] = lval;
+    bool found = false;
+    auto it = m_named_values.find(target_id.identifier());
+    if( it != m_named_values.end() ) {
+      auto lval = m_builder.CreateStore(rval, it->second);
+      m_values[&node] = lval;
+      found = true;
+    } else if( m_mod ) {
+      // lookup name in module
+      auto p = m_mod->objects.find(target_id.identifier());
+      if( p != m_mod->objects.end() ) {
+        auto this_out = m_named_values.at("this_out");
+        auto index = p->second->impl.struct_index;
+        auto ptr_v = m_builder.CreateStructGEP(this_out, index, "elem_ptr");
+
+        m_values[&node] = m_builder.CreateStore(rval, ptr_v);
+        found = true;
+      }
+    }
+
+    if( !found ) {
+      std::stringstream strm;
+      strm << node.location()
+        << ": unable to find symbol '"
+        << target_id.identifier()
+        << "' for assignment ("
+        << __func__
+        << ")";
+      throw std::runtime_error(strm.str());
+    }
 
     m_type_targets.pop_back();
     return true;
@@ -305,7 +358,7 @@ namespace sim {
 
     // create conditional branch instruction
     m_builder.CreateCondBr(cond_val, bb_true, bb_false);
-    
+
     // generate code for true branch
     m_builder.SetInsertPoint(bb_true);
     node.body().accept(*this);

@@ -48,10 +48,10 @@ namespace sim {
 
     // LLVM initialization
     llvm::InitializeNativeTarget();
-    
+
     // init builtins
     init_builtins(m_lib);
-    
+
     // print AST
     //ast::Ast_printer printer(std::cout);
     //driver.ast_root().accept(printer);
@@ -59,7 +59,7 @@ namespace sim {
     // generate code
     sim::Llvm_namespace_scanner scanner(*(m_lib->ns));
     driver.ast_root().accept(scanner);
-    
+
     // show generated code
     cout << "Generated code:\n=====\n";
     m_lib->impl.module->dump();
@@ -68,11 +68,12 @@ namespace sim {
 
     verifyModule(*(m_lib->impl.module));
 
+    // create JIT execution engine
     EngineBuilder exe_bld(m_lib->impl.module.get());
     string err_str;
     exe_bld.setErrorStr(&err_str);
     exe_bld.setEngineKind(EngineKind::JIT);
-    
+
     m_exe = exe_bld.create();
     if( !m_exe ) {
       stringstream strm;
@@ -87,10 +88,10 @@ namespace sim {
     m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
     if( !m_top_mod ) {
       cerr << "Can not find top level module '"
-        << toplevel 
+        << toplevel
         << "'\n";
       cerr << "The following modules were found in toplevel namespace '"
-        << m_lib->ns->name 
+        << m_lib->ns->name
         << "':\n";
       for(auto m : m_lib->ns->modules) {
         cerr << "    " << m.first << '\n';
@@ -128,7 +129,7 @@ namespace sim {
     // Init process list
     // TODO find all processes in hierarchy
     auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
-    void* root_b_ptr = static_cast<void*>(static_cast<char*>(root_ptr) 
+    void* root_b_ptr = static_cast<void*>(static_cast<char*>(root_ptr)
         + m_layout->getTypeAllocSize(m_code->get_module_type(m_top_mod.get())));
 
 
@@ -140,10 +141,10 @@ namespace sim {
     mod.sensitivity.resize(mod.num_elements);
     mod.read_mask_sz = m_layout->getTypeAllocSize(
       llvm::ArrayType::get(llvm::IntegerType::get(llvm::getGlobalContext(), 1),
-          mod.num_elements) 
+          mod.num_elements)
     );
     mod.read_mask = new char [mod.read_mask_sz];
-    
+
     for(auto proc : m_top_mod->processes) {
       Process p;
       p.function = m_code->get_process(proc);
@@ -238,7 +239,7 @@ namespace sim {
       std::move(new_schedules.begin(),
           new_schedules.end(),
           std::inserter(mod.schedule, mod.schedule.begin()));
-      
+
       // select next point in time for simulation
       auto nextit = mod.schedule.upper_bound(m_time);
       if( nextit != mod.schedule.end() )
@@ -256,7 +257,7 @@ namespace sim {
     return next_t;
   }
 
-  bool 
+  bool
   Simulation_engine::simulate_cycle() {
     using namespace std;
 
@@ -276,14 +277,14 @@ namespace sim {
           cout << "read_mask: " << hex;
           for(size_t j=0; j<mod.read_mask_sz; j++)
             cout << setw(2) << setfill('0') << static_cast<int>(mod.read_mask[j]) << " ";
-          cout << endl; 
+          cout << endl;
 
           // add to sensitivity list
           for(size_t j=0; j<mod.read_mask_sz; j++) {
             if( mod.read_mask[j] )
               mod.sensitivity[j].insert(proc);
             else
-              mod.sensitivity[j].erase(proc); 
+              mod.sensitivity[j].erase(proc);
           }
         }
       }
@@ -296,7 +297,7 @@ namespace sim {
       char* ptr_out = static_cast<char*>(mod.this_out);
       auto size = mod.layout->getSizeInBytes();
       mod.run_list.clear();
-      
+
       bool mod_modified = false;
       for(size_t i=0; i<size; i++) {
         if( ptr_out[i] != ptr_in[i] ) {
