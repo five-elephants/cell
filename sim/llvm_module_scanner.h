@@ -17,10 +17,11 @@ namespace sim {
 
       std::vector<llvm::Type*> m_member_types;
       Function_todo_list m_todo_functions;
-      
 
-      virtual bool insert_function(ast::Function_def const& func); 
+
+      virtual bool insert_function(ast::Function_def const& func);
       virtual bool insert_object(ast::Variable_def const& var);
+      virtual bool insert_process(ast::Process const& node);
       virtual bool leave_module(ast::Module_def const& node);
   };
 

@@ -168,15 +168,8 @@ namespace ir {
   template<typename Impl>
   bool
   Module_scanner<Impl>::insert_process(ast::Process const& node) {
-    auto rv = std::make_shared<Process<Impl>>();
-
-    // generate code for process body
-    //auto cb = make_codeblock();
-    //cb->process(rv);
-    //cb->scan_ast(node.body());
-    //rv->code = cb;
-
-    m_mod.processes.push_back(rv);
+    auto proc = create_process(node);
+    m_mod.processes.push_back(proc);
 
     return false;
   }
@@ -243,6 +236,13 @@ namespace ir {
     return rv;
   }
 
+
+  template<typename Impl>
+  std::shared_ptr<ir::Process<Impl>>
+  Module_scanner<Impl>::create_process(ast::Process const& node) {
+    auto rv = std::make_shared<Process<Impl>>();
+    return rv;
+  }
 
 }
 

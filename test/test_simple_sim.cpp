@@ -14,22 +14,22 @@ class Simulator_test : public ::testing::Test {
 };
 
 
-//TEST_F(Simulator_test, basic_process) {
-  //sim::Simulation_engine engine("test/simulator_test/basic_process.mini", "test.basic_process");
+TEST_F(Simulator_test, basic_process) {
+  sim::Simulation_engine engine("test/simulator_test/basic_process.mini", "test.basic_process");
 
-  //engine.setup();
-  //auto intro = engine.inspect_module("test.basic_process");
+  engine.setup();
+  auto intro = engine.inspect_module("test.basic_process");
 
-  //EXPECT_EQ(intro.get<int64_t>("a"), 1);
+  EXPECT_EQ(1, intro.get<int64_t>("a"));
 
-  //engine.simulate(ir::Time(10, ir::Time::ns));
+  engine.simulate(ir::Time(10, ir::Time::ns));
 
-  //EXPECT_EQ(intro.get<int64_t>("a"), 1);
-  //EXPECT_EQ(intro.get<int64_t>("b"), 2);
-  //EXPECT_EQ(intro.get<int64_t>("c"), 3);
+  EXPECT_EQ(1, intro.get<int64_t>("a"));
+  EXPECT_EQ(2, intro.get<int64_t>("b"));
+  EXPECT_EQ(3, intro.get<int64_t>("c"));
 
-  //engine.teardown();
-//}
+  engine.teardown();
+}
 
 
 //TEST_F(Simulator_test, basic_periodic) {

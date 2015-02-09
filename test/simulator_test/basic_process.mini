@@ -6,7 +6,7 @@ namespace test = {
     var c : int
 
     def __init__() = {
-      a = 1
+      a = 1;
     }
 
 

@@ -99,6 +99,8 @@ namespace ir {
 
   template<typename Impl = No_impl>
   struct Process {
+    std::shared_ptr<Function<Impl>> function;
+
     typename Impl::Process impl;
   };
 

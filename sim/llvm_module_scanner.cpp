@@ -3,6 +3,7 @@
 #include "sim/llvm_function_scanner.h"
 #include "ir/find.hpp"
 #include "ir/find_hierarchy.h"
+#include "ir/builtins.h"
 
 
 #include <iostream>
@@ -39,7 +40,7 @@ namespace sim {
     std::cout << "inserting function" << std::endl;
 
     std::shared_ptr<Llvm_function> func = create_function(node);
-    
+
     m_ns.functions[func->name] = func;
 
     // code generation at leave of module node
@@ -63,6 +64,22 @@ namespace sim {
 
 
   bool
+  Llvm_module_scanner::insert_process(ast::Process const& node) {
+    auto proc = create_process(node);
+    m_mod.processes.push_back(proc);
+
+    auto func = std::make_shared<Llvm_function>();
+    func->name = "__process__";
+    func->return_type = ir::Builtins<Llvm_impl>::types.at("unit");
+    func->within_module = true;
+    m_todo_functions.push_back(std::make_tuple(func, &node));
+    proc->function = func;
+
+    return false;
+  }
+
+
+  bool
   Llvm_module_scanner::leave_module(ast::Module_def const& node) {
     m_mod.impl.mod_type->setBody(m_member_types);
 
@@ -75,7 +92,6 @@ namespace sim {
 
     return true;
   }
-
 
 }
 

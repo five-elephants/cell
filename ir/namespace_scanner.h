@@ -52,14 +52,14 @@ namespace ir {
       bool m_root;
       Namespace<Impl>& m_ns;
 
-      virtual bool insert_module(ast::Module_def const& mod); 
-      virtual bool insert_namespace(ast::Namespace_def const& ns); 
+      virtual bool insert_module(ast::Module_def const& mod);
+      virtual bool insert_namespace(ast::Namespace_def const& ns);
       virtual bool insert_socket(ast::Socket_def const& sock);
-      virtual bool insert_function(ast::Function_def const& node); 
+      virtual bool insert_function(ast::Function_def const& node);
 
       virtual std::shared_ptr<ir::Namespace<Impl>> create_namespace(ast::Namespace_def const& node);
       virtual std::shared_ptr<ir::Module<Impl>> create_module(ast::Module_def const& node);
-      virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node); 
+      virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
   };
 
 
@@ -122,19 +122,20 @@ namespace ir {
     protected:
       Module<Impl>& m_mod;
 
-      virtual bool insert_function(ast::Function_def const& node); 
-      virtual bool insert_socket(ast::Socket_def const& sock); 
-      virtual bool insert_object(ast::Variable_def const& node); 
-      virtual bool insert_instantiation(ast::Module_instantiation const& node); 
+      virtual bool insert_function(ast::Function_def const& node);
+      virtual bool insert_socket(ast::Socket_def const& sock);
+      virtual bool insert_object(ast::Variable_def const& node);
+      virtual bool insert_instantiation(ast::Module_instantiation const& node);
       virtual bool insert_process(ast::Process const& node);
-      virtual bool insert_periodic(ast::Periodic const& node); 
+      virtual bool insert_periodic(ast::Periodic const& node);
 
-      virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node); 
+      virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
       virtual std::shared_ptr<ir::Object<Impl>> create_object(ast::Variable_def const& node);
+      virtual std::shared_ptr<ir::Process<Impl>> create_process(ast::Process const& node);
   };
 
 }
- 
+
 
 #include "namespace_scanner.cpp"
 #include "module_scanner.cpp"

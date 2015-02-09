@@ -95,6 +95,7 @@ namespace sim {
     this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
     this->template on_leave_if_type<ast::Function_call>(&Llvm_function_scanner::leave_function_call);
     this->template on_leave_if_type<ast::Function_def>(&Llvm_function_scanner::leave_function_def);
+    this->template on_leave_if_type<ast::Process>(&Llvm_function_scanner::leave_process);
   }
 
 
@@ -440,6 +441,17 @@ namespace sim {
   bool
   Llvm_function_scanner::leave_function_def(ast::Function_def const& node) {
     auto v = m_values.at(&(node.body()));
+    m_values[&node] = m_builder.CreateRet(v);
+    m_type_targets.pop_back();
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_process(ast::Process const& node) {
+    auto ty = ir::Builtins<Llvm_impl>::types.at("unit");
+    auto v = llvm::Constant::getNullValue(ty->impl.type);
     m_values[&node] = m_builder.CreateRet(v);
     m_type_targets.pop_back();
 
