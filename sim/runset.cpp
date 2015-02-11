@@ -3,20 +3,18 @@
 
 namespace sim {
 
-  Runset::Module
-  Runset::create_module(Memory& mem,
-      llvm::ExecutionEngine* exe,
+  void
+  Runset::add_module(llvm::ExecutionEngine* exe,
       std::shared_ptr<Llvm_module> mod) {
     Module rv;
     rv.mod = mod;
-    rv.this_in = mem.allocate_module_frame(mod);
-    std::fill_n(rv.this_in.get(), mem.module_frame_size(mod), 0);
-    rv.this_out = mem.allocate_module_frame(mod);
-    std::fill_n(rv.this_out.get(), mem.module_frame_size(mod), 0);
-    rv.read_mask = mem.allocate_read_mask(mod);
-    rv.read_mask_sz = mem.read_mask_size(mod);
+    rv.this_in = allocate_module_frame(mod);
+    std::fill(rv.this_in->begin(), rv.this_in->end(), 0);
+    rv.this_out = allocate_module_frame(mod);
+    std::fill(rv.this_out->begin(), rv.this_out->end(), 0);
+    rv.read_mask = allocate_read_mask(mod);
     rv.sensitivity.resize(mod->impl.mod_type->getNumElements());
-    rv.layout = mem.layout()->getStructLayout(mod->impl.mod_type);
+    rv.layout = m_layout->getStructLayout(mod->impl.mod_type);
 
     for(auto proc : mod->processes) {
       Process p;
@@ -39,8 +37,30 @@ namespace sim {
       //mod.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
     //}
 
-    return rv;
+    modules.push_back(std::move(rv));
   }
+
+
+  Runset::Module_frame
+  Runset::allocate_module_frame(std::shared_ptr<Llvm_module> mod) {
+    //auto mod_sz = m_layout->getTypeAllocSize(mod->impl.mod_type);
+    auto mod_sz = module_frame_size(mod);
+    return std::make_shared<std::vector<char>>(mod_sz);
+  }
+
+
+  Runset::Read_mask
+  Runset::allocate_read_mask(std::shared_ptr<Llvm_module> mod) {
+    //auto mod_type = mod->impl.mod_type;
+    //auto read_mask_ty = llvm::ArrayType::get(
+        //llvm::IntegerType::get(llvm::getGlobalContext(), 1),
+        //mod_type->getNumElements()
+      //);
+    //auto sz = m_layout->getTypeAllocSize(read_mask_ty);
+    auto sz = read_mask_size(mod);
+    return std::make_shared<std::vector<char>>(sz);
+  }
+
 
 }
 

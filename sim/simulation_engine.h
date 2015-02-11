@@ -9,7 +9,6 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 
-#include "sim/memory.h"
 #include "sim/runset.h"
 #include "sim/module_inspector.h"
 #include "sim/instrumenter_if.h"
@@ -44,7 +43,6 @@ namespace sim {
       static unsigned const max_cycles = 20;
 
 
-      Memory m_memory;
       Runset m_runset;
       llvm::ExecutionEngine* m_exe = nullptr;
       llvm::DataLayout const* m_layout = nullptr;

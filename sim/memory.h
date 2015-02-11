@@ -9,10 +9,13 @@ namespace sim {
 
   class Memory {
     public:
+      typedef std::shared_ptr<std::vector<char>> Module_frame;
+      typedef std::shared_ptr<std::vector<char>> Read_mask;
+
       Memory();
 
-      Llvm_impl::Module::Frame allocate_module_frame(std::shared_ptr<Llvm_module> mod);
-      Llvm_impl::Module::Read_mask allocate_read_mask(std::shared_ptr<Llvm_module> mod);
+      Module_frame allocate_module_frame(std::shared_ptr<Llvm_module> mod);
+      Read_mask allocate_read_mask(std::shared_ptr<Llvm_module> mod);
 
       std::size_t module_frame_size(std::shared_ptr<Llvm_module> mod) const {
         return m_layout->getTypeAllocSize(mod->impl.mod_type);

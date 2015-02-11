@@ -1,7 +1,6 @@
 #pragma once
 
 #include "sim/llvm_namespace.h"
-#include "sim/memory.h"
 #include "sim/runset.h"
 #include "ir/find.hpp"
 
@@ -21,8 +20,7 @@ namespace sim {
           llvm::StructLayout const* layout,
           unsigned num_elements,
           llvm::ExecutionEngine* exe,
-          Memory const& memory,
-          Runset::Module& runset);
+          Runset& runset);
 
       /** get value of a member variable */
       template<typename T>
@@ -36,7 +34,7 @@ namespace sim {
           throw std::runtime_error(strm.str());
         }
 
-        char* this_ptr = m_runset.this_in.get();
+        char* this_ptr = this_in->data();
         auto idx = std::distance(m_module->objects.begin(), it);
         auto ofs = m_layout->getElementOffset(idx);
 
@@ -48,7 +46,7 @@ namespace sim {
       /** get value of member variable by index */
       template<typename T>
       T get(std::size_t idx) {
-        char* this_ptr = m_runset.this_in.get();
+        char* this_ptr = this_in->data();
         auto ofs = m_layout->getElementOffset(idx);
 
         T rv;
@@ -77,18 +75,14 @@ namespace sim {
       void call(Ret& ret, ir::Label const& name, Args ... args) {
         auto raw_func = get_function_ptr<Ret(char*,char*,char*,Args...)>(name);
 
-        std::copy_n(m_runset.this_in.get(),
-            m_memory.module_frame_size(m_module),
-            m_runset.this_out.get());
+        std::copy(this_in->begin(), this_in->end(), this_out->begin());
 
-        ret = raw_func(m_runset.this_out.get(),
-            m_runset.this_in.get(),
-            m_runset.read_mask.get(),
+        ret = raw_func(this_out->data(),
+            this_in->data(),
+            read_mask->data(),
             args...);
 
-        std::copy_n(m_runset.this_out.get(),
-            m_memory.module_frame_size(m_module),
-            m_runset.this_in.get());
+        std::copy(this_out->begin(), this_out->end(), this_in->begin());
       }
 
 
@@ -100,21 +94,17 @@ namespace sim {
       template<typename ... Args>
       void call(ir::Label const& name, Args ... args) {
         auto raw_func = get_function_ptr<void(char*,char*,char*,Args...)>(name);
-        auto this_out = m_memory.allocate_module_frame(m_module);
-        auto read_mask = m_memory.allocate_read_mask(m_module);
+        auto this_out = m_runset.allocate_module_frame(m_module);
+        auto read_mask = m_runset.allocate_read_mask(m_module);
 
-        std::copy_n(m_runset.this_in.get(),
-            m_memory.module_frame_size(m_module),
-            m_runset.this_out.get());
+        std::copy(this_in->begin(), this_in->end(), this_out->begin());
 
-        raw_func(m_runset.this_out.get(),
-            m_runset.this_in.get(),
-            m_runset.read_mask.get(),
+        raw_func(this_out->data(),
+            this_in->data(),
+            read_mask->data(),
             args...);
 
-        std::copy_n(m_runset.this_out.get(),
-            m_memory.module_frame_size(m_module),
-            m_runset.this_in.get());
+        std::copy(this_out->begin(), this_out->end(), this_in->begin());
       }
 
 
@@ -138,8 +128,9 @@ namespace sim {
       llvm::StructLayout const* m_layout;
       unsigned m_num_elements;
       llvm::ExecutionEngine* m_exe;
-      Memory m_memory;
-      Runset::Module& m_runset;
+      Runset& m_runset;
+      Runset::Module_frame this_in, this_out;
+      Runset::Read_mask read_mask;
   };
 
 }

@@ -44,9 +44,6 @@ namespace sim {
     struct Namespace {};
 
     struct Module {
-      typedef std::unique_ptr<char[]> Frame;
-      typedef std::unique_ptr<char[]> Read_mask;
-
       llvm::StructType* mod_type;
       llvm::Function* ctor;
     };

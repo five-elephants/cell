@@ -84,7 +84,7 @@ namespace sim {
     m_exe->DisableSymbolSearching(true);
 
     m_layout = m_exe->getDataLayout();
-    m_memory.layout(m_layout);
+    m_runset.layout(m_layout);
 
     m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
     if( !m_top_mod ) {
@@ -134,11 +134,7 @@ namespace sim {
         + m_layout->getTypeAllocSize(m_code->get_module_type(m_top_mod.get())));
 */
 
-    m_runset.modules.push_back(
-        Runset::create_module(m_memory,
-          m_exe,
-          m_top_mod)
-      );
+    m_runset.add_module(m_exe, m_top_mod);
 
     m_setup_complete = true;
   }
@@ -178,8 +174,7 @@ namespace sim {
         layout,
         num_elements,
         m_exe,
-        m_memory,
-        m_runset.modules.front());
+        m_runset);
 
     return rv;
   }
@@ -239,19 +234,22 @@ namespace sim {
       for(auto const& proc : mod.run_list) {
         cout << "calling process..." << endl;
         if( proc.sensitive )
-          std::fill_n(mod.read_mask.get(), mod.read_mask_sz, 0);
+          std::fill(mod.read_mask->begin(), mod.read_mask->end(), 0);
         auto exe_ptr = reinterpret_cast<void (*)(char*, char*, char*)>(proc.exe_ptr);
-        exe_ptr(mod.this_out.get(), mod.this_in.get(), mod.read_mask.get());
+        exe_ptr(mod.this_out->data(),
+            mod.this_in->data(),
+            mod.read_mask->data());
 
         if( proc.sensitive ) {
           cout << "read_mask: " << hex;
-          for(size_t j=0; j<mod.read_mask_sz; j++)
-            cout << setw(2) << setfill('0') << static_cast<int>(mod.read_mask[j]) << " ";
+          for(size_t j=0; j<mod.read_mask->size(); j++)
+            cout << setw(2) << setfill('0')
+              << static_cast<int>((*(mod.read_mask))[j]) << " ";
           cout << endl;
 
           // add to sensitivity list
-          for(size_t j=0; j<mod.read_mask_sz; j++) {
-            if( mod.read_mask[j] )
+          for(size_t j=0; j<mod.read_mask->size(); j++) {
+            if( (*(mod.read_mask))[j] )
               mod.sensitivity[j].insert(proc);
             else
               mod.sensitivity[j].erase(proc);
@@ -263,8 +261,8 @@ namespace sim {
     // find modified signals
     bool rerun = false;
     for(auto& mod : m_runset.modules) {
-      char* ptr_in = mod.this_in.get();
-      char* ptr_out = mod.this_out.get();
+      char* ptr_in = mod.this_in->data();
+      char* ptr_out = mod.this_out->data();
       auto size = mod.layout->getSizeInBytes();
       mod.run_list.clear();
 
