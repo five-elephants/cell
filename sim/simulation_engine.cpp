@@ -137,43 +137,42 @@ namespace sim {
     auto root_ptr = m_exe->getPointerToGlobal(m_code->root());
     void* root_b_ptr = static_cast<void*>(static_cast<char*>(root_ptr)
         + m_layout->getTypeAllocSize(m_code->get_module_type(m_top_mod.get())));
-
+*/
 
     Module mod;
-    mod.this_in = root_ptr;
-    mod.this_out = root_b_ptr;
-    mod.layout = m_layout->getStructLayout(m_code->get_module_type(m_top_mod.get()));
-    mod.num_elements = m_code->get_module_type(m_top_mod.get())->getNumElements();
-    mod.sensitivity.resize(mod.num_elements);
-    mod.read_mask_sz = m_layout->getTypeAllocSize(
-      llvm::ArrayType::get(llvm::IntegerType::get(llvm::getGlobalContext(), 1),
-          mod.num_elements)
-    );
-    mod.read_mask = new char [mod.read_mask_sz];
+    mod.mod = m_top_mod;
+    mod.this_in = m_memory.allocate_module_frame(m_top_mod);
+    std::fill_n(mod.this_in.get(), m_memory.module_frame_size(m_top_mod), 0);
+    mod.this_out = m_memory.allocate_module_frame(m_top_mod);
+    std::fill_n(mod.this_out.get(), m_memory.module_frame_size(m_top_mod), 0);
+    mod.read_mask = m_memory.allocate_read_mask(m_top_mod);
+    mod.read_mask_sz = m_memory.read_mask_size(m_top_mod);
+    mod.sensitivity.resize(m_top_mod->impl.mod_type->getNumElements());
+    mod.layout = m_layout->getStructLayout(m_top_mod->impl.mod_type);
 
     for(auto proc : m_top_mod->processes) {
       Process p;
-      p.function = m_code->get_process(proc);
+      p.function = proc->function->impl.code;
       p.exe_ptr = m_exe->getPointerToFunction(p.function);
 
       mod.processes.push_back(p);
       mod.run_list.insert(p);
     }
 
-    for(auto proc : m_top_mod->periodicals) {
-      Process p;
-      p.function = m_code->get_process(proc);
-      p.exe_ptr = m_exe->getPointerToFunction(p.function);
-      p.sensitive = false;
+    //for(auto proc : m_top_mod->periodicals) {
+      //Process p;
+      //p.function = m_code->get_process(proc);
+      //p.exe_ptr = m_exe->getPointerToFunction(p.function);
+      //p.sensitive = false;
 
-      mod.run_list.insert(p);
+      //mod.run_list.insert(p);
 
-      mod.periodicals.insert(std::make_pair(proc->period, p));
-      mod.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
-    }
+      //mod.periodicals.insert(std::make_pair(proc->period, p));
+      //mod.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
+    //}
 
-    m_modules.push_back(mod);
-*/
+    m_modules.push_back(std::move(mod));
+
     m_setup_complete = true;
   }
 
@@ -188,9 +187,6 @@ namespace sim {
 
   void
   Simulation_engine::teardown() {
-    for(auto& mod : m_modules) {
-      delete [] mod.read_mask;
-    }
     m_modules.clear();
 
     m_setup_complete = false;
@@ -273,9 +269,9 @@ namespace sim {
       for(auto const& proc : mod.run_list) {
         cout << "calling process..." << endl;
         if( proc.sensitive )
-          std::fill_n(mod.read_mask, mod.read_mask_sz, 0);
-        auto exe_ptr = reinterpret_cast<void (*)(void*, void*, void*)>(proc.exe_ptr);
-        exe_ptr(mod.this_out, mod.this_in, mod.read_mask);
+          std::fill_n(mod.read_mask.get(), mod.read_mask_sz, 0);
+        auto exe_ptr = reinterpret_cast<void (*)(char*, char*, char*)>(proc.exe_ptr);
+        exe_ptr(mod.this_out.get(), mod.this_in.get(), mod.read_mask.get());
 
         if( proc.sensitive ) {
           cout << "read_mask: " << hex;
@@ -297,8 +293,8 @@ namespace sim {
     // find modified signals
     bool rerun = false;
     for(auto& mod : m_modules) {
-      char* ptr_in = static_cast<char*>(mod.this_in);
-      char* ptr_out = static_cast<char*>(mod.this_out);
+      char* ptr_in = mod.this_in.get();
+      char* ptr_out = mod.this_out.get();
       auto size = mod.layout->getSizeInBytes();
       mod.run_list.clear();
 
@@ -354,16 +350,17 @@ namespace sim {
 
   void
   Instrumented_simulation_engine::simulate(ir::Time const& duration) {
-    /*for(ir::Time t=m_time; t<(m_time + duration); ) {
+    for(ir::Time t=m_time; t<(m_time + duration); ) {
       t = simulate_step(t, duration);
 
-      if( m_instrumenter ) {
-        for(auto const& mod : m_modules) {
-          Module_inspector insp(m_top_mod, mod.this_in, mod.layout, mod.num_elements);
-          m_instrumenter->module(t, insp);
-        }
-      }
-    }*/
+      //if( m_instrumenter ) {
+        //for(auto const& mod : m_modules) {
+          //auto num_elements = mod.mod->impl.mod_type->getNumElements();
+          //Module_inspector insp(m_top_mod, mod.this_in, mod.layout, num_elements);
+          //m_instrumenter->module(t, insp);
+        //}
+      //}
+    }
   }
 
 }

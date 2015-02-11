@@ -64,14 +64,14 @@ namespace sim {
       typedef std::multimap<ir::Time, std::tuple<ir::Time,Process>> Process_schedule;
 
       struct Module {
-        void* this_in;
-        void* this_out;
-        char* read_mask;
+        std::shared_ptr<Llvm_module> mod;
+        Llvm_impl::Module::Frame this_in;
+        Llvm_impl::Module::Frame this_out;
+        Llvm_impl::Module::Read_mask read_mask;
         std::size_t read_mask_sz;
-        llvm::StructLayout const* layout;
+        llvm::StructLayout const* layout = nullptr;
         Process_list processes;
         Time_process_map periodicals;
-        unsigned int num_elements;
         std::vector<Process_set> sensitivity;
         Process_set run_list;
         Process_schedule schedule;
