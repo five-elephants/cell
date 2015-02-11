@@ -49,8 +49,6 @@ namespace sim {
 
       llvm::StructType* mod_type;
       llvm::Function* ctor;
-      Frame frame;
-      Read_mask read_mask;
     };
 
     struct Library {

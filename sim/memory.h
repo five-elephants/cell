@@ -31,6 +31,8 @@ namespace sim {
         m_layout = lay;
       }
 
+      llvm::DataLayout const* layout() const { return m_layout; }
+
     private:
       llvm::DataLayout const* m_layout = nullptr;
   };

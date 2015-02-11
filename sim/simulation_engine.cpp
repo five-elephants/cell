@@ -109,11 +109,6 @@ namespace sim {
 
     cout << "setup for simulation..." << endl;
 
-    // allocate memory for modules
-    // TODO for all instantiated modules
-    m_top_mod->impl.frame = m_memory.allocate_module_frame(m_top_mod);
-    m_top_mod->impl.read_mask = m_memory.allocate_read_mask(m_top_mod);
-
 /*
     // add mappings for runtime functions
     m_exe->addGlobalMapping(m_code->get_function(ir::Builtins::functions.at("print")),
@@ -139,39 +134,11 @@ namespace sim {
         + m_layout->getTypeAllocSize(m_code->get_module_type(m_top_mod.get())));
 */
 
-    Module mod;
-    mod.mod = m_top_mod;
-    mod.this_in = m_memory.allocate_module_frame(m_top_mod);
-    std::fill_n(mod.this_in.get(), m_memory.module_frame_size(m_top_mod), 0);
-    mod.this_out = m_memory.allocate_module_frame(m_top_mod);
-    std::fill_n(mod.this_out.get(), m_memory.module_frame_size(m_top_mod), 0);
-    mod.read_mask = m_memory.allocate_read_mask(m_top_mod);
-    mod.read_mask_sz = m_memory.read_mask_size(m_top_mod);
-    mod.sensitivity.resize(m_top_mod->impl.mod_type->getNumElements());
-    mod.layout = m_layout->getStructLayout(m_top_mod->impl.mod_type);
-
-    for(auto proc : m_top_mod->processes) {
-      Process p;
-      p.function = proc->function->impl.code;
-      p.exe_ptr = m_exe->getPointerToFunction(p.function);
-
-      mod.processes.push_back(p);
-      mod.run_list.insert(p);
-    }
-
-    //for(auto proc : m_top_mod->periodicals) {
-      //Process p;
-      //p.function = m_code->get_process(proc);
-      //p.exe_ptr = m_exe->getPointerToFunction(p.function);
-      //p.sensitive = false;
-
-      //mod.run_list.insert(p);
-
-      //mod.periodicals.insert(std::make_pair(proc->period, p));
-      //mod.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
-    //}
-
-    m_modules.push_back(std::move(mod));
+    m_runset.modules.push_back(
+        Runset::create_module(m_memory,
+          m_exe,
+          m_top_mod)
+      );
 
     m_setup_complete = true;
   }
@@ -187,8 +154,6 @@ namespace sim {
 
   void
   Simulation_engine::teardown() {
-    m_modules.clear();
-
     m_setup_complete = false;
   }
 
@@ -209,7 +174,12 @@ namespace sim {
     auto layout = m_layout->getStructLayout(mod->impl.mod_type);
     auto num_elements = mod->impl.mod_type->getNumElements();
 
-    Module_inspector rv(mod, layout, num_elements, m_exe, m_memory);
+    Module_inspector rv(mod,
+        layout,
+        num_elements,
+        m_exe,
+        m_memory,
+        m_runset.modules.front());
 
     return rv;
   }
@@ -222,8 +192,8 @@ namespace sim {
     std::cout << "===== time: " << t << " =====" << std::endl;
 
     // add timed processes to the run list
-    for(auto& mod : m_modules) {
-      std::list<Process_schedule::value_type> new_schedules;
+    for(auto& mod : m_runset.modules) {
+      std::list<Runset::Process_schedule::value_type> new_schedules;
 
       auto timed_procs_range = mod.schedule.equal_range(t);
       for(auto it=timed_procs_range.first;
@@ -263,7 +233,7 @@ namespace sim {
 
     cout << "----- simulate cycle -----\n";
 
-    for(auto& mod : m_modules) {
+    for(auto& mod : m_runset.modules) {
       cout << "running " << mod.run_list.size() << " processes" << endl;
 
       for(auto const& proc : mod.run_list) {
@@ -292,7 +262,7 @@ namespace sim {
 
     // find modified signals
     bool rerun = false;
-    for(auto& mod : m_modules) {
+    for(auto& mod : m_runset.modules) {
       char* ptr_in = mod.this_in.get();
       char* ptr_out = mod.this_out.get();
       auto size = mod.layout->getSizeInBytes();

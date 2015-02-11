@@ -2,6 +2,7 @@
 
 #include "sim/llvm_namespace.h"
 #include "sim/memory.h"
+#include "sim/runset.h"
 #include "ir/find.hpp"
 
 #include <algorithm>
@@ -15,12 +16,13 @@ namespace sim {
 
   class Module_inspector {
     public:
-      Module_inspector();
+      //Module_inspector();
       Module_inspector(std::shared_ptr<Llvm_module> module,
           llvm::StructLayout const* layout,
           unsigned num_elements,
           llvm::ExecutionEngine* exe,
-          Memory const& memory);
+          Memory const& memory,
+          Runset::Module& runset);
 
       /** get value of a member variable */
       template<typename T>
@@ -34,7 +36,7 @@ namespace sim {
           throw std::runtime_error(strm.str());
         }
 
-        char* this_ptr = m_module->impl.frame.get();
+        char* this_ptr = m_runset.this_in.get();
         auto idx = std::distance(m_module->objects.begin(), it);
         auto ofs = m_layout->getElementOffset(idx);
 
@@ -46,7 +48,7 @@ namespace sim {
       /** get value of member variable by index */
       template<typename T>
       T get(std::size_t idx) {
-        char* this_ptr = m_module->impl.frame.get();
+        char* this_ptr = m_runset.this_in.get();
         auto ofs = m_layout->getElementOffset(idx);
 
         T rv;
@@ -74,21 +76,19 @@ namespace sim {
       template<typename Ret, typename ... Args>
       void call(Ret& ret, ir::Label const& name, Args ... args) {
         auto raw_func = get_function_ptr<Ret(char*,char*,char*,Args...)>(name);
-        auto this_out = m_memory.allocate_module_frame(m_module);
-        auto read_mask = m_memory.allocate_read_mask(m_module);
 
-        std::copy_n(m_module->impl.frame.get(),
+        std::copy_n(m_runset.this_in.get(),
             m_memory.module_frame_size(m_module),
-            this_out.get());
+            m_runset.this_out.get());
 
-        ret = raw_func(this_out.get(),
-            m_module->impl.frame.get(),
-            read_mask.get(),
+        ret = raw_func(m_runset.this_out.get(),
+            m_runset.this_in.get(),
+            m_runset.read_mask.get(),
             args...);
 
-        std::copy_n(this_out.get(),
+        std::copy_n(m_runset.this_out.get(),
             m_memory.module_frame_size(m_module),
-            m_module->impl.frame.get());
+            m_runset.this_in.get());
       }
 
 
@@ -103,18 +103,18 @@ namespace sim {
         auto this_out = m_memory.allocate_module_frame(m_module);
         auto read_mask = m_memory.allocate_read_mask(m_module);
 
-        std::copy_n(m_module->impl.frame.get(),
+        std::copy_n(m_runset.this_in.get(),
             m_memory.module_frame_size(m_module),
-            this_out.get());
+            m_runset.this_out.get());
 
-        raw_func(this_out.get(),
-            m_module->impl.frame.get(),
-            read_mask.get(),
+        raw_func(m_runset.this_out.get(),
+            m_runset.this_in.get(),
+            m_runset.read_mask.get(),
             args...);
 
-        std::copy_n(this_out.get(),
+        std::copy_n(m_runset.this_out.get(),
             m_memory.module_frame_size(m_module),
-            m_module->impl.frame.get());
+            m_runset.this_in.get());
       }
 
 
@@ -139,6 +139,7 @@ namespace sim {
       unsigned m_num_elements;
       llvm::ExecutionEngine* m_exe;
       Memory m_memory;
+      Runset::Module& m_runset;
   };
 
 }
