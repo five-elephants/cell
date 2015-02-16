@@ -25,17 +25,17 @@ namespace sim {
       rv.run_list.insert(p);
     }
 
-    //for(auto proc : m_top_mod->periodicals) {
-      //Process p;
-      //p.function = m_code->get_process(proc);
-      //p.exe_ptr = m_exe->getPointerToFunction(p.function);
-      //p.sensitive = false;
+    for(auto proc : mod->periodicals) {
+      Process p;
+      p.function = proc->function->impl.code;
+      p.exe_ptr = exe->getPointerToFunction(p.function);
+      p.sensitive = false;
 
-      //mod.run_list.insert(p);
+      rv.run_list.insert(p);
 
-      //mod.periodicals.insert(std::make_pair(proc->period, p));
-      //mod.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
-    //}
+      rv.periodicals.insert(std::make_pair(proc->period, p));
+      rv.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
+    }
 
     modules.push_back(std::move(rv));
   }

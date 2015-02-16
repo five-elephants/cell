@@ -80,6 +80,24 @@ namespace sim {
 
 
   bool
+  Llvm_module_scanner::insert_periodic(ast::Periodic const& node) {
+    auto per = std::make_shared<ir::Periodic<Llvm_impl>>();
+    per->period = ir::Time(2, ir::Time::ns);
+
+    m_mod.periodicals.push_back(per);
+
+    auto func = std::make_shared<Llvm_function>();
+    func->name = "__periodic__";
+    func->return_type = ir::Builtins<Llvm_impl>::types.at("unit");
+    func->within_module = true;
+    m_todo_functions.push_back(std::make_tuple(func, &node));
+    per->function = func;
+
+    return false;
+  }
+
+
+  bool
   Llvm_module_scanner::leave_module(ast::Module_def const& node) {
     m_mod.impl.mod_type->setBody(m_member_types);
 

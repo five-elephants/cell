@@ -57,6 +57,7 @@ namespace sim {
       virtual bool leave_function_call(ast::Function_call const& node);
       virtual bool leave_function_def(ast::Function_def const& node);
       virtual bool leave_process(ast::Process const& node);
+      virtual bool leave_periodic(ast::Periodic const& node);
 
 
       template<typename Node>
