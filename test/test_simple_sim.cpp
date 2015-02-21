@@ -15,18 +15,19 @@ class Simulator_test : public ::testing::Test {
 
 
 TEST_F(Simulator_test, basic_process) {
-  sim::Simulation_engine engine("test/simulator_test/basic_process.mini", "test.basic_process");
+  sim::Simulation_engine engine("test/simulator_test/basic_process.mini",
+      "test.basic_process");
 
   engine.setup();
   auto intro = engine.inspect_module("test.basic_process");
 
-  EXPECT_EQ(0, intro.get<int64_t>("a"));
+  EXPECT_EQ(1, intro.get<int64_t>("a"));
 
   engine.simulate(ir::Time(10, ir::Time::ns));
 
-  EXPECT_EQ(0, intro.get<int64_t>("a"));
-  EXPECT_EQ(1, intro.get<int64_t>("b"));
-  EXPECT_EQ(2, intro.get<int64_t>("c"));
+  EXPECT_EQ(1, intro.get<int64_t>("a"));
+  EXPECT_EQ(2, intro.get<int64_t>("b"));
+  EXPECT_EQ(3, intro.get<int64_t>("c"));
 
   engine.teardown();
 }
@@ -43,6 +44,36 @@ TEST_F(Simulator_test, basic_periodic) {
   auto acc = intro.get<int64_t>("acc");
 
   EXPECT_EQ(acc, counter);
+
+  engine.teardown();
+}
+
+
+TEST_F(Simulator_test, basic_fsm) {
+  sim::Simulation_engine engine("test/simulator_test/basic_fsm.cell", "test");
+
+  engine.setup();
+  auto intro = engine.inspect_module("test");
+
+  auto ctr = intro.get<int64_t>("ctr");
+  auto state = intro.get<int64_t>("state");
+
+  std::cout << "Module data members:\n";
+  for(auto obj : intro.module()->objects) {
+    std::cout << "   " << obj.first << '\n';
+  }
+  std::cout << std::endl;
+
+  EXPECT_EQ(0, ctr);
+  EXPECT_EQ(0, state);
+
+  engine.simulate(ir::Time(40, ir::Time::ns));
+
+  ctr = intro.get<int64_t>("ctr");
+  state = intro.get<int64_t>("state");
+
+  EXPECT_EQ(11, ctr);
+  EXPECT_EQ(3, state);
 
   engine.teardown();
 }
