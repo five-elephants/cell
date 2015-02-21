@@ -7,7 +7,7 @@
 #include <string>
 
 namespace ast {
-	
+
 	template<typename T>
 	class Literal_base : public Node_base {
 		public:
@@ -22,7 +22,7 @@ namespace ast {
 			T m_value;
 	};
 
-	
+
 	template<typename T>
 	class Literal : public Literal_base<T> {
 		public:
@@ -57,5 +57,6 @@ namespace ast {
 
 			virtual void visit() {}
 	};
+
 
 }

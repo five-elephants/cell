@@ -22,7 +22,7 @@ namespace ir {
         return it->second;
     }
 
-    return std::shared_ptr<T>(nullptr); 
+    return std::shared_ptr<T>(nullptr);
   }
 
 
@@ -37,7 +37,7 @@ namespace ir {
     }
     return rv;
   }
-  
+
 
   template<typename Impl = No_impl>
   std::shared_ptr<Type<Impl>> find_type(Namespace<Impl> const& ns,
@@ -149,9 +149,9 @@ namespace ir {
         }
       }
     }
-    
+
     // nothing found
-    return std::shared_ptr<Operator<Impl>>(nullptr); 
+    return std::shared_ptr<Operator<Impl>>(nullptr);
   }
 
 

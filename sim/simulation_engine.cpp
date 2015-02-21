@@ -53,8 +53,8 @@ namespace sim {
     init_builtins(m_lib);
 
     // print AST
-    //ast::Ast_printer printer(std::cout);
-    //driver.ast_root().accept(printer);
+    ast::Ast_printer printer(std::cout);
+    driver.ast_root().accept(printer);
 
     // generate code
     sim::Llvm_namespace_scanner scanner(*(m_lib->ns));
