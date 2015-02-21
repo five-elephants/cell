@@ -35,7 +35,7 @@ namespace sim {
         }
 
         char* this_ptr = this_in->data();
-        auto idx = std::distance(m_module->objects.begin(), it);
+        auto idx = it->second->impl.struct_index;
         auto ofs = m_layout->getElementOffset(idx);
 
         T rv;
@@ -57,8 +57,18 @@ namespace sim {
 
       /** get name from member index */
       ir::Label const& get_name(std::size_t idx) {
-        auto it = m_module->objects.begin();
-        std::advance(it, idx);
+        auto it = std::find_if(std::begin(m_module->objects),
+            std::end(m_module->objects),
+            [&idx](std::pair<ir::Label,std::shared_ptr<Llvm_object>> x) {
+              return x.second->impl.struct_index == idx;
+            });
+
+        if( it == std::end(m_module->objects) ) {
+          std::stringstream strm;
+          strm << "no element with index " << idx << " found in module";
+          throw std::runtime_error(strm.str());
+        }
+
         return it->first;
       }
 
