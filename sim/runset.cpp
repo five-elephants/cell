@@ -37,6 +37,17 @@ namespace sim {
       rv.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
     }
 
+    // call __init__ if it exists
+    auto init_f = mod->functions.find("__init__");
+    if( init_f != mod->functions.end() ) {
+      std::function<void(char*,char*,char*)> init_func;
+      void* ptr = exe->getPointerToFunction(init_f->second->impl.code);
+      typedef void Func(char*,char*,char*);
+      init_func = reinterpret_cast<Func*>(ptr);
+      init_func(rv.this_out->data(), rv.this_in->data(), rv.read_mask->data());
+      std::copy(rv.this_out->begin(), rv.this_out->end(), rv.this_in->begin());
+    }
+
     modules.push_back(std::move(rv));
   }
 
