@@ -1,5 +1,5 @@
 %skeleton "lalr1.cc"
-%require "2.5" 
+%require "2.5"
 %defines
 %define parser_class_name "Parser"
 
@@ -68,6 +68,7 @@
 %token        IF                      "if"
 %token        ELSE                    "else"
 %token        WHILE                   "while"
+%token        BANG                    "!"
 %token        COLON                   ":"
 %token        ARROW_RIGHT             "->"
 %token        COMMA                   ","
@@ -82,6 +83,8 @@
 %token        BIDIR2                  "bidir"
 %token        PROCESS                 "process"
 %token        PERIODIC                "periodic"
+%token        TRUE                    "true"
+%token        FALSE                   "false"
 
 %type <unit> unit
 %type <node> namespace
@@ -111,7 +114,9 @@
 %type <list> exp_list
 %type <list> exp_list_
 %type <node> literal
+%type <node> bool_literal
 %type <node> bin_exp
+%type <node> una_exp
 %type <node> exp
 %type <node> identifier
 %type <node> compound
@@ -147,7 +152,7 @@ namespace: "namespace" identifier "=" CURL_OPEN namespace_body CURL_CLOSE
                                   v->append(*$5);
                                   $$ = v;
                                 };
-namespace_body: namespace_body namespace_item 
+namespace_body: namespace_body namespace_item
                                 { $$ = $1; $1->push_back($2); }
     |                           { $$ = new ast::Node_list; };
 namespace_item: namespace       { $$ = $1; }
@@ -155,12 +160,12 @@ namespace_item: namespace       { $$ = $1; }
     | socket                    { $$ = $1; };
 
 module: "mod" identifier "=" CURL_OPEN module_body CURL_CLOSE
-                                 { 
+                                 {
                                   $$ = new ast::Module_def(*$2);
                                   $$->append(*$5);
                                  }
     | "mod" identifier ":" identifier "=" CURL_OPEN module_body CURL_CLOSE
-                                 { 
+                                 {
                                   $$ = new ast::Module_def(*$2);
                                   $$->socket(*$4);
                                   $$->append(*$7);
@@ -200,14 +205,14 @@ socket_direction: CMP_LT_EQ     { $$ = ast::Socket_input; }
 
 
 func: "def" identifier "(" func_params ")" "->" identifier "=" exp
-                                 { $$ = new ast::Function_def(*$2, *$7); 
+                                 { $$ = new ast::Function_def(*$2, *$7);
                                    $$->append_body(*$9);
                                    $$->append_parameter(*$4);
                                    $$->location(@$); }
 func: "def" identifier "(" func_params ")" "=" exp
-                                 { $$ = new ast::Function_def(*$2); 
+                                 { $$ = new ast::Function_def(*$2);
                                    $$->append_body(*$7);
-                                   $$->append_parameter(*$4); 
+                                   $$->append_parameter(*$4);
                                    $$->location(@$);}
 func_params: func_params_        { $$ = $1; }
   | func_params_ COMMA           { $$ = $1; };
@@ -228,15 +233,15 @@ connection_items: connection_items_
   | connection_items_ COMMA      { $$ = $1; }
   | identifier                   { $$ = new ast::Node_list; $$->push_back($1); }
   |                              { $$ = new ast::Node_list; };
-connection_items_: connection_items_ COMMA connection_item 
+connection_items_: connection_items_ COMMA connection_item
                                  { $$ = $1; $$->push_back($3); }
   | connection_item              { $$ = new ast::Node_list; $$->push_back($1); };
 connection_item: identifier ":" identifier
                                  { $$ = new ast::Connection_item(*$1, *$3); };
 
 
-var_def: "var" identifier "=" exp ":" type_identifier 
-                                 { 
+var_def: "var" identifier "=" exp ":" type_identifier
+                                 {
                                   $$ = new ast::Variable_def(*$2, *$6, *$4);
                                   $$->location(@$);
                                  }
@@ -265,18 +270,18 @@ statement: var_def               { $$ = $1; }
 compound: CURL_OPEN statements CURL_CLOSE
                                  { auto v = new ast::Compound(); v->statements(*$2); $$ = v; }
   | CURL_OPEN statements exp CURL_CLOSE
-                                 { 
+                                 {
                                     auto v = new ast::Compound();
                                     $2->push_back($3);
-                                    v->statements(*$2); 
+                                    v->statements(*$2);
                                     v->return_last(true);
                                     $$ = v;
                                  };
 
 
-if_statement: "if" PAREN_OPEN exp PAREN_CLOSE exp 
+if_statement: "if" PAREN_OPEN exp PAREN_CLOSE exp
                                  { $$ = new ast::If_statement(*$3, *$5); }
-  | "if" PAREN_OPEN exp PAREN_CLOSE exp "else" exp 
+  | "if" PAREN_OPEN exp PAREN_CLOSE exp "else" exp
                                  { auto v = new ast::If_statement(*$3, *$5); v->else_body(*$7); $$ = v; };
 while_statement: "while" PAREN_OPEN exp PAREN_CLOSE statement
                                  { $$ = new ast::While_statement(*$3, *$5); };
@@ -289,10 +294,18 @@ return_statement: "return" exp   { auto v = new ast::Return_statement({$2}); $$ 
 assignment: identifier "=" exp
                                  { auto v = new ast::Assignment(*$1, *$3); $$ = v; };
 
-literal: 
+literal:
   "number"                       { $$ = new ast::Literal<int>($1); }
   | "bitstring"                  { $$ = new ast::Bitstring_literal(*$1); }
-  | "string"                     { $$ = new ast::Literal<std::string>(*$1); };
+  | "string"                     { $$ = new ast::Literal<std::string>(*$1); }
+  | bool_literal                 { $$ = $1; };
+
+bool_literal:
+  "true"                         { $$ = new ast::Literal<bool>(true); }
+  | "false"                      { $$ = new ast::Literal<bool>(false); };
+
+una_exp:
+  "!" exp                        { $$ = new ast::Op_not(*$2); };
 
 bin_exp:
   exp '+' exp                    { $$ = new ast::Op_plus(*$1, *$3); }
@@ -311,8 +324,9 @@ exp_list: exp_list_              { $$ = $1; }
 exp_list_: exp_list_ COMMA exp   { $$ = $1; $1->push_back($3); }
   | exp                          { $$ = new ast::Node_list; $$->push_back($1); };
 
-exp: 
-  bin_exp                        { $$ = $1; }
+exp:
+  una_exp                        { $$ = $1; }
+  | bin_exp                      { $$ = $1; }
   | if_statement                 { $$ = $1; }
   | assignment                   { $$ = $1; }
   | compound                     { $$ = $1; }

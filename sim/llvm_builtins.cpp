@@ -2,7 +2,7 @@
 
 
 #define OP_LAMBDA \
-      [](llvm::IRBuilder<> bld, llvm::Value* left, llvm::Value* right) -> llvm::Value*  
+      [](llvm::IRBuilder<> bld, llvm::Value* left, llvm::Value* right) -> llvm::Value*
 
 static void add_operator(ir::Label const& name,
     ir::Label const& return_type_name,
@@ -17,7 +17,7 @@ static void add_operator(ir::Label const& name,
   op->left = builtin_types.at(left_name);
   op->right = builtin_types.at(right_name);
   op->impl.insert_func = insert_func;
-    
+
   ir::Builtins<sim::Llvm_impl>::operators.insert(std::make_pair(name, op));
 }
 
@@ -55,6 +55,9 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
       });
   add_operator("/", "int", "int", "int", OP_LAMBDA {
         return bld.CreateSDiv(left, right, "sdiv");
+      });
+  add_operator("!", "bool", "bool", "bool", OP_LAMBDA {
+        return bld.CreateNot(left, "not");
       });
 }
 

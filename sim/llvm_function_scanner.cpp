@@ -84,6 +84,8 @@ namespace sim {
     this->template on_leave_if_type<ast::Return_statement>(&Llvm_function_scanner::insert_return);
     this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
+    this->template on_visit_if_type<ast::Literal<bool>>(&Llvm_function_scanner::insert_literal_bool);
+    this->template on_leave_if_type<ast::Op_not>(&Llvm_function_scanner::insert_op_not);
     this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
     this->template on_leave_if_type<ast::Op_plus>(&Llvm_function_scanner::insert_op_plus);
     this->template on_leave_if_type<ast::Op_minus>(&Llvm_function_scanner::insert_op_minus);
@@ -206,6 +208,56 @@ namespace sim {
   }
 
 
+  bool
+  Llvm_function_scanner::insert_literal_bool(ast::Literal<bool> const& node) {
+    using namespace llvm;
+
+    auto v = ConstantInt::get(getGlobalContext(),
+        APInt(1, node.value(), true));
+    auto ty = ir::Builtins<Llvm_impl>::types.at("bool");
+    m_values[&node] = v;
+    m_types[&node] = ty;
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_not(ast::Op_not const& node) {
+    auto ty = m_types.at(&(node.operand()));
+    auto value = m_values.at(&(node.operand()));
+
+    if( m_type_targets.empty() )
+      throw std::runtime_error("Don't know return type for unary operator");
+
+    auto ret_ty = m_type_targets.back();
+
+    // select an operator
+    std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
+        "!",
+        ret_ty,
+        ty,
+        ty);
+
+    if( op ) {
+      auto v = op->impl.insert_func(m_builder, value, value);
+      m_values[&node] = v;
+      m_types[&node] = ret_ty;
+    } else {
+      std::stringstream strm;
+      strm << node.location() << ": failed to find operator '"
+        << "!" 
+        << "' with signature: ["
+        << ty->name
+        << "] -> ["
+        << ret_ty->name
+        << "]";
+      throw std::runtime_error(strm.str());
+    }
+
+    return true;
+  }
+
 
   bool
   Llvm_function_scanner::insert_op_equal(ast::Op_equal const& node) {
@@ -307,7 +359,8 @@ namespace sim {
         auto index = p->second->impl.struct_index;
         auto ptr_v = m_builder.CreateStructGEP(this_out, index, "elem_ptr");
 
-        m_values[&node] = m_builder.CreateStore(rval, ptr_v);
+        m_values[&node] = rval;
+        m_builder.CreateStore(rval, ptr_v);
         found = true;
       }
     }

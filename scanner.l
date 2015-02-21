@@ -81,6 +81,7 @@ blank      [ \t]
 "("         return token::PAREN_OPEN;
 ")"         return token::PAREN_CLOSE;
 "\""        return token::QUOTE;
+"!"         return token::BANG;
 ":"         return token::COLON;
 "->"        return token::ARROW_RIGHT;
 ","         return token::COMMA;
@@ -90,6 +91,8 @@ blank      [ \t]
 "bidir"     return token::BIDIR2;
 "process"   return token::PROCESS;
 "periodic"  return token::PERIODIC;
+"true"      return token::TRUE;
+"false"     return token::FALSE;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;

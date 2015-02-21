@@ -2,6 +2,7 @@
 
 #include "ast/socket_direction.h"
 #include "ast/empty_expression.h"
+#include "ast/unary_ops.h"
 #include "ast/bin_ops.h"
 #include "ast/literal.h"
 #include "ast/bitstring_literal.h"
