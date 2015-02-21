@@ -7,14 +7,14 @@ def options(opt):
     opt.load('bison')
     opt.load('boost')
     opt.load('swig')
-    opt.load('python')
+    #opt.load('python')
 
 def configure(conf):
     conf.load('compiler_cxx compiler_c boost bison flex swig')
-    conf.load('python')
+    #conf.load('python')
     #conf.check_tool('bison flex')
     conf.check_boost(lib='program_options serialization')
-    conf.check_python_headers()
+    #conf.check_python_headers()
     conf.check(lib='pthread', uselib_store='PTHREAD')
     #conf.check(lib='gtest', uselib_store='GTEST')
     #conf.check(lib='gtest_main', uselib_store='GTEST_MAIN')
