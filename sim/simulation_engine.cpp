@@ -321,13 +321,19 @@ namespace sim {
     for(ir::Time t=m_time; t<(m_time + duration); ) {
       t = simulate_step(t, duration);
 
-      //if( m_instrumenter ) {
-        //for(auto const& mod : m_modules) {
-          //auto num_elements = mod.mod->impl.mod_type->getNumElements();
+      if( m_instrumenter ) {
+        for(auto const& mod : m_runset.modules) {
+          auto num_elements = mod.mod->impl.mod_type->getNumElements();
           //Module_inspector insp(m_top_mod, mod.this_in, mod.layout, num_elements);
-          //m_instrumenter->module(t, insp);
-        //}
-      //}
+          auto layout = m_layout->getStructLayout(m_top_mod->impl.mod_type);
+          Module_inspector insp(m_top_mod,
+              layout,
+              num_elements,
+              m_exe,
+              m_runset);
+          m_instrumenter->module(t, insp);
+        }
+      }
     }
   }
 
