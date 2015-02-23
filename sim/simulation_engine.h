@@ -66,6 +66,7 @@ namespace sim {
         : Simulation_engine(filename, toplevel) {
       }
 
+      void setup();
       void simulate(ir::Time const& duration);
 
       void instrument(Instrumenter_if& instr) { m_instrumenter = &instr; }

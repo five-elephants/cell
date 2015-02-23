@@ -76,6 +76,7 @@ def build(bld):
       sim/runset.cpp
       sim/module_inspector.cpp
       sim/stream_instrumenter.cpp
+      sim/vcd_instrumenter.cpp
       sim/simulation_engine.cpp
       sim/compile.cpp
     """

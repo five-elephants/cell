@@ -317,6 +317,25 @@ namespace sim {
 
 
   void
+  Instrumented_simulation_engine::setup() {
+    Simulation_engine::setup();
+
+    if( m_instrumenter ) {
+      for(auto const& mod : m_runset.modules) {
+        auto num_elements = mod.mod->impl.mod_type->getNumElements();
+        auto layout = m_layout->getStructLayout(mod.mod->impl.mod_type);
+        Module_inspector insp(mod.mod,
+            layout,
+            num_elements,
+            m_exe,
+            m_runset);
+        m_instrumenter->module(ir::Time(0, ir::Time::ns), insp);
+      }
+    }
+  }
+
+
+  void
   Instrumented_simulation_engine::simulate(ir::Time const& duration) {
     for(ir::Time t=m_time; t<(m_time + duration); ) {
       t = simulate_step(t, duration);
@@ -324,9 +343,8 @@ namespace sim {
       if( m_instrumenter ) {
         for(auto const& mod : m_runset.modules) {
           auto num_elements = mod.mod->impl.mod_type->getNumElements();
-          //Module_inspector insp(m_top_mod, mod.this_in, mod.layout, num_elements);
-          auto layout = m_layout->getStructLayout(m_top_mod->impl.mod_type);
-          Module_inspector insp(m_top_mod,
+          auto layout = m_layout->getStructLayout(mod.mod->impl.mod_type);
+          Module_inspector insp(mod.mod,
               layout,
               num_elements,
               m_exe,

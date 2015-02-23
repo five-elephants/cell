@@ -2,6 +2,7 @@
 #include <llvm/ExecutionEngine/JIT.h>
 #include "sim/simulation_engine.h"
 #include "sim/stream_instrumenter.h"
+#include "sim/vcd_instrumenter.h"
 
 #include <gtest/gtest.h>
 
@@ -209,6 +210,18 @@ TEST_F(Simulator_test, basic_logging) {
   std::cout << "Loggin output:\n"
     << strm.str() << std::endl;
 }
+
+TEST_F(Simulator_test, vcd_logging) {
+  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test.basic_periodic");
+
+  sim::Vcd_instrumenter instr("simulator_test__vcd_logging.vcd");
+  engine.instrument(instr);
+
+  engine.setup();
+  engine.simulate(ir::Time(10, ir::Time::ns));
+  engine.teardown();
+}
+
 
 
 //TEST_F(Simulator_test, basic_array) {
