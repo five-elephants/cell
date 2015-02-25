@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <boost/dynamic_bitset.hpp>
 
 #include "time.h"
 
@@ -32,6 +33,7 @@ namespace ir {
   template<typename Impl> struct Library;
 
   typedef std::string Label;
+  typedef boost::dynamic_bitset<> Bitset;
 
   template<typename Impl = No_impl>
   struct Type {

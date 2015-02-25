@@ -30,6 +30,10 @@ TEST_F(Simulator_test, basic_process) {
   EXPECT_EQ(2, intro.get<int64_t>("b"));
   EXPECT_EQ(3, intro.get<int64_t>("c"));
 
+  std::cout << "Bits for a: "
+    << intro.get_bits(0)
+    << std::endl;
+
   engine.teardown();
 }
 
@@ -222,6 +226,18 @@ TEST_F(Simulator_test, vcd_logging) {
   engine.teardown();
 }
 
+
+TEST_F(Simulator_test, vcd_logging_fsm) {
+  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_fsm.cell",
+      "test");
+
+  sim::Vcd_instrumenter instr("simulator_test__vcd_logging_fsm.vcd");
+  engine.instrument(instr);
+
+  engine.setup();
+  engine.simulate(ir::Time(50, ir::Time::ns));
+  engine.teardown();
+}
 
 
 //TEST_F(Simulator_test, basic_array) {

@@ -55,8 +55,8 @@ namespace sim {
       }
 
 
-      /** get name from member index */
-      ir::Label const& get_name(std::size_t idx) {
+      /** return the IR object struct */
+      std::shared_ptr<Llvm_object> get_object(std::size_t idx) {
         auto it = std::find_if(std::begin(m_module->objects),
             std::end(m_module->objects),
             [&idx](std::pair<ir::Label,std::shared_ptr<Llvm_object>> x) {
@@ -69,8 +69,44 @@ namespace sim {
           throw std::runtime_error(strm.str());
         }
 
-        return it->first;
+        return it->second;
       }
+
+
+      /** get the bit representation */
+      ir::Bitset get_bits(std::size_t idx) {
+        llvm::Type* ty = get_object(idx)->type->impl.type;
+        auto lay = m_exe->getDataLayout();
+        auto bit_sz = lay->getTypeSizeInBits(ty);
+        auto byte_sz = bit_sz / 8;
+        auto ofs = m_layout->getElementOffset(idx);
+
+        auto a = reinterpret_cast<ir::Bitset::block_type*>(
+            this_in->data() + ofs
+          );
+        auto b = reinterpret_cast<ir::Bitset::block_type*>(
+            this_in->data() + ofs + byte_sz
+          );
+
+        ir::Bitset rv(bit_sz);
+        boost::from_block_range(a, b, rv);
+
+        return rv;
+      }
+
+
+
+      /** get name from member index */
+      ir::Label const& get_name(std::size_t idx) {
+        return get_object(idx)->name;
+      }
+
+
+      /** get type name from member index */
+      ir::Label const& get_type_name(std::size_t idx) {
+        return get_object(idx)->type->name;
+      }
+
 
       /** get number of member variables */
       unsigned num_elements() const { return m_num_elements; }
