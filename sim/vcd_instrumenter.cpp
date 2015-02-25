@@ -47,7 +47,12 @@ namespace sim {
       << " $end\n";
 
     for(std::size_t i=0; i<insp.num_elements(); ++i) {
-      os << "$var integer 64 "
+      auto bits = insp.get_bits(i);
+
+      os << "$var "
+        << "integer "
+        << bits.size()
+        << ' '
         << reference(i)
         << ' '
         << insp.get_name(i)
@@ -59,15 +64,15 @@ namespace sim {
     os << "$dumpvars\n";
 
     for(std::size_t i=0; i<insp.num_elements(); ++i) {
+
       os << 'b'
-        << std::bitset<64>(insp.get<int64_t>(i))
+        << insp.get_bits(i)
         << ' '
         << reference(i)
         << '\n';
     }
 
     os << "$end\n";
-
   }
 
 
