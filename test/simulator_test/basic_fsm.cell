@@ -7,15 +7,14 @@ mod test = {
 
 
   def __init__() = {
-    state = 0;
+    state = 1;
     ctr = 0;
-    reset = true;
+    reset = false;
     clk = false;
   }
 
 
   periodic(2 ns) = {
-    reset = false;
     clk = !clk;
   }
 

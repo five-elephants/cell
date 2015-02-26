@@ -76,11 +76,11 @@ TEST_F(Simulator_test, basic_fsm) {
   auto clk_bits = intro.get_bits("clk");
   std::cout << "clk: " << clk_bits << std::endl;
 
-  EXPECT_TRUE(reset_bits[0]);
-  EXPECT_EQ(true, intro.get<bool>("reset"));
-  EXPECT_EQ(false, intro.get<bool>("clk"));
+  EXPECT_FALSE(reset_bits[0]);
+  EXPECT_FALSE(intro.get<bool>("reset"));
+  EXPECT_FALSE(intro.get<bool>("clk"));
   EXPECT_EQ(0, ctr);
-  EXPECT_EQ(0, state);
+  EXPECT_EQ(1, state);
 
   engine.simulate(ir::Time(40, ir::Time::ns));
 

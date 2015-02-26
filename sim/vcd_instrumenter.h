@@ -19,8 +19,21 @@ namespace sim {
       std::ofstream m_os;
       bool m_initial = true;
 
-      char reference(std::size_t i) const {
-        return 33 + i;
+      std::string reference(std::size_t i) const {
+        static char const lowest = 33;
+        static char const highest = 126;
+        static std::size_t const num_codes = highest - lowest;
+
+        std::string rv;
+
+        rv.reserve(i / num_codes + 1);
+
+        for(std::size_t j = 0; j < (i / num_codes); ++j)
+          rv.push_back(highest);
+
+        rv.push_back(lowest + (i % num_codes));
+
+        return rv;
       }
 
       virtual void write_vcd_header(std::ostream& os);
