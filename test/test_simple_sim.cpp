@@ -69,6 +69,16 @@ TEST_F(Simulator_test, basic_fsm) {
   }
   std::cout << std::endl;
 
+  auto module_bits = intro.get_bits();
+  std::cout << "module: " << module_bits << std::endl;
+  auto reset_bits = intro.get_bits("reset");
+  std::cout << "reset: " << reset_bits << std::endl;
+  auto clk_bits = intro.get_bits("clk");
+  std::cout << "clk: " << clk_bits << std::endl;
+
+  EXPECT_TRUE(reset_bits[0]);
+  EXPECT_EQ(true, intro.get<bool>("reset"));
+  EXPECT_EQ(false, intro.get<bool>("clk"));
   EXPECT_EQ(0, ctr);
   EXPECT_EQ(0, state);
 

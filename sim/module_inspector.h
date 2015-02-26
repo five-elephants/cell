@@ -77,23 +77,53 @@ namespace sim {
       ir::Bitset get_bits(std::size_t idx) {
         llvm::Type* ty = get_object(idx)->type->impl.type;
         auto lay = m_exe->getDataLayout();
-        auto bit_sz = lay->getTypeSizeInBits(ty);
+        auto bit_sz = lay->getTypeAllocSizeInBits(ty);
         auto byte_sz = bit_sz / 8;
         auto ofs = m_layout->getElementOffset(idx);
 
+        ir::Bitset rv(bit_sz);
+        char* ptr = this_in->data() + ofs;
+        for(std::size_t i=0; i<bit_sz; i++) {
+          auto bit_i = i % 8;
+          rv[i] = (*ptr >> bit_i) & 1;
+
+          if( bit_i == 7 )
+            ++ptr;
+        }
+
+        return rv;
+      }
+
+
+      /** get the bit representation of the full module */
+      ir::Bitset get_bits() {
         auto a = reinterpret_cast<ir::Bitset::block_type*>(
-            this_in->data() + ofs
+            this_in->data()
           );
         auto b = reinterpret_cast<ir::Bitset::block_type*>(
-            this_in->data() + ofs + byte_sz
+            this_in->data() + this_in->size() - 1
           );
 
-        ir::Bitset rv(bit_sz);
+        ir::Bitset rv(8 * this_in->size());
         boost::from_block_range(a, b, rv);
 
         return rv;
       }
 
+
+      ir::Bitset get_bits(ir::Label const& var_name) {
+        auto it = m_module->objects.find(var_name);
+        if( it == m_module->objects.end() ) {
+          std::stringstream strm;
+          strm << "object '" << var_name << "' requested for introspection"
+            " not found in module '"
+            << m_module->name << "'";
+          throw std::runtime_error(strm.str());
+        }
+
+        auto idx = it->second->impl.struct_index;
+        return get_bits(idx);
+      }
 
 
       /** get name from member index */
