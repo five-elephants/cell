@@ -77,13 +77,14 @@ namespace sim {
       ir::Bitset get_bits(std::size_t idx) {
         llvm::Type* ty = get_object(idx)->type->impl.type;
         auto lay = m_exe->getDataLayout();
-        auto bit_sz = lay->getTypeAllocSizeInBits(ty);
+        auto bit_sz = lay->getTypeSizeInBits(ty);
+        auto alloc_bit_sz = lay->getTypeAllocSizeInBits(ty);
         auto byte_sz = bit_sz / 8;
         auto ofs = m_layout->getElementOffset(idx);
 
-        ir::Bitset rv(bit_sz);
+        ir::Bitset rv(alloc_bit_sz);
         char* ptr = this_in->data() + ofs;
-        for(std::size_t i=0; i<bit_sz; i++) {
+        for(std::size_t i=0; i<alloc_bit_sz; i++) {
           auto bit_i = i % 8;
           rv[i] = (*ptr >> bit_i) & 1;
 
@@ -91,6 +92,7 @@ namespace sim {
             ++ptr;
         }
 
+        rv.resize(bit_sz);
         return rv;
       }
 
