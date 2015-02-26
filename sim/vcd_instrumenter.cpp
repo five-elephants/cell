@@ -15,14 +15,13 @@ namespace sim {
         << "' for writing";
       throw std::runtime_error(strm.str());
     }
-
-    write_vcd_header(m_os);
   }
 
 
   void
   Vcd_instrumenter::module(ir::Time const& t, Module_inspector& insp) {
     if( m_initial ) {
+      write_vcd_header(m_os, t);
       write_signal_list(m_os, insp);
       m_initial = false;
     } else {
@@ -32,11 +31,38 @@ namespace sim {
 
 
   void
-  Vcd_instrumenter::write_vcd_header(std::ostream& os) {
+  Vcd_instrumenter::write_vcd_header(std::ostream& os, ir::Time const& t) {
     os << "$date today $end\n";
     os << "$version CELL's VCD instrumenter v0.0 $end\n";
     os << "$comment $end\n";
-    os << "$timescale 1ps $end\n";
+    os << "$timescale ";
+
+    switch(t.magnitude) {
+      case ir::Time::s:
+        os << "1 s";
+        break;
+
+      case ir::Time::ms:
+        os << "1 ms";
+        break;
+
+      case ir::Time::us:
+        os << "1 us";
+        break;
+
+      case ir::Time::ns:
+        os << "1 ns";
+        break;
+
+      case ir::Time::ps:
+        os << "1 ps";
+        break;
+
+      default:
+        throw std::runtime_error("Unsupported timescale");
+    }
+
+    os << " $end\n";
   }
 
 

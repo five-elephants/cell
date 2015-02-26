@@ -36,7 +36,7 @@ namespace sim {
         return rv;
       }
 
-      virtual void write_vcd_header(std::ostream& os);
+      virtual void write_vcd_header(std::ostream& os, ir::Time const& t);
       virtual void write_signal_list(std::ostream& os, Module_inspector& insp);
       virtual void write_update(std::ostream& os,
           ir::Time const& t,
