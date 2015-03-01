@@ -100,7 +100,7 @@ TEST(Codegen_test, functions) {
 
   // LLVM initialization
   llvm::InitializeNativeTarget();
-  
+
   // init builtins
   init_builtins(lib);
 
@@ -129,7 +129,7 @@ TEST(Codegen_test, functions) {
     string err_str;
     exe_bld.setErrorStr(&err_str);
     exe_bld.setEngineKind(EngineKind::JIT);
-    
+
     ExecutionEngine* exe = exe_bld.create();
     if( !exe ) {
       stringstream strm;
@@ -169,13 +169,14 @@ TEST(Codegen_test, functions) {
         throw std::runtime_error("Failed to find function 'main.m.test'");
 
       void* ptr = exe->getPointerToFunction(test_func);
-      bool(*testf)(char*,char*,char*,int a, int b) = (bool(*)(char*, char*, char*, int, int))(ptr);
+      bool(*testf)(char*,char*,char*,char*,int a, int b) =
+          (bool(*)(char*, char*, char*, char*, int, int))(ptr);
 
-      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 1, 1), true);
-      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 1, 0), false);
-      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 5, 1), false);
-      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, -5, 5), false);
-      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, read_mask_ptr, 5, 5), true);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, mod_b_ptr, read_mask_ptr, 1, 1), true);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, mod_b_ptr, read_mask_ptr, 1, 0), false);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, mod_b_ptr, read_mask_ptr, 5, 1), false);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, mod_b_ptr, read_mask_ptr, -5, 5), false);
+      ASSERT_EQ(testf(mod_a_ptr, mod_b_ptr, mod_b_ptr, read_mask_ptr, 5, 5), true);
     }
 
   }

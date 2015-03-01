@@ -477,6 +477,7 @@ namespace sim {
     if( func->within_module ) {
       args.push_back(m_named_values.at("this_out"));
       args.push_back(m_named_values.at("this_in"));
+      args.push_back(m_named_values.at("this_prev"));
       args.push_back(m_named_values.at("read_mask"));
     }
 

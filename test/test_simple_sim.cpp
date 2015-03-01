@@ -114,7 +114,8 @@ TEST_F(Simulator_test, functions) {
   bool tmpb;
   auto insp = engine.inspect_module("m");
 
-  auto addf = std::bind(insp.get_function_ptr<int(char*,char*,char*,int,int)>("add"),
+  auto addf = std::bind(insp.get_function_ptr<int(char*,char*,char*,char*,int,int)>("add"),
+      nullptr,
       nullptr,
       nullptr,
       nullptr,
@@ -129,7 +130,8 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(3, tmp);
 
 
-  auto testf = std::bind(insp.get_function_ptr<bool(char*,char*,char*,int,int)>("test"),
+  auto testf = std::bind(insp.get_function_ptr<bool(char*,char*,char*,char*,int,int)>("test"),
+      nullptr,
       nullptr,
       nullptr,
       nullptr,
@@ -146,7 +148,8 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(tmpb, false);
 
 
-  auto condf = std::bind(insp.get_function_ptr<int(char*,char*,char*,bool,int,int)>("cond"),
+  auto condf = std::bind(insp.get_function_ptr<int(char*,char*,char*,char*,bool,int,int)>("cond"),
+      nullptr,
       nullptr,
       nullptr,
       nullptr,
@@ -161,7 +164,8 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(tmp, 1);
 
 
-  auto cond2f = std::bind(insp.get_function_ptr<int(char*,char*,char*,bool,int)>("cond2"),
+  auto cond2f = std::bind(insp.get_function_ptr<int(char*,char*,char*,char*,bool,int)>("cond2"),
+      nullptr,
       nullptr,
       nullptr,
       nullptr,
@@ -171,7 +175,8 @@ TEST_F(Simulator_test, functions) {
   ASSERT_EQ(cond2f(true, 3), 6);
   ASSERT_EQ(cond2f(false, 3), 3);
 
-  auto facf = std::bind(insp.get_function_ptr<int(char*,char*,char*,int)>("fac"),
+  auto facf = std::bind(insp.get_function_ptr<int(char*,char*,char*,char*,int)>("fac"),
+      nullptr,
       nullptr,
       nullptr,
       nullptr,
@@ -255,5 +260,5 @@ TEST_F(Simulator_test, vcd_logging_fsm) {
 
   //engine.setup();
   //engine.simulate(ir::Time(10, ir::Time::ns));
-  //engine.teardown();  
+  //engine.teardown();
 //}
