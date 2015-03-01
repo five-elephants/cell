@@ -82,7 +82,7 @@ TEST_F(Simulator_test, basic_fsm) {
   EXPECT_EQ(0, ctr);
   EXPECT_EQ(1, state);
 
-  engine.simulate(ir::Time(40, ir::Time::ns));
+  engine.simulate(ir::Time(50, ir::Time::ns));
 
   ctr = intro.get<int64_t>("ctr");
   state = intro.get<int64_t>("state");
