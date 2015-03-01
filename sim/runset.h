@@ -50,6 +50,7 @@ namespace sim {
         std::shared_ptr<Llvm_module> mod;
         Module_frame this_in;
         Module_frame this_out;
+        Module_frame this_prev;
         Read_mask read_mask;
         llvm::StructLayout const* layout = nullptr;
         Process_list processes;

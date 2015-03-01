@@ -12,6 +12,8 @@ namespace sim {
     std::fill(rv.this_in->begin(), rv.this_in->end(), 0);
     rv.this_out = allocate_module_frame(mod);
     std::fill(rv.this_out->begin(), rv.this_out->end(), 0);
+    rv.this_prev = allocate_module_frame(mod);
+    std::fill(rv.this_prev->begin(), rv.this_prev->end(), 0);
     rv.read_mask = allocate_read_mask(mod);
     rv.sensitivity.resize(mod->impl.mod_type->getNumElements());
     rv.layout = m_layout->getStructLayout(mod->impl.mod_type);
@@ -40,12 +42,16 @@ namespace sim {
     // call __init__ if it exists
     auto init_f = mod->functions.find("__init__");
     if( init_f != mod->functions.end() ) {
-      std::function<void(char*,char*,char*)> init_func;
+      std::function<void(char*,char*,char*,char*)> init_func;
       void* ptr = exe->getPointerToFunction(init_f->second->impl.code);
-      typedef void Func(char*,char*,char*);
+      typedef void Func(char*,char*,char*,char*);
       init_func = reinterpret_cast<Func*>(ptr);
-      init_func(rv.this_out->data(), rv.this_in->data(), rv.read_mask->data());
+      init_func(rv.this_out->data(),
+          rv.this_in->data(),
+          rv.this_prev->data(),
+          rv.read_mask->data());
       std::copy(rv.this_out->begin(), rv.this_out->end(), rv.this_in->begin());
+      std::copy(rv.this_out->begin(), rv.this_out->end(), rv.this_prev->begin());
     }
 
     modules.push_back(std::move(rv));

@@ -151,11 +151,12 @@ namespace sim {
        * */
       template<typename Ret, typename ... Args>
       void call(Ret& ret, ir::Label const& name, Args ... args) {
-        auto raw_func = get_function_ptr<Ret(char*,char*,char*,Args...)>(name);
+        auto raw_func = get_function_ptr<Ret(char*,char*,char*,char*,Args...)>(name);
 
         std::copy(this_in->begin(), this_in->end(), this_out->begin());
 
         ret = raw_func(this_out->data(),
+            this_in->data(),
             this_in->data(),
             read_mask->data(),
             args...);
@@ -171,13 +172,14 @@ namespace sim {
        * */
       template<typename ... Args>
       void call(ir::Label const& name, Args ... args) {
-        auto raw_func = get_function_ptr<void(char*,char*,char*,Args...)>(name);
+        auto raw_func = get_function_ptr<void(char*,char*,char*,char*,Args...)>(name);
         auto this_out = m_runset.allocate_module_frame(m_module);
         auto read_mask = m_runset.allocate_read_mask(m_module);
 
         std::copy(this_in->begin(), this_in->end(), this_out->begin());
 
         raw_func(this_out->data(),
+            this_in->data(),
             this_in->data(),
             read_mask->data(),
             args...);

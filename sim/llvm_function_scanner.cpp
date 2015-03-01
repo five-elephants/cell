@@ -55,6 +55,8 @@ namespace sim {
       m_named_values["this_out"] = arg_i;
       (++arg_i)->setName("this_in");
       m_named_values["this_in"] = arg_i;
+      (++arg_i)->setName("this_prev");
+      m_named_values["this_prev"] = arg_i;
       (++arg_i)->setName("read_mask");
       m_named_values["read_mask"] = arg_i;
     }
@@ -111,6 +113,7 @@ namespace sim {
 
     if( m_mod ) {
       auto r = PointerType::getUnqual(m_mod->impl.mod_type);
+      args.push_back(r);
       args.push_back(r);
       args.push_back(r);
       args.push_back(PointerType::getUnqual(read_mask_type()));

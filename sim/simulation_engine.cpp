@@ -219,6 +219,11 @@ namespace sim {
       rerun = simulate_cycle();
     } while( (cycle++ < max_cycles) && rerun );
 
+    // update this_prev module frame
+    for(auto& mod : m_runset.modules) {
+      std::copy(mod.this_out->begin(), mod.this_out->end(), mod.this_prev->begin());
+    }
+
     return next_t;
   }
 
@@ -235,9 +240,10 @@ namespace sim {
         cout << "calling process..." << endl;
         if( proc.sensitive )
           std::fill(mod.read_mask->begin(), mod.read_mask->end(), 0);
-        auto exe_ptr = reinterpret_cast<void (*)(char*, char*, char*)>(proc.exe_ptr);
+        auto exe_ptr = reinterpret_cast<void (*)(char*, char*, char*,char*)>(proc.exe_ptr);
         exe_ptr(mod.this_out->data(),
             mod.this_in->data(),
+            mod.this_prev->data(),
             mod.read_mask->data());
 
         if( proc.sensitive ) {
