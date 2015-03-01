@@ -69,6 +69,7 @@
 %token        ELSE                    "else"
 %token        WHILE                   "while"
 %token        BANG                    "!"
+%token        AT                      "@"
 %token        COLON                   ":"
 %token        ARROW_RIGHT             "->"
 %token        COMMA                   ","
@@ -305,7 +306,8 @@ bool_literal:
   | "false"                      { $$ = new ast::Literal<bool>(false); };
 
 una_exp:
-  "!" exp                        { $$ = new ast::Op_not(*$2); };
+  "!" exp                        { $$ = new ast::Op_not(*$2); }
+  | "@" var_ref                  { $$ = new ast::Op_at(*$2); };
 
 bin_exp:
   exp '+' exp                    { $$ = new ast::Op_plus(*$1, *$3); }

@@ -87,6 +87,7 @@ namespace sim {
     this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
     this->template on_visit_if_type<ast::Literal<bool>>(&Llvm_function_scanner::insert_literal_bool);
+    this->template on_leave_if_type<ast::Op_at>(&Llvm_function_scanner::insert_op_at);
     this->template on_leave_if_type<ast::Op_not>(&Llvm_function_scanner::insert_op_not);
     this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
     this->template on_leave_if_type<ast::Op_plus>(&Llvm_function_scanner::insert_op_plus);
@@ -235,6 +236,63 @@ namespace sim {
 
 
   bool
+  Llvm_function_scanner::insert_op_at(ast::Op_at const& node) {
+    auto ty = m_types.at(&(node.operand()));
+    auto value = m_values.at(&(node.operand()));
+
+    if( !m_mod )
+      throw std::runtime_error("Cannot use operator '@' outside of module");
+
+    if( m_type_targets.empty() )
+      throw std::runtime_error("Don't know return type for unary operator");
+
+    auto ret_ty = m_type_targets.back();
+
+    // select an operator
+    std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
+        "@",
+        ret_ty,
+        ty,
+        ty);
+
+    if( op ) {
+      // get previous value of operand
+      auto operand = dynamic_cast<ast::Variable_ref const&>(node.operand());
+      auto operand_id = dynamic_cast<ast::Identifier const&>(operand.identifier());
+      auto p = m_mod->objects.find(operand_id.identifier());
+      if( p != m_mod->objects.end() ) {
+        auto this_prev = m_named_values.at("this_prev");
+        auto index = p->second->impl.struct_index;
+        auto ptr_v = m_builder.CreateStructGEP(this_prev,
+            index,
+            std::string("elem_ptr_prev_") + operand_id.identifier());
+        auto prev_val = m_builder.CreateLoad(ptr_v,
+            std::string("mod_load_prev_") + operand_id.identifier());
+
+        auto v = op->impl.insert_func(m_builder, value, prev_val);
+        m_values[&node] = v;
+        m_types[&node] = ret_ty;
+      } else {
+        throw std::runtime_error("This is basically impossible!");
+      }
+
+    } else {
+      std::stringstream strm;
+      strm << node.location() << ": failed to find operator '"
+        << "@"
+        << "' with signature: ["
+        << ty->name
+        << "] -> ["
+        << ret_ty->name
+        << "]";
+      throw std::runtime_error(strm.str());
+    }
+
+    return true;
+  }
+
+
+  bool
   Llvm_function_scanner::insert_op_not(ast::Op_not const& node) {
     auto ty = m_types.at(&(node.operand()));
     auto value = m_values.at(&(node.operand()));
@@ -258,7 +316,7 @@ namespace sim {
     } else {
       std::stringstream strm;
       strm << node.location() << ": failed to find operator '"
-        << "!" 
+        << "!"
         << "' with signature: ["
         << ty->name
         << "] -> ["

@@ -220,9 +220,9 @@ namespace sim {
     } while( (cycle++ < max_cycles) && rerun );
 
     // update this_prev module frame
-    for(auto& mod : m_runset.modules) {
-      std::copy(mod.this_out->begin(), mod.this_out->end(), mod.this_prev->begin());
-    }
+    //for(auto& mod : m_runset.modules) {
+      //std::copy(mod.this_out->begin(), mod.this_out->end(), mod.this_prev->begin());
+    //}
 
     return next_t;
   }
@@ -287,11 +287,17 @@ namespace sim {
         }
       }
 
+      // safe this_in to this_prev frame
+      std::copy(mod.this_in->begin(),
+          mod.this_in->end(),
+          mod.this_prev->begin());
+
       if( mod_modified )
         copy(ptr_out, ptr_out + size, ptr_in);
 
       if( !mod.run_list.empty() )
         rerun = true;
+
     }
 
 

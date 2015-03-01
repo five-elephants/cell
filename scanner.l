@@ -82,6 +82,7 @@ blank      [ \t]
 ")"         return token::PAREN_CLOSE;
 "\""        return token::QUOTE;
 "!"         return token::BANG;
+"@"         return token::AT;
 ":"         return token::COLON;
 "->"        return token::ARROW_RIGHT;
 ","         return token::COMMA;
