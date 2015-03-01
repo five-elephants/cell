@@ -161,7 +161,9 @@ namespace sim {
     auto p = m_named_values.find(id.identifier());
 
     if( p != m_named_values.end() ) {
-      m_values[&node] = m_builder.CreateLoad(p->second, "loadtmp");
+      std::string twine("load_");
+      twine += id.identifier();
+      m_values[&node] = m_builder.CreateLoad(p->second, twine);
       m_types[&node] = m_named_types.at(id.identifier());
       found = true;
     } else if( m_mod ) {
@@ -170,15 +172,22 @@ namespace sim {
       if( p != m_mod->objects.end() ) {
         auto this_in = m_named_values.at("this_in");
         auto index = p->second->impl.struct_index;
-        auto ptr_v = m_builder.CreateStructGEP(this_in, index, "elem_ptr");
+        std::string twine("elem_ptr_");
+        twine += id.identifier();
+        auto ptr_v = m_builder.CreateStructGEP(this_in, index, twine);
 
-        m_values[&node] = m_builder.CreateLoad(ptr_v, "mod_loadtmp");
+        std::string twine2("mod_load_");
+        twine2 += id.identifier();
+        m_values[&node] = m_builder.CreateLoad(ptr_v, twine2);
         m_types[&node] = p->second->type;
         found = true;
 
         // log read access in read_mask
         auto read_mask = m_named_values.at("read_mask");
-        auto read_mask_elem = m_builder.CreateConstGEP2_32(read_mask, 0, index, "read_mask_elem");
+        auto read_mask_elem = m_builder.CreateConstGEP2_32(read_mask,
+            0,
+            index,
+            std::string("read_mask_elem_") + id.identifier());
         m_builder.CreateStore(llvm::ConstantInt::get(llvm::getGlobalContext(),
               llvm::APInt(1, 1, false)), read_mask_elem);
       }
