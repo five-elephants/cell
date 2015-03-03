@@ -9,15 +9,21 @@ mod test = {
   def __init__() = {
     state = 1;
     ctr = 0;
-    reset = false;
+    reset = true;
     clk = false;
   }
-
 
   periodic(2 ns) = {
     clk = !clk;
   }
 
+  once(10 ns) = {
+    reset = false;
+  }
+
+  /*recurrent(t) = {*/
+    /*t + 10 ns;*/
+  /*}*/
 
   process = {
     if( reset ) {

@@ -39,6 +39,16 @@ namespace sim {
       rv.schedule.insert(std::make_pair(proc->period, std::make_tuple(proc->period, p)));
     }
 
+    for(auto proc : mod->onces) {
+      Process p;
+      p.function = proc->function->impl.code;
+      p.exe_ptr = exe->getPointerToFunction(p.function);
+      p.sensitive = false;
+
+      rv.schedule.insert(std::make_pair(proc->time,
+            std::make_tuple(ir::Time(0, ir::Time::ns), p)));
+    }
+
     // call __init__ if it exists
     auto init_f = mod->functions.find("__init__");
     if( init_f != mod->functions.end() ) {

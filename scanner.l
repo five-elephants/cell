@@ -92,6 +92,7 @@ blank      [ \t]
 "bidir"     return token::BIDIR2;
 "process"   return token::PROCESS;
 "periodic"  return token::PERIODIC;
+"once"      return token::ONCE;
 "true"      return token::TRUE;
 "false"     return token::FALSE;
 {int}       {

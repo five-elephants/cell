@@ -98,6 +98,23 @@ namespace sim {
 
 
   bool
+  Llvm_module_scanner::insert_once(ast::Once const& node) {
+    auto once = std::make_shared<ir::Once<Llvm_impl>>();
+    once->time = ir::Time(10, ir::Time::ns);
+    m_mod.onces.push_back(once);
+
+    auto func = std::make_shared<Llvm_function>();
+    func->name = "__once__";
+    func->return_type = ir::Builtins<Llvm_impl>::types.at("unit");
+    func->within_module = true;
+    m_todo_functions.push_back(std::make_tuple(func, &node));
+    once->function = func;
+
+    return false;
+  }
+
+
+  bool
   Llvm_module_scanner::leave_module(ast::Module_def const& node) {
     m_mod.impl.mod_type->setBody(m_member_types);
 

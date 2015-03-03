@@ -40,6 +40,7 @@ namespace sim {
 
     struct Process {};
     struct Periodic {};
+    struct Once {};
     struct Socket {};
     struct Namespace {};
 

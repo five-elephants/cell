@@ -19,6 +19,7 @@ namespace ir {
     struct Function {};
     struct Process {};
     struct Periodic {};
+    struct Once {};
     struct Socket {};
     struct Namespace {};
     struct Module {};
@@ -113,6 +114,13 @@ namespace ir {
     typename Impl::Periodic impl;
   };
 
+  template<typename Impl = No_impl>
+  struct Once : public Process<Impl> {
+    Time time;
+
+    typename Impl::Once impl;
+  };
+
   enum class Direction {
     Input,
     Output,
@@ -193,6 +201,7 @@ namespace ir {
     std::map<Label, std::shared_ptr<Instantiation<Impl>>> instantiations;
     std::vector<std::shared_ptr<Process<Impl>>> processes;
     std::vector<std::shared_ptr<Periodic<Impl>>> periodicals;
+    std::vector<std::shared_ptr<Once<Impl>>> onces;
     //std::shared_ptr<Codeblock_if> constructor_code;
 
     typename Impl::Module impl;

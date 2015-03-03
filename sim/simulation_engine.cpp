@@ -197,7 +197,9 @@ namespace sim {
         auto period = std::get<0>(it->second);
         auto proc = std::get<1>(it->second);
         mod.run_list.insert(proc);
-        new_schedules.push_back(std::make_pair(t + period, it->second));
+
+        if( period.v > 0 )
+          new_schedules.push_back(std::make_pair(t + period, it->second));
       }
 
       mod.schedule.erase(timed_procs_range.first, timed_procs_range.second);

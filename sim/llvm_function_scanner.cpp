@@ -102,6 +102,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Function_def>(&Llvm_function_scanner::leave_function_def);
     this->template on_leave_if_type<ast::Process>(&Llvm_function_scanner::leave_process);
     this->template on_leave_if_type<ast::Periodic>(&Llvm_function_scanner::leave_periodic);
+    this->template on_leave_if_type<ast::Once>(&Llvm_function_scanner::leave_once);
   }
 
 
@@ -586,6 +587,17 @@ namespace sim {
 
   bool
   Llvm_function_scanner::leave_periodic(ast::Periodic const& node) {
+    auto ty = ir::Builtins<Llvm_impl>::types.at("unit");
+    auto v = llvm::Constant::getNullValue(ty->impl.type);
+    m_values[&node] = m_builder.CreateRet(v);
+    m_type_targets.pop_back();
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_once(ast::Once const& node) {
     auto ty = ir::Builtins<Llvm_impl>::types.at("unit");
     auto v = llvm::Constant::getNullValue(ty->impl.type);
     m_values[&node] = m_builder.CreateRet(v);

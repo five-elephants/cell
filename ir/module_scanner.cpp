@@ -181,14 +181,19 @@ namespace ir {
     auto rv = std::make_shared<Periodic<Impl>>();
 
     rv->period = Time(2, Time::ns);
-
-    // generate code for process body
-    //auto cb = make_codeblock();
-    //cb->process(rv);
-    //cb->scan_ast(node.body());
-    //rv->code = cb;
-
     m_mod.periodicals.push_back(rv);
+
+    return false;
+  }
+
+
+  template<typename Impl>
+  bool
+  Module_scanner<Impl>::insert_once(ast::Once const& node) {
+    auto rv = std::make_shared<Once<Impl>>();
+
+    rv->time = Time(2, Time::ns);
+    m_mod.onces.push_back(rv);
 
     return false;
   }

@@ -84,6 +84,7 @@
 %token        BIDIR2                  "bidir"
 %token        PROCESS                 "process"
 %token        PERIODIC                "periodic"
+%token        ONCE                    "once"
 %token        TRUE                    "true"
 %token        FALSE                   "false"
 
@@ -108,6 +109,7 @@
 %type <node> connection_item
 %type <node> process
 %type <node> periodic
+%type <node> once
 %type <node> var_def
 %type <list> statements
 %type <node> statement
@@ -185,7 +187,8 @@ module_item: var_def             { $$ = $1; }
   | func                         { $$ = $1; }
   | mod_inst                     { $$ = $1; }
   | process                      { $$ = $1; }
-  | periodic                     { $$ = $1; };
+  | periodic                     { $$ = $1; }
+  | once                         { $$ = $1; };
 
 
 socket: SOCKET identifier "=" CURL_OPEN socket_body CURL_CLOSE
@@ -254,6 +257,8 @@ var_def: "var" identifier "=" exp ":" type_identifier
 process: "process" "=" statement { $$ = new ast::Process(*$3); };
 periodic: "periodic" "(" exp identifier ")" "=" statement
                                  { auto v = new ast::Periodic(*$3, *$4, *$7); $$ = v; };
+once: "once" "(" exp identifier ")" "=" statement
+                                 { $$ = new ast::Once(*$3, *$4, *$7); };
 
 statements: statements statement ";" { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };
