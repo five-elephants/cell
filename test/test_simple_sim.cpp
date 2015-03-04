@@ -76,13 +76,13 @@ TEST_F(Simulator_test, basic_fsm) {
   auto clk_bits = intro.get_bits("clk");
   std::cout << "clk: " << clk_bits << std::endl;
 
-  EXPECT_FALSE(reset_bits[0]);
-  EXPECT_FALSE(intro.get<bool>("reset"));
+  EXPECT_TRUE(reset_bits[0]);
+  EXPECT_TRUE(intro.get<bool>("reset"));
   EXPECT_FALSE(intro.get<bool>("clk"));
   EXPECT_EQ(0, ctr);
   EXPECT_EQ(1, state);
 
-  engine.simulate(ir::Time(50, ir::Time::ns));
+  engine.simulate(ir::Time(100, ir::Time::ns));
 
   ctr = intro.get<int64_t>("ctr");
   state = intro.get<int64_t>("state");
@@ -250,7 +250,7 @@ TEST_F(Simulator_test, vcd_logging_fsm) {
   engine.instrument(instr);
 
   engine.setup();
-  engine.simulate(ir::Time(50, ir::Time::ns));
+  engine.simulate(ir::Time(100, ir::Time::ns));
   engine.teardown();
 }
 

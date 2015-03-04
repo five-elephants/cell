@@ -352,7 +352,7 @@ namespace sim {
   void
   Instrumented_simulation_engine::simulate(ir::Time const& duration) {
     for(ir::Time t=m_time; t<(m_time + duration); ) {
-      t = simulate_step(t, duration);
+      ir::Time next_t = simulate_step(t, duration);
 
       if( m_instrumenter ) {
         for(auto const& mod : m_runset.modules) {
@@ -366,6 +366,8 @@ namespace sim {
           m_instrumenter->module(t, insp);
         }
       }
+
+      t = next_t;
     }
   }
 
