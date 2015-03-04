@@ -81,8 +81,21 @@ namespace sim {
 
   bool
   Llvm_module_scanner::insert_periodic(ast::Periodic const& node) {
+    auto period = dynamic_cast<ast::Phys_literal const&>(node.period());
+    auto value = period.value();
+    auto unit = dynamic_cast<ast::Identifier const&>(period.unit()).identifier();
+    ir::Time::Unit tu;
+
+    if( unit == "ps" ) tu = ir::Time::ps;
+    else if( unit == "ns" ) tu = ir::Time::ns;
+    else if( unit == "us" ) tu = ir::Time::us;
+    else if( unit == "ms" ) tu = ir::Time::ms;
+    else if( unit == "s" ) tu = ir::Time::s;
+    else
+      throw std::runtime_error("Unknown time unit");
+
     auto per = std::make_shared<ir::Periodic<Llvm_impl>>();
-    per->period = ir::Time(2, ir::Time::ns);
+    per->period = ir::Time(value, tu);
 
     m_mod.periodicals.push_back(per);
 

@@ -129,6 +129,7 @@
 %type <node> assignment
 %type <node> var_ref
 %type <node> type_identifier
+%type <node> phys_literal
 
 
 %printer { debug_stream() << *$$; } "identifier"
@@ -255,10 +256,10 @@ var_def: "var" identifier "=" exp ":" type_identifier
   | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; $$->location(@$);}
 
 process: "process" "=" statement { $$ = new ast::Process(*$3); };
-periodic: "periodic" "(" exp identifier ")" "=" statement
-                                 { auto v = new ast::Periodic(*$3, *$4, *$7); $$ = v; };
-once: "once" "(" exp identifier ")" "=" statement
-                                 { $$ = new ast::Once(*$3, *$4, *$7); };
+periodic: "periodic" "(" phys_literal ")" "=" statement
+                                 { auto v = new ast::Periodic(*$3, *$6); $$ = v; };
+once: "once" "(" phys_literal ")" "=" statement
+                                 { $$ = new ast::Once(*$3, *$6); };
 
 statements: statements statement ";" { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };
@@ -304,11 +305,15 @@ literal:
   "number"                       { $$ = new ast::Literal<int>($1); }
   | "bitstring"                  { $$ = new ast::Bitstring_literal(*$1); }
   | "string"                     { $$ = new ast::Literal<std::string>(*$1); }
-  | bool_literal                 { $$ = $1; };
+  | bool_literal                 { $$ = $1; }
+  | phys_literal                 { $$ = $1; };
 
 bool_literal:
   "true"                         { $$ = new ast::Literal<bool>(true); }
   | "false"                      { $$ = new ast::Literal<bool>(false); };
+
+phys_literal:
+  "number" identifier            { $$ = new ast::Phys_literal($1, *$2); };
 
 una_exp:
   "!" exp                        { $$ = new ast::Op_not(*$2); }
