@@ -112,8 +112,21 @@ namespace sim {
 
   bool
   Llvm_module_scanner::insert_once(ast::Once const& node) {
+    auto period = dynamic_cast<ast::Phys_literal const&>(node.time());
+    auto value = period.value();
+    auto unit = dynamic_cast<ast::Identifier const&>(period.unit()).identifier();
+    ir::Time::Unit tu;
+
+    if( unit == "ps" ) tu = ir::Time::ps;
+    else if( unit == "ns" ) tu = ir::Time::ns;
+    else if( unit == "us" ) tu = ir::Time::us;
+    else if( unit == "ms" ) tu = ir::Time::ms;
+    else if( unit == "s" ) tu = ir::Time::s;
+    else
+      throw std::runtime_error("Unknown time unit");
+
     auto once = std::make_shared<ir::Once<Llvm_impl>>();
-    once->time = ir::Time(10, ir::Time::ns);
+    once->time = ir::Time(value, tu);
     m_mod.onces.push_back(once);
 
     auto func = std::make_shared<Llvm_function>();

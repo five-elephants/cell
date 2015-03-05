@@ -17,7 +17,7 @@ mod test = {
     clk = !clk;
   }
 
-  once(10 ns) = {
+  once(8 ns) = {
     reset = false;
   }
 
