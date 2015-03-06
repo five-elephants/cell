@@ -62,6 +62,7 @@ namespace sim {
       virtual bool leave_process(ast::Process const& node);
       virtual bool leave_periodic(ast::Periodic const& node);
       virtual bool leave_once(ast::Once const& node);
+      virtual bool leave_recurrent(ast::Recurrent const& node);
 
 
       template<typename Node>

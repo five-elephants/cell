@@ -93,6 +93,7 @@ blank      [ \t]
 "process"   return token::PROCESS;
 "periodic"  return token::PERIODIC;
 "once"      return token::ONCE;
+"recurrent" return token::RECURRENT;
 "true"      return token::TRUE;
 "false"     return token::FALSE;
 {int}       {

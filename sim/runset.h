@@ -58,6 +58,7 @@ namespace sim {
         std::vector<Process_set> sensitivity;
         Process_set run_list;
         Process_schedule schedule;
+        Time_process_map recurrent_schedule;
       };
 
       typedef std::vector<Module> Module_list;

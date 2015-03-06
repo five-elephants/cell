@@ -4,6 +4,7 @@ mod test = {
   var reset : bool
   var ctr : int
   var state : int
+  var test : int
 
 
   def __init__() = {
@@ -11,6 +12,7 @@ mod test = {
     ctr = 0;
     reset = true;
     clk = false;
+    test = 50;
   }
 
   periodic(4 ns) = {
@@ -21,9 +23,10 @@ mod test = {
     reset = false;
   }
 
-  /*recurrent(t) = {*/
-    /*t + 10 ns;*/
-  /*}*/
+  recurrent(t) = {
+    test = test - 10;
+    t + test
+  }
 
   process = {
     if( reset ) {

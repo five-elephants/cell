@@ -141,6 +141,28 @@ namespace sim {
 
 
   bool
+  Llvm_module_scanner::insert_recurrent(ast::Recurrent const& node) {
+    auto rec = std::make_shared<Llvm_recurrent>();
+    rec->time_id = dynamic_cast<ast::Identifier const&>(node.time_id()).identifier();
+    m_mod.recurrents.push_back(rec);
+
+    auto param = std::make_shared<Llvm_object>();
+    param->name = rec->time_id;
+    param->type = ir::Builtins<Llvm_impl>::types.at("int");
+
+    auto func = std::make_shared<Llvm_function>();
+    func->name = "__recurrent__";
+    func->return_type = ir::Builtins<Llvm_impl>::types.at("int");
+    func->parameters.push_back(param);
+    func->within_module = true;
+    m_todo_functions.push_back(std::make_tuple(func, &node));
+    rec->function = func;
+
+    return false;
+  }
+
+
+  bool
   Llvm_module_scanner::leave_module(ast::Module_def const& node) {
     m_mod.impl.mod_type->setBody(m_member_types);
 

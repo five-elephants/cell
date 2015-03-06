@@ -103,6 +103,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Process>(&Llvm_function_scanner::leave_process);
     this->template on_leave_if_type<ast::Periodic>(&Llvm_function_scanner::leave_periodic);
     this->template on_leave_if_type<ast::Once>(&Llvm_function_scanner::leave_once);
+    this->template on_leave_if_type<ast::Recurrent>(&Llvm_function_scanner::leave_recurrent);
   }
 
 
@@ -600,6 +601,27 @@ namespace sim {
   Llvm_function_scanner::leave_once(ast::Once const& node) {
     auto ty = ir::Builtins<Llvm_impl>::types.at("unit");
     auto v = llvm::Constant::getNullValue(ty->impl.type);
+    m_values[&node] = m_builder.CreateRet(v);
+    m_type_targets.pop_back();
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_recurrent(ast::Recurrent const& node) {
+    auto v = m_values.at(&node.expression());
+
+    if( m_type_targets.back() != m_types.at(&node.expression()) ) {
+      std::stringstream strm;
+      strm << "recurrent expects type '"
+        << m_type_targets.back()->name
+        << "' as return type. Found type '"
+        << m_types.at(&node.expression())->name
+        << "' (erroneous semicolon?)";
+      throw std::runtime_error(strm.str());
+    }
+
     m_values[&node] = m_builder.CreateRet(v);
     m_type_targets.pop_back();
 

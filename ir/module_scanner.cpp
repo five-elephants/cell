@@ -200,6 +200,17 @@ namespace ir {
 
 
   template<typename Impl>
+  bool
+  Module_scanner<Impl>::insert_recurrent(ast::Recurrent const& node) {
+    auto rv = std::make_shared<Recurrent<Impl>>();
+    rv->time_id = dynamic_cast<ast::Identifier const&>(node.time_id()).identifier();
+    m_mod.recurrents.push_back(rv);
+
+    return false;
+  }
+
+
+  template<typename Impl>
   std::shared_ptr<Object<Impl>>
   Module_scanner<Impl>::create_object(ast::Variable_def const& node) {
     std::shared_ptr<Object<Impl>> obj(new Object<Impl>());

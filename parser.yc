@@ -84,6 +84,7 @@
 %token        BIDIR2                  "bidir"
 %token        PROCESS                 "process"
 %token        PERIODIC                "periodic"
+%token        RECURRENT               "recurrent"
 %token        ONCE                    "once"
 %token        TRUE                    "true"
 %token        FALSE                   "false"
@@ -130,6 +131,7 @@
 %type <node> var_ref
 %type <node> type_identifier
 %type <node> phys_literal
+%type <node> recurrent
 
 
 %printer { debug_stream() << *$$; } "identifier"
@@ -189,7 +191,8 @@ module_item: var_def             { $$ = $1; }
   | mod_inst                     { $$ = $1; }
   | process                      { $$ = $1; }
   | periodic                     { $$ = $1; }
-  | once                         { $$ = $1; };
+  | once                         { $$ = $1; }
+  | recurrent                    { $$ = $1; };
 
 
 socket: SOCKET identifier "=" CURL_OPEN socket_body CURL_CLOSE
@@ -260,6 +263,9 @@ periodic: "periodic" "(" phys_literal ")" "=" statement
                                  { auto v = new ast::Periodic(*$3, *$6); $$ = v; };
 once: "once" "(" phys_literal ")" "=" statement
                                  { $$ = new ast::Once(*$3, *$6); };
+
+recurrent: "recurrent" "(" identifier ")" "=" exp
+                                 { $$ = new ast::Recurrent(*$3, *$6); };
 
 statements: statements statement ";" { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };

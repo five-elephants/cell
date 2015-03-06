@@ -30,4 +30,5 @@
 #include "ast/variable_ref.h"
 #include "ast/array_type.h"
 #include "ast/phys_literal.h"
+#include "ast/recurrent.h"
 

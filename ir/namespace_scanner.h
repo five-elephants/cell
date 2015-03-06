@@ -77,6 +77,7 @@ namespace ir {
         this->template on_enter_if_type<ast::Process>(&Module_scanner::insert_process);
         this->template on_enter_if_type<ast::Periodic>(&Module_scanner::insert_periodic);
         this->template on_enter_if_type<ast::Once>(&Module_scanner::insert_once);
+        this->template on_enter_if_type<ast::Recurrent>(&Module_scanner::insert_recurrent);
       }
 
 
@@ -130,6 +131,7 @@ namespace ir {
       virtual bool insert_process(ast::Process const& node);
       virtual bool insert_periodic(ast::Periodic const& node);
       virtual bool insert_once(ast::Once const& node);
+      virtual bool insert_recurrent(ast::Recurrent const& node);
 
       virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
       virtual std::shared_ptr<ir::Object<Impl>> create_object(ast::Variable_def const& node);

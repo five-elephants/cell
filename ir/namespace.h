@@ -121,6 +121,13 @@ namespace ir {
     typename Impl::Once impl;
   };
 
+  template<typename Impl = No_impl>
+  struct Recurrent : public Process<Impl> {
+    Label time_id;
+
+    typename Impl::Recurrent impl;
+  };
+
   enum class Direction {
     Input,
     Output,
@@ -202,6 +209,7 @@ namespace ir {
     std::vector<std::shared_ptr<Process<Impl>>> processes;
     std::vector<std::shared_ptr<Periodic<Impl>>> periodicals;
     std::vector<std::shared_ptr<Once<Impl>>> onces;
+    std::vector<std::shared_ptr<Recurrent<Impl>>> recurrents;
     //std::shared_ptr<Codeblock_if> constructor_code;
 
     typename Impl::Module impl;

@@ -41,6 +41,7 @@ namespace sim {
     struct Process {};
     struct Periodic {};
     struct Once {};
+    struct Recurrent {};
     struct Socket {};
     struct Namespace {};
 
@@ -91,6 +92,8 @@ namespace sim {
   typedef ir::Operator<Llvm_impl> Llvm_operator;
   typedef ir::Process<Llvm_impl> Llvm_process;
   typedef ir::Periodic<Llvm_impl> Llvm_periodic;
+  typedef ir::Once<Llvm_impl> Llvm_once;
+  typedef ir::Recurrent<Llvm_impl> Llvm_recurrent;
   typedef ir::Socket<Llvm_impl> Llvm_socket;
   typedef ir::Namespace<Llvm_impl> Llvm_namespace;
   typedef ir::Module<Llvm_impl> Llvm_module;

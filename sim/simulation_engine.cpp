@@ -189,6 +189,7 @@ namespace sim {
     // add timed processes to the run list
     for(auto& mod : m_runset.modules) {
       std::list<Runset::Process_schedule::value_type> new_schedules;
+      std::list<Runset::Time_process_map::value_type> new_schedules_recurrent;
 
       auto timed_procs_range = mod.schedule.equal_range(t);
       for(auto it=timed_procs_range.first;
@@ -202,15 +203,45 @@ namespace sim {
           new_schedules.push_back(std::make_pair(t + period, it->second));
       }
 
+      // execute recurrent processes
+      auto recurrent_range = mod.recurrent_schedule.equal_range(t);
+      for(auto it=recurrent_range.first;
+          it != recurrent_range.second;
+          ++it) {
+        auto exe_ptr = reinterpret_cast<int64_t(*)(char*, char*, char*,char*,int64_t)>(it->second.exe_ptr);
+        std::cout << "Calling recurrent process" << std::flush;
+        auto next_t_tmp = exe_ptr(mod.this_out->data(),
+            mod.this_in->data(),
+            mod.this_prev->data(),
+            mod.read_mask->data(),
+            t.v);
+        std::cout << "next_t = " << next_t_tmp << std::endl;
+
+        ir::Time next_t;
+        next_t.v = next_t_tmp;
+        next_t.magnitude = ir::Time::ns;
+        new_schedules_recurrent.push_back(std::make_pair(next_t, it->second));
+      }
+
       mod.schedule.erase(timed_procs_range.first, timed_procs_range.second);
       std::move(new_schedules.begin(),
           new_schedules.end(),
           std::inserter(mod.schedule, mod.schedule.begin()));
 
+      mod.recurrent_schedule.erase(recurrent_range.first,
+        recurrent_range.second);
+      std::move(new_schedules_recurrent.begin(),
+        new_schedules_recurrent.end(),
+        std::inserter(mod.recurrent_schedule, mod.recurrent_schedule.begin()));
+
       // select next point in time for simulation
       auto nextit = mod.schedule.upper_bound(m_time);
       if( nextit != mod.schedule.end() )
         next_t = std::min(next_t, nextit->first);
+
+      auto nextit_rec = mod.recurrent_schedule.upper_bound(m_time);
+      if( nextit_rec != mod.recurrent_schedule.end() )
+        next_t = std::min(next_t, nextit_rec->first);
     }
 
     // simulate cycles until all signals are stable
@@ -220,11 +251,6 @@ namespace sim {
     do {
       rerun = simulate_cycle();
     } while( (cycle++ < max_cycles) && rerun );
-
-    // update this_prev module frame
-    //for(auto& mod : m_runset.modules) {
-      //std::copy(mod.this_out->begin(), mod.this_out->end(), mod.this_prev->begin());
-    //}
 
     return next_t;
   }
