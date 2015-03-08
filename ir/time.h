@@ -4,7 +4,7 @@
 #include <ostream>
 
 namespace ir {
-  
+
   struct Time {
     enum Unit {
       s = 0,
@@ -17,7 +17,7 @@ namespace ir {
     long long v;
     int magnitude;
 
-    Time() : v(0), magnitude(ns) {}
+    Time() : v(0), magnitude(ps) {}
     Time(long long value, Unit unit) {
       v = value;
       magnitude = unit;
@@ -36,11 +36,27 @@ namespace ir {
 
       return rv;
     }
+
+    long long value(Unit u) const {
+      if( magnitude == u )
+        return v;
+      else if( magnitude < u )
+        return v / std::pow(10, u - magnitude);
+      else
+        return v * std::pow(10, magnitude - u);
+    }
+
+    Time to_unit(Unit u) const {
+      Time rv;
+      rv.v = value(u);
+      rv.magnitude = u;
+      return rv;
+    }
   };
 
 
   inline bool operator < (Time const& a, Time const& b) {
-    return static_cast<double>(a.v) * std::pow(10.0, a.magnitude) 
+    return static_cast<double>(a.v) * std::pow(10.0, a.magnitude)
       < static_cast<double>(b.v) * std::pow(10.0, b.magnitude);
   }
 

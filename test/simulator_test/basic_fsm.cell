@@ -12,7 +12,7 @@ mod test = {
     ctr = 0;
     reset = true;
     clk = false;
-    test = 50;
+    test = 50 ns;
   }
 
   periodic(4 ns) = {
@@ -24,7 +24,7 @@ mod test = {
   }
 
   recurrent(t) = {
-    test = test - 10;
+    test = test - 10 ns;
     t + test
   }
 

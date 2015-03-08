@@ -37,6 +37,8 @@ namespace sim {
     os << "$comment $end\n";
     os << "$timescale ";
 
+    m_unit = (ir::Time::Unit)t.magnitude;
+
     switch(t.magnitude) {
       case ir::Time::s:
         os << "1 s";
@@ -106,7 +108,7 @@ namespace sim {
   Vcd_instrumenter::write_update(std::ostream& os,
       ir::Time const& t,
       Module_inspector& insp) {
-    os << '#' << t.v * 1000 << '\n';
+    os << '#' << t.value(m_unit) << '\n';
 
     for(std::size_t i=0; i<insp.num_elements(); ++i) {
       os << 'b'

@@ -100,6 +100,9 @@ namespace sim {
 
       return;
     }
+
+    m_time.v = 0;
+    m_time.magnitude = ir::Time::ps;
   }
 
 
@@ -182,9 +185,9 @@ namespace sim {
 
   ir::Time
   Simulation_engine::simulate_step(ir::Time const& t, ir::Time const& duration) {
-    ir::Time next_t = m_time + duration;
+    ir::Time next_t = m_time + duration.to_unit(ir::Time::ps);
 
-    std::cout << "===== time: " << t << " =====" << std::endl;
+    std::cout << std::dec << "===== time: " << t << " =====" << std::endl;
 
     // add timed processes to the run list
     for(auto& mod : m_runset.modules) {
@@ -209,17 +212,17 @@ namespace sim {
           it != recurrent_range.second;
           ++it) {
         auto exe_ptr = reinterpret_cast<int64_t(*)(char*, char*, char*,char*,int64_t)>(it->second.exe_ptr);
-        std::cout << "Calling recurrent process" << std::flush;
+        std::cout << "Calling recurrent process ..." << std::flush;
         auto next_t_tmp = exe_ptr(mod.this_out->data(),
             mod.this_in->data(),
             mod.this_prev->data(),
             mod.read_mask->data(),
-            t.v);
-        std::cout << "next_t = " << next_t_tmp << std::endl;
+            t.value(ir::Time::ps));
 
         ir::Time next_t;
         next_t.v = next_t_tmp;
-        next_t.magnitude = ir::Time::ns;
+        next_t.magnitude = ir::Time::ps;
+        std::cout << " next_t = " << next_t << std::endl;
         new_schedules_recurrent.push_back(std::make_pair(next_t, it->second));
       }
 
@@ -369,7 +372,7 @@ namespace sim {
             num_elements,
             m_exe,
             m_runset);
-        m_instrumenter->module(ir::Time(0, ir::Time::ns), insp);
+        m_instrumenter->module(ir::Time(0, ir::Time::ps), insp);
       }
     }
   }
@@ -389,7 +392,7 @@ namespace sim {
               num_elements,
               m_exe,
               m_runset);
-          m_instrumenter->module(t, insp);
+          m_instrumenter->module(t.to_unit(ir::Time::ps), insp);
         }
       }
 

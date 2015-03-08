@@ -18,6 +18,7 @@ namespace sim {
       std::string m_filename;
       std::ofstream m_os;
       bool m_initial = true;
+      ir::Time::Unit m_unit;
 
       std::string reference(std::size_t i) const {
         static char const lowest = 33;

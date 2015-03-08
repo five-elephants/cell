@@ -87,6 +87,7 @@ namespace sim {
     this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
     this->template on_visit_if_type<ast::Literal<bool>>(&Llvm_function_scanner::insert_literal_bool);
+    this->template on_enter_if_type<ast::Phys_literal>(&Llvm_function_scanner::insert_phys_literal);
     this->template on_leave_if_type<ast::Op_at>(&Llvm_function_scanner::insert_op_at);
     this->template on_leave_if_type<ast::Op_not>(&Llvm_function_scanner::insert_op_not);
     this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
@@ -234,6 +235,33 @@ namespace sim {
     m_types[&node] = ty;
 
     return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_phys_literal(ast::Phys_literal const& node) {
+    using namespace llvm;
+
+    auto unit = dynamic_cast<ast::Identifier const&>(node.unit()).identifier();
+    int64_t m;
+
+    if( unit == "ps" ) m = 1;
+    else if( unit == "ns" ) m = 1000;
+    else if( unit == "us" ) m = 1000*1000;
+    else if( unit == "ms" ) m = 1000*1000*1000;
+    else if( unit == "s" ) m = 1000ll*1000ll*1000ll*1000ll;
+    else
+      throw std::runtime_error("Unknown time unit");
+
+    int64_t value = node.value() * m;
+    auto v = ConstantInt::get(getGlobalContext(),
+        APInt(64, value, true));
+    auto ty = ir::Builtins<Llvm_impl>::types.at("int");
+
+    m_values[&node] = v;
+    m_types[&node] = ty;
+
+    return false;
   }
 
 
