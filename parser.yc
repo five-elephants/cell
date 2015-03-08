@@ -32,6 +32,7 @@
 
 %union {
   int ival;
+  double fval;
   std::string* sval;
   ast::Unit* unit;
   ast::Node_if* node;
@@ -79,6 +80,7 @@
 %token        RETURN                  "return"
 %token <sval> IDENTIFIER              "identifier"
 %token <ival> NUMBER                  "number"
+%token <fval> FLOAT                   "float"
 %token <sval> BITSTRING               "bitstring"
 %token <sval> STRING                  "string"
 %token        IN                      "in"
@@ -311,6 +313,7 @@ assignment: identifier "=" exp
 
 literal:
   "number"                       { $$ = new ast::Literal<int>($1); }
+  | "float"                      { $$ = new ast::Literal<double>($1); }
   | "bitstring"                  { $$ = new ast::Bitstring_literal(*$1); }
   | "string"                     { $$ = new ast::Literal<std::string>(*$1); }
   | bool_literal                 { $$ = $1; }

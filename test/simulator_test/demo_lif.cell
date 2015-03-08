@@ -1,0 +1,19 @@
+namespace demo = {
+
+    mod lif_neuron = {
+        var m : float
+        var gl : float
+
+
+        def __init__() = {
+            m = 0;
+            gl = 0.1;
+        }
+
+
+        def integrate(dt : float) -> float = {
+            dt = 0.1
+        }
+    }
+
+}

@@ -30,7 +30,8 @@ namespace ir {
 		{"bool",		std::shared_ptr<Type<Impl>>(new Type<Impl>{"bool"})},
 		{"int",			std::shared_ptr<Type<Impl>>(new Type<Impl>{"int"})},
 		{"logic",		std::shared_ptr<Type<Impl>>(new Type<Impl>{"logic"})},
-		{"string",		std::shared_ptr<Type<Impl>>(new Type<Impl>{"string"})}
+		{"string",		std::shared_ptr<Type<Impl>>(new Type<Impl>{"string"})},
+    {"float",   std::shared_ptr<Type<Impl>>(new Type<Impl>{"float"})},
 	};
 
   template<typename Impl>

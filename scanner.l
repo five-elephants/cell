@@ -22,6 +22,7 @@
 
 id         [a-zA-Z_][a-zA-Z_0-9]*
 int        [0-9]+
+float      [-+]{0,1}[0-9]+\.[0-9]+
 bitstring  \'[01_-]*\'
 string     \"[[:print:]]*\"
 blank      [ \t]
@@ -102,6 +103,11 @@ blank      [ \t]
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;
 	return token::NUMBER;
+}
+{float} {
+ std::stringstream strm(yytext);
+ strm >> yylval->fval;
+ return token::FLOAT;
 }
 {bitstring} {
   std::string str(yytext);

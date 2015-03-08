@@ -111,6 +111,7 @@ def build(bld):
       test/test_scanner_base.cpp
       test/test_simple_sim.cpp
       test/test_codegen.cpp
+      test/test_demos.cpp
     """
     #test/test_simple_sim.cpp
 

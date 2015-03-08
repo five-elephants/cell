@@ -42,7 +42,6 @@ mod test = {
     }
   }
 
-
   process = {
     if( reset ) {
       ctr = 0;

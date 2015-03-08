@@ -86,6 +86,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Return_statement>(&Llvm_function_scanner::insert_return);
     this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
+    this->template on_visit_if_type<ast::Literal<double>>(&Llvm_function_scanner::insert_literal_double);
     this->template on_visit_if_type<ast::Literal<bool>>(&Llvm_function_scanner::insert_literal_bool);
     this->template on_enter_if_type<ast::Phys_literal>(&Llvm_function_scanner::insert_phys_literal);
     this->template on_leave_if_type<ast::Op_at>(&Llvm_function_scanner::insert_op_at);
@@ -219,6 +220,19 @@ namespace sim {
     auto v = ConstantInt::get(getGlobalContext(),
         APInt(64, node.value(), true));
     auto ty = ir::Builtins<Llvm_impl>::types.at("int");
+    m_values[&node] = v;
+    m_types[&node] = ty;
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_literal_double(ast::Literal<double> const& node) {
+    using namespace llvm;
+
+    auto ty = ir::Builtins<Llvm_impl>::types.at("float");
+    auto v = ConstantFP::get(ty->impl.type, node.value());
     m_values[&node] = v;
     m_types[&node] = ty;
 
@@ -459,13 +473,39 @@ namespace sim {
 
     // get right-side value
     auto rval = m_values.at(&(node.expression()));
+    auto ty = m_types.at(&(node.expression()));
 
     // store value
     bool found = false;
     auto it = m_named_values.find(target_id.identifier());
     if( it != m_named_values.end() ) {
+      auto ty_it = m_named_types.find(target_id.identifier());
+      if( ty_it == m_named_types.end() )
+        throw std::runtime_error("No type for named value available!");
+
+      if( ty_it->second != ty ) {
+        std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
+            "convert",
+            ty_it->second,
+            ty,
+            ty);
+
+        if( op ) {
+          rval = op->impl.insert_func(m_builder, rval, rval);
+        } else {
+          std::stringstream strm;
+          strm << "type mismatch in assignment: expected '"
+            << ty_it->second->name
+            << "' found '"
+            << ty->name
+            << "' and no conversion found";
+          throw std::runtime_error(strm.str());
+        }
+      }
+
       auto lval = m_builder.CreateStore(rval, it->second);
-      m_values[&node] = lval;
+      m_values[&node] = rval;
+      m_types[&node] = ty_it->second;
       found = true;
     } else if( m_mod ) {
       // lookup name in module
@@ -475,7 +515,29 @@ namespace sim {
         auto index = p->second->impl.struct_index;
         auto ptr_v = m_builder.CreateStructGEP(this_out, index, "elem_ptr");
 
+        // check types
+        if( p->second->type != ty ) {
+          std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
+              "convert",
+              p->second->type,
+              ty,
+              ty);
+
+          if( op ) {
+            rval = op->impl.insert_func(m_builder, rval, rval);
+          } else {
+            std::stringstream strm;
+            strm << "type mismatch in assignment: expected '"
+              << p->second->type->name
+              << "' found '"
+              << ty->name
+              << "' and no conversion found";
+            throw std::runtime_error(strm.str());
+          }
+        }
+
         m_values[&node] = rval;
+        m_types[&node] = p->second->type;
         m_builder.CreateStore(rval, ptr_v);
         found = true;
       }

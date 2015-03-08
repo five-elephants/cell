@@ -47,6 +47,17 @@ namespace ast {
 			}
 	};
 
+	template<>
+	class Literal<double> : public Literal_base<double> {
+		public:
+			Literal<double>(double const& value)
+				:	Literal_base<double>(value) {
+			}
+
+			virtual void visit() {
+			}
+	};
+
 
 	template<>
 	class Literal<std::string> : public Literal_base<std::string> {

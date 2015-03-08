@@ -45,6 +45,7 @@ namespace sim {
       virtual bool insert_return(ast::Return_statement const& node);
       virtual bool insert_variable_ref(ast::Variable_ref const& node);
       virtual bool insert_literal_int(ast::Literal<int> const& node);
+      virtual bool insert_literal_double(ast::Literal<double> const& node);
       virtual bool insert_literal_bool(ast::Literal<bool> const& node);
       virtual bool insert_phys_literal(ast::Phys_literal const& node);
       virtual bool insert_op_at(ast::Op_at const& node);

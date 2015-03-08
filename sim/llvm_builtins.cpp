@@ -35,6 +35,7 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   builtin_types.at("int")->impl.type = llvm::Type::getInt64Ty(context);
   builtin_types.at("void")->impl.type = llvm::Type::getVoidTy(context);
   builtin_types.at("string")->impl.type = llvm::TypeBuilder<char*, false>::get(context);
+  builtin_types.at("float")->impl.type = llvm::Type::getDoubleTy(context);
 
 
   //
@@ -67,6 +68,20 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
       });
   add_operator("||", "bool", "bool", "bool", OP_LAMBDA {
         return bld.CreateAnd(left, right, "or");
+      });
+
+  // type conversion operators
+  //   to float
+  add_operator("convert", "float", "int", "int", OP_LAMBDA {
+        return bld.CreateSIToFP(left,
+          builtin_types["float"]->impl.type,
+          "int_to_float");
+      });
+  //   to int
+  add_operator("convert", "int", "float", "float", OP_LAMBDA {
+        return bld.CreateFPToSI(left,
+          builtin_types["int"]->impl.type,
+          "float_to_int");
       });
 }
 
