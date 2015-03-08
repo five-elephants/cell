@@ -14,9 +14,8 @@ namespace demo = {
 
 
         def integrate(dt : float) -> float = {
-            /*var leak : float;*/
-            /*leak = el - m;*/
-            m = m + gl * dt
+            var leak = el - m : float;
+            m = m + gl * leak * dt
         }
 
 

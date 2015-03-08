@@ -26,6 +26,7 @@ namespace ast {
         m_nodes.push_back(m_type.get());
       }
       Node_if& expression() { return *m_expression; }
+      Node_if const& expression() const { return *m_expression; }
       void expression(Node_if& node) { 
         m_nodes.erase(std::remove(std::begin(m_nodes), std::end(m_nodes), m_expression.get()),
             std::end(m_nodes));

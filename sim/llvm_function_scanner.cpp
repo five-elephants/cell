@@ -85,6 +85,7 @@ namespace sim {
   Llvm_function_scanner::init_scanner() {
     this->template on_leave_if_type<ast::Return_statement>(&Llvm_function_scanner::insert_return);
     this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
+    this->template on_leave_if_type<ast::Variable_def>(&Llvm_function_scanner::leave_variable_def);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
     this->template on_visit_if_type<ast::Literal<double>>(&Llvm_function_scanner::insert_literal_double);
     this->template on_visit_if_type<ast::Literal<bool>>(&Llvm_function_scanner::insert_literal_bool);
@@ -208,6 +209,68 @@ namespace sim {
         << "' (" << __func__ << ")";
       throw std::runtime_error(strm.str());
     }
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_variable_def(ast::Variable_def const& node) {
+    // get name
+    auto name = dynamic_cast<ast::Identifier const&>(node.identifier()).identifier();
+    std::shared_ptr<Llvm_type> type;
+
+    if( m_named_values.count(name) > 0 )
+      throw std::runtime_error(std::string("Variable with name ")
+          + name
+          + std::string(" already exists in function")
+          + m_function.name);
+
+    // get type
+    if( typeid(node.type()) == typeid(ast::Identifier) ) {
+      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
+      type = find_type(m_ns, type_name);
+      if( !type ) {
+        std::stringstream strm;
+        strm << node.type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+    } else
+      throw std::runtime_error("not supported yet");
+    /*else if( typeid(node.type()) == typeid(ast::Array_type) ) {
+      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
+
+      auto type = make_array_type(m_mod, ar_type);
+      m_mod.types[obj->type->name] = obj->type;
+    }*/
+
+    // initial value
+    llvm::Value* v = nullptr;
+    if( node.without_expression() ) {
+      v = llvm::Constant::getNullValue(type->impl.type);
+    } else {
+      if( m_types[&(node.expression())] != type ) {
+        std::stringstream strm;
+        strm << "Type mismatch in variable definition: "
+          << "declared type is '"
+          << type->name
+          << "' but assigned type is '"
+          << m_types[&(node.expression())]->name
+          << "'";
+        throw std::runtime_error(strm.str());
+      }
+      v = m_values[&(node.expression())];
+    }
+
+    // allocate
+    auto ptr = m_builder.CreateAlloca(type->impl.type, 0, name);
+    auto store_v = m_builder.CreateStore(v, ptr);
+
+    m_named_values[name] = ptr;
+    m_named_types[name] = type;
+    m_values[&node] = v;
+    m_types[&node] = type;
 
     return true;
   }

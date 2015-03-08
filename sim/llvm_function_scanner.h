@@ -44,6 +44,7 @@ namespace sim {
       // scanner callbacks
       virtual bool insert_return(ast::Return_statement const& node);
       virtual bool insert_variable_ref(ast::Variable_ref const& node);
+      virtual bool leave_variable_def(ast::Variable_def const& node);
       virtual bool insert_literal_int(ast::Literal<int> const& node);
       virtual bool insert_literal_double(ast::Literal<double> const& node);
       virtual bool insert_literal_bool(ast::Literal<bool> const& node);
