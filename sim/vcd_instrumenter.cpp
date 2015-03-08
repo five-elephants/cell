@@ -75,16 +75,27 @@ namespace sim {
       << " $end\n";
 
     for(std::size_t i=0; i<insp.num_elements(); ++i) {
-      auto bits = insp.get_bits(i);
+      auto obj = insp.get_object(i);
 
-      os << "$var "
-        << "integer "
-        << bits.size()
-        << ' '
-        << reference(i)
-        << ' '
-        << insp.get_name(i)
-        << " $end\n";
+      if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
+        os << "$var "
+          << "real 1 "
+          << reference(i)
+          << ' '
+          << insp.get_name(i)
+          << " $end\n";
+      } else {
+        auto bits = insp.get_bits(i);
+
+        os << "$var "
+          << "integer "
+          << bits.size()
+          << ' '
+          << reference(i)
+          << ' '
+          << insp.get_name(i)
+          << " $end\n";
+      }
     }
 
     os << "$upscope $end\n";
@@ -92,12 +103,21 @@ namespace sim {
     os << "$dumpvars\n";
 
     for(std::size_t i=0; i<insp.num_elements(); ++i) {
+      auto obj = insp.get_object(i);
 
-      os << 'b'
-        << insp.get_bits(i)
-        << ' '
-        << reference(i)
-        << '\n';
+      if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
+        os << 'r'
+          << insp.get<double>(i)
+          << ' '
+          << reference(i)
+          << '\n';
+      } else {
+        os << 'b'
+          << insp.get_bits(i)
+          << ' '
+          << reference(i)
+          << '\n';
+      }
     }
 
     os << "$end\n";
@@ -111,11 +131,20 @@ namespace sim {
     os << '#' << t.value(m_unit) << '\n';
 
     for(std::size_t i=0; i<insp.num_elements(); ++i) {
-      os << 'b'
-        << std::bitset<64>(insp.get<int64_t>(i))
-        << ' '
-        << reference(i)
-        << '\n';
+      auto obj = insp.get_object(i);
+      if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
+        os << 'r'
+          << insp.get<double>(i)
+          << ' '
+          << reference(i)
+          << '\n';
+      } else {
+        os << 'b'
+          << std::bitset<64>(insp.get<int64_t>(i))
+          << ' '
+          << reference(i)
+          << '\n';
+      }
     }
   }
 

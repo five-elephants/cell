@@ -3,16 +3,25 @@ namespace demo = {
     mod lif_neuron = {
         var m : float
         var gl : float
+        var el : float
 
 
         def __init__() = {
             m = 0;
             gl = 0.1;
+            el = -60.0;
         }
 
 
         def integrate(dt : float) -> float = {
-            dt = 0.1
+            /*var leak : float;*/
+            /*leak = el - m;*/
+            m = m + gl * dt
+        }
+
+
+        periodic(100 us) = {
+            integrate(0.1);
         }
     }
 

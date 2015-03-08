@@ -112,7 +112,7 @@ namespace sim {
             << opname
             << "' with signature: ["
             << ty_left->name
-            << "] == ["
+            << "] " << opname << " ["
             << ty_right->name
             << "] -> ["
             << ret_ty->name

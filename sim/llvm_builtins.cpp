@@ -48,20 +48,38 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   add_operator("+", "int", "int", "int", OP_LAMBDA {
         return bld.CreateAdd(left, right, "add");
       });
+  add_operator("+", "float", "float", "float", OP_LAMBDA {
+        return bld.CreateFAdd(left, right, "fadd");
+      });
   add_operator("-", "int", "int", "int", OP_LAMBDA {
         return bld.CreateSub(left, right, "sub");
+      });
+  add_operator("-", "float", "float", "float", OP_LAMBDA {
+        return bld.CreateFSub(left, right, "fsub");
       });
   add_operator("*", "int", "int", "int", OP_LAMBDA {
         return bld.CreateMul(left, right, "mul");
       });
+  add_operator("*", "float", "float", "float", OP_LAMBDA {
+        return bld.CreateFMul(left, right, "fmul");
+      });
   add_operator("/", "int", "int", "int", OP_LAMBDA {
         return bld.CreateSDiv(left, right, "sdiv");
+      });
+  add_operator("/", "float", "float", "float", OP_LAMBDA {
+        return bld.CreateFDiv(left, right, "fdiv");
       });
   add_operator("!", "bool", "bool", "bool", OP_LAMBDA {
         return bld.CreateNot(left, "not");
       });
   add_operator("@", "bool", "bool", "bool", OP_LAMBDA {
         return bld.CreateICmpNE(left, right, "cmp_at");
+      });
+  add_operator("@", "bool", "int", "int", OP_LAMBDA {
+        return bld.CreateICmpNE(left, right, "cmp_at");
+      });
+  add_operator("@", "bool", "float", "float", OP_LAMBDA {
+        return bld.CreateFCmpONE(left, right, "cmp_at");
       });
   add_operator("&&", "bool", "bool", "bool", OP_LAMBDA {
         return bld.CreateAnd(left, right, "and");
