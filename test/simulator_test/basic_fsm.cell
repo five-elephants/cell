@@ -31,14 +31,12 @@ mod test = {
   process = {
     if( reset ) {
       state = 1;
-    } else if( @clk ) {
-      if( clk ) {
-        if( state == 1 ) {
-          state = 2;
-        } else if( state == 2 ) {
-          if( ctr == 10 ) {
-            state = 3;
-          }
+    } else if( @clk && clk ) {
+      if( state == 1 ) {
+        state = 2;
+      } else if( state == 2 ) {
+        if( ctr == 10 ) {
+          state = 3;
         }
       }
     }
@@ -48,11 +46,9 @@ mod test = {
   process = {
     if( reset ) {
       ctr = 0;
-    } else if( @clk ) {
-      if( clk ) {
-        if( state == 2 ) {
-          ctr = ctr + 1;
-        }
+    } else if( @clk && clk ) {
+      if( state == 2 ) {
+        ctr = ctr + 1;
       }
     }
   }

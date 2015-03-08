@@ -62,6 +62,12 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   add_operator("@", "bool", "bool", "bool", OP_LAMBDA {
         return bld.CreateICmpNE(left, right, "cmp_at");
       });
+  add_operator("&&", "bool", "bool", "bool", OP_LAMBDA {
+        return bld.CreateAnd(left, right, "and");
+      });
+  add_operator("||", "bool", "bool", "bool", OP_LAMBDA {
+        return bld.CreateAnd(left, right, "or");
+      });
 }
 
 

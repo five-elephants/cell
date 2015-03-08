@@ -14,7 +14,6 @@ namespace ast {
 			}  \
 	\
 			virtual void visit() {  \
-				get_generator().op_ ## name(*this);  \
 			}  \
 	}
 
@@ -28,6 +27,8 @@ namespace ast {
   BINOP(lesser_then);
   BINOP(greater_or_equal_then);
   BINOP(lesser_or_equal_then);
+  BINOP(and);
+  BINOP(or);
 
 }
 

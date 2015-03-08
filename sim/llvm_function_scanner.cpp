@@ -95,6 +95,8 @@ namespace sim {
     this->template on_leave_if_type<ast::Op_minus>(&Llvm_function_scanner::insert_op_minus);
     this->template on_leave_if_type<ast::Op_mult>(&Llvm_function_scanner::insert_op_mult);
     this->template on_leave_if_type<ast::Op_div>(&Llvm_function_scanner::insert_op_div);
+    this->template on_leave_if_type<ast::Op_and>(&Llvm_function_scanner::insert_op_and);
+    this->template on_leave_if_type<ast::Op_or>(&Llvm_function_scanner::insert_op_or);
     this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
@@ -390,6 +392,20 @@ namespace sim {
   bool
   Llvm_function_scanner::insert_op_div(ast::Op_div const& node) {
     insert_bin_op(node, "/");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_and(ast::Op_and const& node) {
+    insert_bin_op(node, "&&");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_or(ast::Op_or const& node) {
+    insert_bin_op(node, "||");
     return true;
   }
 

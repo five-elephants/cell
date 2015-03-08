@@ -73,6 +73,8 @@ blank      [ \t]
 ">="        return token::CMP_GT_EQ;
 "<="        return token::CMP_LT_EQ;
 "=>"        return token::DARROW_RIGHT;
+"&&"        return token::AND;
+"||"        return token::OR;
 "<>"        return token::BIDIR;
 "{"         return token::CURL_OPEN;
 "}"         return token::CURL_CLOSE;
