@@ -45,7 +45,10 @@ namespace demo = {
         }
 
 
-        once(500 ms) = { fire_in = true; }
+        once(500 ms) = {
+            fire_in = true;
+            print("fire");
+        }
         once(510 ms) = { fire_in = true; }
     }
 

@@ -24,7 +24,12 @@ static void add_operator(ir::Label const& name,
 
 void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   auto& context = lib->impl.context;
+  auto module = lib->impl.module.get();
   auto& builtin_types = ir::Builtins<sim::Llvm_impl>::types;
+  auto& builtin_funcs = ir::Builtins<sim::Llvm_impl>::functions;
+
+
+  ir::Builtins<sim::Llvm_impl>::init();
 
   //
   // builtin types
@@ -117,6 +122,29 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
           builtin_types["int"]->impl.type,
           "float_to_int");
       });
+
+
+  //
+  // builtin functions
+  //
+
+  {
+    std::vector<llvm::Type*> args;
+    auto f = builtin_funcs.at("print");
+
+    for(auto p : f->parameters)
+      args.push_back(p->type->impl.type);
+
+    auto ty = llvm::FunctionType::get(f->return_type->impl.type,
+        args,
+        false);
+    f->impl.func_type = ty;
+    f->impl.code = llvm::Function::Create(ty,
+        llvm::Function::ExternalLinkage,
+        "print",
+        module
+        );
+  }
 }
 
 

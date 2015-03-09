@@ -91,6 +91,7 @@ namespace sim {
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
     this->template on_visit_if_type<ast::Literal<double>>(&Llvm_function_scanner::insert_literal_double);
     this->template on_visit_if_type<ast::Literal<bool>>(&Llvm_function_scanner::insert_literal_bool);
+    this->template on_visit_if_type<ast::Literal<std::string>>(&Llvm_function_scanner::insert_literal_string);
     this->template on_enter_if_type<ast::Phys_literal>(&Llvm_function_scanner::insert_phys_literal);
     this->template on_leave_if_type<ast::Op_at>(&Llvm_function_scanner::insert_op_at);
     this->template on_leave_if_type<ast::Op_not>(&Llvm_function_scanner::insert_op_not);
@@ -316,6 +317,19 @@ namespace sim {
     auto v = ConstantInt::get(getGlobalContext(),
         APInt(1, node.value(), true));
     auto ty = ir::Builtins<Llvm_impl>::types.at("bool");
+    m_values[&node] = v;
+    m_types[&node] = ty;
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_literal_string(ast::Literal<std::string> const& node) {
+    using namespace llvm;
+
+    auto v = m_builder.CreateGlobalStringPtr(node.value(), "stringconst");
+    auto ty = ir::Builtins<Llvm_impl>::types.at("string");
     m_values[&node] = v;
     m_types[&node] = ty;
 

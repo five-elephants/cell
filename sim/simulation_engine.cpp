@@ -83,6 +83,7 @@ namespace sim {
     // no lookup using dlsym
     m_exe->DisableSymbolSearching(true);
 
+
     m_layout = m_exe->getDataLayout();
     m_runset.layout(m_layout);
 
@@ -112,11 +113,12 @@ namespace sim {
 
     cout << "setup for simulation..." << endl;
 
-/*
+
     // add mappings for runtime functions
-    m_exe->addGlobalMapping(m_code->get_function(ir::Builtins::functions.at("print")),
+    m_exe->addGlobalMapping(ir::Builtins<Llvm_impl>::functions.at("print")->impl.code,
         (void*)(&print));
 
+/*
     // generate wrapper function to setup simulation
     m_code->create_setup(m_top_mod);
     //m_code->emit();

@@ -79,6 +79,7 @@ def build(bld):
       sim/vcd_instrumenter.cpp
       sim/simulation_engine.cpp
       sim/compile.cpp
+      sim/runtime.cpp
     """
 
     #sim_src = """
