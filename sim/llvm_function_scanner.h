@@ -84,10 +84,10 @@ namespace sim {
         auto v_left = m_values.at(&(node.left()));
         auto v_right = m_values.at(&(node.right()));
 
-        if( m_type_targets.empty() )
-          throw std::runtime_error("Don't know return type for binary operator");
+        //if( m_type_targets.empty() )
+          //throw std::runtime_error("Don't know return type for binary operator");
 
-        auto ret_ty = m_type_targets.back();
+        //auto ret_ty = m_type_targets.back();
 
         // check with expected target type
         /*if( !m_type_targets.empty() ) {
@@ -108,11 +108,12 @@ namespace sim {
           //<< "] -> [bool]" << endl;
 
         // select an operator
-        std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns, opname, ret_ty, ty_left, ty_right);
+        std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns, opname, ty_left, ty_right);
         if( op ) {
           auto v_cmp = op->impl.insert_func(m_builder, v_left, v_right);
           m_values[&node] = v_cmp;
-          m_types[&node] = ret_ty;
+          //m_types[&node] = ret_ty;
+          m_types[&node] = op->return_type;
         } else {
           std::stringstream strm;
           strm << node.location() << ": failed to find operator '"
@@ -122,7 +123,7 @@ namespace sim {
             << "] " << opname << " ["
             << ty_right->name
             << "] -> ["
-            << ret_ty->name
+            //<< ret_ty->name
             << "]";
           throw std::runtime_error(strm.str());
         }

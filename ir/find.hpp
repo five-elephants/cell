@@ -155,4 +155,47 @@ namespace ir {
   }
 
 
+  template<typename Impl = No_impl>
+  std::shared_ptr<Operator<Impl>> find_operator(Namespace<Impl> const& ns,
+      Label name,
+      std::shared_ptr<Type<Impl>> left,
+      std::shared_ptr<Type<Impl>> right) {
+
+    // search in each namespace going up the hierarchy
+    for(Namespace<Impl> const* cur_ns = &ns;
+        cur_ns != nullptr;
+        cur_ns = cur_ns->enclosing_ns) {
+      auto& m = cur_ns->operators;
+
+      auto range = m.equal_range(name);
+      if( range.first != m.end() ) {
+        for(auto it = range.first; it != range.second; ++it) {
+          auto& op = it->second;
+          if( (op->left == left) && (op->right == right) ) {
+            return op;
+          }
+        }
+      }
+    }
+
+    // not found yet, check built-in operators
+    {
+      auto& m = Builtins<Impl>::operators;
+
+      auto range = m.equal_range(name);
+      if( range.first != m.end() ) {
+        for(auto it = range.first; it != range.second; ++it) {
+          auto& op = it->second;
+          if( (op->left == left) && (op->right == right) ) {
+            return op;
+          }
+        }
+      }
+    }
+
+    // nothing found
+    return std::shared_ptr<Operator<Impl>>(nullptr);
+  }
+
+
 }
