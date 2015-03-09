@@ -50,6 +50,16 @@ namespace demo = {
             print("fire");
         }
         once(510 ms) = { fire_in = true; }
+
+
+        /*recurrent(t) = {*/
+            /*fire_in = true;*/
+            /*t + rand() % 500 ms*/
+        /*}*/
+
+        periodic(1 ms) = {
+            fire_in = if( rand() % 1000 < 100 ) true else false;
+        }
     }
 
 }
