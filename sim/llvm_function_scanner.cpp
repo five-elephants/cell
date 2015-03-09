@@ -4,6 +4,8 @@
 #include "ir/find_hierarchy.h"
 #include "ir/builtins.h"
 
+#include <functional>
+
 
 namespace sim {
 
@@ -99,6 +101,10 @@ namespace sim {
     this->template on_leave_if_type<ast::Op_div>(&Llvm_function_scanner::insert_op_div);
     this->template on_leave_if_type<ast::Op_and>(&Llvm_function_scanner::insert_op_and);
     this->template on_leave_if_type<ast::Op_or>(&Llvm_function_scanner::insert_op_or);
+    this->template on_leave_if_type<ast::Op_greater_then>(&Llvm_function_scanner::insert_op_gt);
+    this->template on_leave_if_type<ast::Op_lesser_then>(&Llvm_function_scanner::insert_op_lt);
+    this->template on_leave_if_type<ast::Op_greater_or_equal_then>(&Llvm_function_scanner::insert_op_ge);
+    this->template on_leave_if_type<ast::Op_lesser_or_equal_then>(&Llvm_function_scanner::insert_op_le);
     this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
@@ -483,6 +489,34 @@ namespace sim {
   bool
   Llvm_function_scanner::insert_op_or(ast::Op_or const& node) {
     insert_bin_op(node, "||");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_gt(ast::Op_greater_then const& node) {
+    insert_bin_op(node, ">");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_lt(ast::Op_lesser_then const& node) {
+    insert_bin_op(node, "<");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_ge(ast::Op_greater_or_equal_then const& node) {
+    insert_bin_op(node, ">=");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_le(ast::Op_lesser_or_equal_then const& node) {
+    insert_bin_op(node, "<=");
     return true;
   }
 

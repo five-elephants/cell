@@ -40,10 +40,14 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
 
   //
   // add operators
+  // (ordered by operator and data type)
   //
 
   add_operator("==", "bool", "int", "int", OP_LAMBDA {
         return bld.CreateICmpEQ(left, right, "cmp_op_equal");
+      });
+  add_operator("==", "bool", "float", "float", OP_LAMBDA {
+        return bld.CreateFCmpUEQ(left, right, "fcmp_op_equal");
       });
   add_operator("+", "int", "int", "int", OP_LAMBDA {
         return bld.CreateAdd(left, right, "add");
@@ -86,6 +90,18 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
       });
   add_operator("||", "bool", "bool", "bool", OP_LAMBDA {
         return bld.CreateAnd(left, right, "or");
+      });
+  add_operator(">", "bool", "float", "float", OP_LAMBDA {
+        return bld.CreateFCmpUGT(left, right, "fcmp_gt");
+      });
+  add_operator(">", "bool", "int", "int", OP_LAMBDA {
+        return bld.CreateICmpSGT(left, right, "cmp_gt");
+      });
+  add_operator("<", "bool", "float", "float", OP_LAMBDA {
+        return bld.CreateFCmpULT(left, right, "fcmp_lt");
+      });
+  add_operator("<", "bool", "int", "int", OP_LAMBDA {
+        return bld.CreateICmpSLT(left, right, "cmp_lt");
       });
 
   // type conversion operators

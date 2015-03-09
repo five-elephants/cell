@@ -4,24 +4,49 @@ namespace demo = {
         var m : float
         var gl : float
         var el : float
+        var vres : float
+        var vthresh : float
+        var intx : float
+        var fire_in : bool
 
 
         def __init__() = {
-            m = 0;
             gl = 0.1;
             el = -60.0;
+            m = -60.0;
+
+            vthresh = -50.0;
+            vres = -80.0;
+
+            intx = 0.0;
+            fire_in = false;
         }
 
 
         def integrate(dt : float) -> float = {
             var leak = el - m : float;
-            m = m + gl * leak * dt
-        }
+            var tmp = gl * leak + intx : float;
 
+            intx = intx - 0.1 * intx;
+
+            if( m > vthresh )
+                m = vres
+            else
+                m = m + tmp * dt
+        }
 
         periodic(100 us) = {
             integrate(0.1);
+
+            if( fire_in ) {
+                intx = 10.0;
+                fire_in = false;
+            }
         }
+
+
+        once(500 ms) = { fire_in = true; }
+        once(510 ms) = { fire_in = true; }
     }
 
 }
