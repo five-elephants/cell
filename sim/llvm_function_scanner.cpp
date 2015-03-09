@@ -100,6 +100,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Op_minus>(&Llvm_function_scanner::insert_op_minus);
     this->template on_leave_if_type<ast::Op_mult>(&Llvm_function_scanner::insert_op_mult);
     this->template on_leave_if_type<ast::Op_div>(&Llvm_function_scanner::insert_op_div);
+    this->template on_leave_if_type<ast::Op_mod>(&Llvm_function_scanner::insert_op_mod);
     this->template on_leave_if_type<ast::Op_and>(&Llvm_function_scanner::insert_op_and);
     this->template on_leave_if_type<ast::Op_or>(&Llvm_function_scanner::insert_op_or);
     this->template on_leave_if_type<ast::Op_greater_then>(&Llvm_function_scanner::insert_op_gt);
@@ -489,6 +490,13 @@ namespace sim {
   bool
   Llvm_function_scanner::insert_op_div(ast::Op_div const& node) {
     insert_bin_op(node, "/");
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::insert_op_mod(ast::Op_mod const& node) {
+    insert_bin_op(node, "%");
     return true;
   }
 

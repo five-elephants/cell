@@ -78,6 +78,9 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   add_operator("/", "float", "float", "float", OP_LAMBDA {
         return bld.CreateFDiv(left, right, "fdiv");
       });
+  add_operator("%", "int", "int", "int", OP_LAMBDA {
+        return bld.CreateSRem(left, right, "rem");
+      });
   add_operator("!", "bool", "bool", "bool", OP_LAMBDA {
         return bld.CreateNot(left, "not");
       });

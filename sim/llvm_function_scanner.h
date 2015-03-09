@@ -57,6 +57,7 @@ namespace sim {
       virtual bool insert_op_minus(ast::Op_minus const& node);
       virtual bool insert_op_mult(ast::Op_mult const& node);
       virtual bool insert_op_div(ast::Op_div const& node);
+      virtual bool insert_op_mod(ast::Op_mod const& node);
       virtual bool insert_op_and(ast::Op_and const& node);
       virtual bool insert_op_or(ast::Op_or const& node);
       virtual bool insert_op_gt(ast::Op_greater_then const& node);

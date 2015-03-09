@@ -84,6 +84,7 @@ blank      [ \t]
 "("         return token::PAREN_OPEN;
 ")"         return token::PAREN_CLOSE;
 "\""        return token::QUOTE;
+"%"         return token::PERCENT;
 "!"         return token::BANG;
 "@"         return token::AT;
 ":"         return token::COLON;

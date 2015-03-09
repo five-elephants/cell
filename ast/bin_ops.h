@@ -21,6 +21,7 @@ namespace ast {
 	BINOP(minus);
 	BINOP(mult);
 	BINOP(div);
+  BINOP(mod);
   BINOP(equal);
   BINOP(not_equal);
   BINOP(greater_then);
