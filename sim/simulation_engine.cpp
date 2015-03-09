@@ -36,6 +36,8 @@ namespace sim {
     using namespace llvm;
     using namespace std;
 
+    m_logger = log4cxx::Logger::getLogger("cell.sim");
+
     Parse_driver driver;
     if( driver.parse(filename) )
       throw std::runtime_error("parse failed");
@@ -192,7 +194,7 @@ namespace sim {
   Simulation_engine::simulate_step(ir::Time const& t, ir::Time const& duration) {
     ir::Time next_t = m_time + duration.to_unit(ir::Time::ps);
 
-    std::cout << std::dec << "===== time: " << t << " =====" << std::endl;
+    LOG4CXX_DEBUG(m_logger, "===== time: " << t << " =====");
 
     // add timed processes to the run list
     for(auto& mod : m_runset.modules) {
@@ -217,7 +219,7 @@ namespace sim {
           it != recurrent_range.second;
           ++it) {
         auto exe_ptr = reinterpret_cast<int64_t(*)(char*, char*, char*,char*,int64_t)>(it->second.exe_ptr);
-        std::cout << "Calling recurrent process ..." << std::flush;
+        LOG4CXX_TRACE(m_logger, "Calling recurrent process ...");
         auto next_t_tmp = exe_ptr(mod.this_out->data(),
             mod.this_in->data(),
             mod.this_prev->data(),
@@ -227,7 +229,7 @@ namespace sim {
         ir::Time next_t;
         next_t.v = next_t_tmp;
         next_t.magnitude = ir::Time::ps;
-        std::cout << " next_t = " << next_t << std::endl;
+        LOG4CXX_TRACE(m_logger, " next_t = " << next_t);
         new_schedules_recurrent.push_back(std::make_pair(next_t, it->second));
       }
 
@@ -267,13 +269,13 @@ namespace sim {
   Simulation_engine::simulate_cycle() {
     using namespace std;
 
-    cout << "----- simulate cycle -----\n";
+    LOG4CXX_DEBUG(m_logger, "----- simulate cycle -----");
 
     for(auto& mod : m_runset.modules) {
-      cout << "running " << mod.run_list.size() << " processes" << endl;
+      LOG4CXX_DEBUG(m_logger, "running " << mod.run_list.size() << " processes");
 
       for(auto const& proc : mod.run_list) {
-        cout << "calling process..." << endl;
+        LOG4CXX_TRACE(m_logger, "calling process...");
         if( proc.sensitive )
           std::fill(mod.read_mask->begin(), mod.read_mask->end(), 0);
         auto exe_ptr = reinterpret_cast<void (*)(char*, char*, char*,char*)>(proc.exe_ptr);
@@ -283,11 +285,12 @@ namespace sim {
             mod.read_mask->data());
 
         if( proc.sensitive ) {
-          cout << "read_mask: " << hex;
+          std::stringstream strm;
+          strm << "read_mask: " << std::hex;
           for(size_t j=0; j<mod.read_mask->size(); j++)
-            cout << setw(2) << setfill('0')
+            strm << setw(2) << setfill('0')
               << static_cast<int>((*(mod.read_mask))[j]) << " ";
-          cout << endl;
+          LOG4CXX_DEBUG(m_logger, strm.str());
 
           // add to sensitivity list
           for(size_t j=0; j<mod.read_mask->size(); j++) {
@@ -311,9 +314,9 @@ namespace sim {
       bool mod_modified = false;
       for(size_t i=0; i<size; i++) {
         if( ptr_out[i] != ptr_in[i] ) {
-          cout << "found mismatch at offset " << i;
           auto elem = mod.layout->getElementContainingOffset(i);
-          cout << " belongs to element " << elem << endl;
+          LOG4CXX_TRACE(m_logger, "found mismatch at offset " << i
+              << " belongs to element " << elem);
           mod_modified = true;
 
           // add dependant processes to run list

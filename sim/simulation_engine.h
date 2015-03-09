@@ -8,6 +8,7 @@
 #include <map>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
+#include <log4cxx/logger.h>
 
 #include "sim/runset.h"
 #include "sim/module_inspector.h"
@@ -50,6 +51,7 @@ namespace sim {
       std::shared_ptr<Llvm_module> m_top_mod;
       ir::Time m_time;
       bool m_setup_complete = false;
+      log4cxx::LoggerPtr m_logger;
 
 
       void init(std::string const& filename, std::string const& toplevel);

@@ -3,14 +3,14 @@
 #include "sim/simulation_engine.h"
 #include "sim/stream_instrumenter.h"
 #include "sim/vcd_instrumenter.h"
+#include "logging/logger.h"
 
 #include <gtest/gtest.h>
 
 class Simulator_test : public ::testing::Test {
   protected:
     virtual void SetUp() {
-      //llvm::InitializeNativeTarget();
-      //ir::Builtins::init();
+      init_logging();
     }
 };
 

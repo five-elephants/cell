@@ -19,6 +19,8 @@ def configure(conf):
     #conf.check(lib='gtest', uselib_store='GTEST')
     #conf.check(lib='gtest_main', uselib_store='GTEST_MAIN')
     #conf.check(header_name='gtest/gtest.h')
+    conf.check(lib='log4cxx', uselib_store='LOG4CXX')
+    conf.check(header_name='log4cxx/log4cxx.h', uselib_store='LOG4CXX')
     for llvm_config in [ 'llvm-config', 'llvm-config-3.4' ]:
       res = conf.check_cfg(
         path=llvm_config,
@@ -129,7 +131,7 @@ def build(bld):
       target = 'sim',
       includes = '.',
       cxxflags = '-fPIC -std=c++11 -ggdb',
-      use = 'BOOST LLVM'
+      use = 'BOOST LLVM LOG4CXX'
     )
 
     #bld.program(
