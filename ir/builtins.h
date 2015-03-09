@@ -19,6 +19,11 @@ namespace ir {
       printf->return_type = types["int"];
       printf->parameters.emplace_back(new Object<Impl>{types["string"], "msg"});
       functions["print"] = printf;
+
+      auto randf = std::make_shared<Function<Impl>>();
+      randf->name = "print";
+      randf->return_type = types["int"];
+      functions["rand"] = randf;
     };
   };
 

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <list>
+#include <cstdlib>
 #include <llvm/ExecutionEngine/JIT.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Analysis/Verifier.h>
@@ -111,12 +112,14 @@ namespace sim {
   Simulation_engine::setup() {
     using namespace std;
 
-    cout << "setup for simulation..." << endl;
+    LOG4CXX_DEBUG(m_logger, "setup for simulation...");
 
 
     // add mappings for runtime functions
     m_exe->addGlobalMapping(ir::Builtins<Llvm_impl>::functions.at("print")->impl.code,
         (void*)(&print));
+    m_exe->addGlobalMapping(ir::Builtins<Llvm_impl>::functions.at("rand")->impl.code,
+        (void*)(&rand));
 
 /*
     // generate wrapper function to setup simulation

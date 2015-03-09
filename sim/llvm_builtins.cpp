@@ -22,6 +22,28 @@ static void add_operator(ir::Label const& name,
 }
 
 
+static void add_function(ir::Label const& name,
+    std::shared_ptr<sim::Llvm_library> lib) {
+  std::vector<llvm::Type*> args;
+  auto& builtin_funcs = ir::Builtins<sim::Llvm_impl>::functions;
+  auto f = builtin_funcs.at(name);
+  auto module = lib->impl.module.get();
+
+  for(auto p : f->parameters)
+    args.push_back(p->type->impl.type);
+
+  auto ty = llvm::FunctionType::get(f->return_type->impl.type,
+      args,
+      false);
+  f->impl.func_type = ty;
+  f->impl.code = llvm::Function::Create(ty,
+      llvm::Function::ExternalLinkage,
+      name,
+      module
+      );
+}
+
+
 void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   auto& context = lib->impl.context;
   auto module = lib->impl.module.get();
@@ -131,23 +153,8 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
   // builtin functions
   //
 
-  {
-    std::vector<llvm::Type*> args;
-    auto f = builtin_funcs.at("print");
-
-    for(auto p : f->parameters)
-      args.push_back(p->type->impl.type);
-
-    auto ty = llvm::FunctionType::get(f->return_type->impl.type,
-        args,
-        false);
-    f->impl.func_type = ty;
-    f->impl.code = llvm::Function::Create(ty,
-        llvm::Function::ExternalLinkage,
-        "print",
-        module
-        );
-  }
+  add_function("print", lib);
+  add_function("rand", lib);
 }
 
 
