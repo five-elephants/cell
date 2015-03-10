@@ -33,19 +33,7 @@ namespace ir {
   template<typename Impl>
   bool
   Namespace_scanner<Impl>::insert_socket(ast::Socket_def const& sock) {
-    auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
-    auto s = std::make_shared<Socket<Impl>>(label);
-    //auto s = std::shared_ptr<Socket>(new Socket(label));
-    if( m_ns.sockets.count(s->name) > 0 )
-      throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
-    if( m_ns.types.count(s->name) > 0 )
-      throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
-
-    s->enclosing_ns = &m_ns;
-    scan_ast(*s, sock);
-    m_ns.sockets[s->name] = s;
-    m_ns.types[s->name] = s;
-
+    create_socket(sock);
     return false;
   }
 
@@ -149,5 +137,23 @@ namespace ir {
     return m;
   }
 
+
+  template<typename Impl>
+  std::shared_ptr<Socket<Impl>>
+  Namespace_scanner<Impl>::create_socket(ast::Socket_def const& sock) {
+    auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
+    auto s = std::make_shared<Socket<Impl>>(label);
+    if( m_ns.sockets.count(s->name) > 0 )
+      throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
+    if( m_ns.types.count(s->name) > 0 )
+      throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
+
+    s->enclosing_ns = &m_ns;
+    scan_ast(*s, sock);
+    m_ns.sockets[s->name] = s;
+    m_ns.types[s->name] = s;
+
+    return s;
+  }
 
 }

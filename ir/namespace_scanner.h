@@ -8,6 +8,7 @@
 #include "types.h"
 #include "streamop.h"
 #include "make_array_type.h"
+#include "logging/logger.h"
 
 #include <sstream>
 #include <set>
@@ -23,7 +24,8 @@ namespace ir {
     public:
       Namespace_scanner(Namespace<Impl>& ns)
         : m_ns(ns),
-          m_root(true) {
+          m_root(true),
+          m_logger(log4cxx::Logger::getLogger("cell.scan")) {
 
         this->template on_enter_if_type<ast::Namespace_def>(&Namespace_scanner::insert_namespace);
         this->template on_enter_if_type<ast::Module_def>(&Namespace_scanner::insert_module);
@@ -51,6 +53,7 @@ namespace ir {
     protected:
       bool m_root;
       Namespace<Impl>& m_ns;
+      log4cxx::LoggerPtr m_logger;
 
       virtual bool insert_module(ast::Module_def const& mod);
       virtual bool insert_namespace(ast::Namespace_def const& ns);
@@ -60,6 +63,7 @@ namespace ir {
       virtual std::shared_ptr<ir::Namespace<Impl>> create_namespace(ast::Namespace_def const& node);
       virtual std::shared_ptr<ir::Module<Impl>> create_module(ast::Module_def const& node);
       virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
+      virtual std::shared_ptr<ir::Socket<Impl>> create_socket(ast::Socket_def const& node);
   };
 
 

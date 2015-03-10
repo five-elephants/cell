@@ -52,7 +52,7 @@ namespace sim {
   bool
   Llvm_namespace_scanner::insert_function(ast::Function_def const& node) {
     std::shared_ptr<Llvm_function> func = create_function(node);
-    
+
     m_ns.functions[func->name] = func;
 
     // code generation
@@ -62,6 +62,29 @@ namespace sim {
     // (XXX unsure if this is needed) optimize code
     //auto lib = ir::find_library(m_ns);
     //lib->impl.fpm->run(*(func->impl.code));
+
+    return false;
+  }
+
+
+  bool
+  Llvm_namespace_scanner::insert_socket(ast::Socket_def const& node) {
+    auto sock = create_socket(node);
+    auto lib = find_library(m_ns);
+    auto hier_name = hierarchical_name(m_ns, sock->name);
+    auto ty = llvm::StructType::create(lib->impl.context, hier_name);
+
+    std::size_t i = 0;
+    std::vector<llvm::Type*> port_tys;
+    port_tys.reserve(sock->ports.size());
+    for(auto p : sock->ports) {
+      p.second->impl.struct_index = i++;
+      port_tys.push_back(p.second->type->impl.type);
+    }
+
+    ty->setBody(port_tys);
+    sock->Type::impl.type = ty;
+    LOG4CXX_DEBUG(m_logger, "created socket definition for '" << sock->name << "'");
 
     return false;
   }

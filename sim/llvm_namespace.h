@@ -20,7 +20,9 @@ namespace sim {
       llvm::Type* type;
     };
 
-    struct Port {};
+    struct Port {
+      std::size_t struct_index;
+    };
 
     struct Object {
       std::size_t struct_index;

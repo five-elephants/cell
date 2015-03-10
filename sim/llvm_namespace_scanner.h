@@ -15,7 +15,8 @@ namespace sim {
     protected:
       virtual bool insert_namespace(ast::Namespace_def const& ns);
       virtual bool insert_module(ast::Module_def const& mod);
-      virtual bool insert_function(ast::Function_def const& func); 
+      virtual bool insert_function(ast::Function_def const& func);
+      virtual bool insert_socket(ast::Socket_def const& node);
   };
 
 }
