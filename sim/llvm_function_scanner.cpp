@@ -235,23 +235,29 @@ namespace sim {
           + m_function.name);
 
     // get type
-    if( typeid(node.type()) == typeid(ast::Identifier) ) {
-      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
-      type = find_type(m_ns, type_name);
-      if( !type ) {
-        std::stringstream strm;
-        strm << node.type().location();
-        strm << ": typename '" << type_name << "' not found.";
-        throw std::runtime_error(strm.str());
-      }
-    } else
-      throw std::runtime_error("not supported yet");
-    /*else if( typeid(node.type()) == typeid(ast::Array_type) ) {
-      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
+    if( !node.without_type() ) {
+      if( typeid(node.type()) == typeid(ast::Identifier) ) {
+        auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
+        type = find_type(m_ns, type_name);
+        if( !type ) {
+          std::stringstream strm;
+          strm << node.type().location();
+          strm << ": typename '" << type_name << "' not found.";
+          throw std::runtime_error(strm.str());
+        }
+      } else
+        throw std::runtime_error("not supported yet");
+      /*else if( typeid(node.type()) == typeid(ast::Array_type) ) {
+        auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
 
-      auto type = make_array_type(m_mod, ar_type);
-      m_mod.types[obj->type->name] = obj->type;
-    }*/
+        auto type = make_array_type(m_mod, ar_type);
+        m_mod.types[obj->type->name] = obj->type;
+      }*/
+    } else if( !node.without_expression() ) {
+      type = m_types[&(node.expression())];
+    } else {
+      throw std::runtime_error("Can not infer type for variable definition");
+    }
 
     // initial value
     llvm::Value* v = nullptr;

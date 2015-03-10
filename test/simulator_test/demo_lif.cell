@@ -24,8 +24,7 @@ namespace demo = {
 
 
         def integrate(dt : float) -> float = {
-            var leak = el - m : float;
-            var tmp = gl * leak + intx : float;
+            var tmp = gl * (el - m) + intx;
 
             intx = intx - 0.1 * intx;
 
@@ -51,11 +50,6 @@ namespace demo = {
         }
         once(510 ms) = { fire_in = true; }
 
-
-        /*recurrent(t) = {*/
-            /*fire_in = true;*/
-            /*t + rand() % 500 ms*/
-        /*}*/
 
         periodic(1 ms) = {
             fire_in = if( rand() % 1000 < 100 ) true else false;

@@ -20,21 +20,24 @@ namespace ast {
       Node_if const& identifier() const { return m_identifier; }
       Node_if& type() { return *m_type; }
       Node_if const& type() const { return *m_type; }
-      void type(Node_if& node) { 
+      void type(Node_if& node) {
         std::remove(begin(m_nodes), end(m_nodes), m_type.get());
         m_type.reset(&node);
         m_nodes.push_back(m_type.get());
+        m_without_type = false;
       }
       Node_if& expression() { return *m_expression; }
       Node_if const& expression() const { return *m_expression; }
-      void expression(Node_if& node) { 
+      void expression(Node_if& node) {
         m_nodes.erase(std::remove(std::begin(m_nodes), std::end(m_nodes), m_expression.get()),
             std::end(m_nodes));
         m_expression.reset(&node);
         m_nodes.push_back(m_expression.get());
+        m_without_expression = false;
       }
 
       bool without_expression() const { return m_without_expression; }
+      bool without_type() const { return m_without_type; }
 
     private:
       Node_if& m_identifier;
@@ -44,6 +47,7 @@ namespace ast {
       //Node_if& m_expression;
       std::shared_ptr<Node_if> m_expression;
       //bool m_is_expression_owner = false;
+      bool m_without_type;
       bool m_without_expression;
 
   };

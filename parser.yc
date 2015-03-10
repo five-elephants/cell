@@ -150,6 +150,7 @@
 
 %start unit;
 
+%right '=';
 %left "||";
 %left "&&";
 %left "==" "!=";
@@ -364,7 +365,8 @@ exp:
   | compound                     { $$ = $1; }
   | var_ref                      { $$ = $1; }
   | literal                      { $$ = $1; }
-  | func_call                    { $$ = $1; };
+  | func_call                    { $$ = $1; }
+  | PAREN_OPEN exp PAREN_CLOSE   { $$ = $2; };
 
 var_ref: identifier              { $$ = new ast::Variable_ref(*$1); };
 identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; $$->location(@$); };

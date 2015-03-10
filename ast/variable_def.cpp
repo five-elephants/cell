@@ -11,6 +11,7 @@ namespace ast {
 			m_identifier(identifier),
 			m_type(new Identifier("void")),
 			m_expression(new Empty_expression()),
+			m_without_type(true),
 			m_without_expression(true) {
 		register_branches({&m_identifier, m_type.get(), m_expression.get()});
 	}
@@ -23,6 +24,7 @@ namespace ast {
 			m_identifier(identifier),
 			m_type(&type),
 			m_expression(&expression),
+			m_without_type(false),
    			m_without_expression(false)	{
 		register_branches({&m_identifier, m_type.get(), m_expression.get()});
 	}
