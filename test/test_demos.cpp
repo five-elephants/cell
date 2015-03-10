@@ -25,3 +25,15 @@ TEST_F(Demos, lif_neuron) {
   engine.simulate(ir::Time(1000, ir::Time::ms));
   engine.teardown();
 }
+
+
+TEST_F(Demos, dataflow) {
+  sim::Instrumented_simulation_engine engine("test/simulator_test/dataflow.cell",
+      "demo.dataflow");
+  sim::Vcd_instrumenter instr("dataflow.vcd");
+
+  engine.instrument(instr);
+  engine.setup();
+  engine.simulate(ir::Time(1000, ir::Time::ms));
+  engine.teardown();
+}

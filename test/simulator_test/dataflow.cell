@@ -1,0 +1,33 @@
+namespace demo = {
+
+    socket binop = {
+        <= a : int
+        <= b : int
+        => y : int
+    }
+
+    /*mod adder : binop = {*/
+        /*process = { port.y = port.a + port.b; }*/
+    /*}*/
+
+    /*mod multiplier : binop = {*/
+        /*process = { port.y = port.a * port.b; }*/
+    /*}*/
+
+
+    mod dataflow = {
+        var to_plus : binop
+        var mul_res : int
+
+        def __init__() = {
+            /*to_plus.a = 1;*/
+            /*to_plus.b = 2;*/
+        }
+
+        /*adder plus(p)*/
+        /*multiplier mul( a : p.y, b : 2, y : mul_res)*/
+    }
+
+
+
+}
