@@ -24,11 +24,11 @@ namespace sim {
     mod.impl.mod_type = llvm::StructType::create(lib->impl.context, hier_name);
 
     // create ctor
-    mod.impl.ctor = Function::Create(
-        FunctionType::get(mod.impl.mod_type, false),
-        Function::ExternalLinkage,
-        hierarchical_name(mod, "ctor"),
-        lib->impl.module.get());
+    //mod.impl.ctor = Function::Create(
+        //FunctionType::get(mod.impl.mod_type, false),
+        //Function::ExternalLinkage,
+        //hierarchical_name(mod, "ctor"),
+        //lib->impl.module.get());
 
     // register scanner callback functions
     this->template on_leave_if_type<ast::Module_def>(&Llvm_module_scanner::leave_module);
