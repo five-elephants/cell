@@ -255,7 +255,7 @@ connection_items: connection_items_
 connection_items_: connection_items_ COMMA connection_item
                                  { $$ = $1; $$->push_back($3); }
   | connection_item              { $$ = new ast::Node_list; $$->push_back($1); };
-connection_item: identifier ":" identifier
+connection_item: identifier ":" exp
                                  { $$ = new ast::Connection_item(*$1, *$3); };
 
 

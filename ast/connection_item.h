@@ -7,22 +7,22 @@ namespace ast {
 
   class Connection_item : public Tree_base {
     public:
-      Connection_item(Node_if& port_name, Node_if& signal_name);
+      Connection_item(Node_if& port_name, Node_if& expression);
 
       virtual void visit() {};
 
-      Identifier const& port_name() const { 
-        return dynamic_cast<Identifier const&>(m_port_name); 
+      Identifier const& port_name() const {
+        return dynamic_cast<Identifier const&>(m_port_name);
       }
 
-      Identifier const& signal_name() const { 
-        return dynamic_cast<Identifier const&>(m_signal_name);
+      Node_if const& expression() const {
+        return m_expression;
       }
 
     private:
       Node_if& m_port_name;
-      Node_if& m_signal_name;
-  };  
+      Node_if& m_expression;
+  };
 
 }
 
