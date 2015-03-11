@@ -39,15 +39,20 @@ TEST_F(Demos, dataflow) {
   engine.instrument(instr);
   engine.setup();
 
-  auto intro_dataflow = engine.inspect_module("demo.dataflow");
+  auto intro_dataflow = engine.inspect_module("");
+  auto intro_plus = engine.inspect_module("plus");
 
   LOG4CXX_INFO(m_logger, "init: add_res = "
-      << intro_dataflow.get<int64_t>("add_res"));
+      << intro_dataflow.get<int64_t>("add_res")
+      << " plus.test = "
+      << intro_plus.get<int64_t>("test"));
 
   engine.simulate(ir::Time(100, ir::Time::ns));
 
   LOG4CXX_INFO(m_logger, "after sim: add_res = "
-      << intro_dataflow.get<int64_t>("add_res"));
+      << intro_dataflow.get<int64_t>("add_res")
+      << " plus.test = "
+      << intro_plus.get<int64_t>("test"));
 
   engine.teardown();
 }

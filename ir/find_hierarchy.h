@@ -42,7 +42,7 @@ namespace ir {
 
     return rv;
   }
- 
+
 
   template<typename T, typename Impl>
   std::shared_ptr<T> find_by_path(Namespace<Impl> const& ns,
@@ -57,14 +57,14 @@ namespace ir {
         ++it) {
       auto i = *it;
       //std::cout << "   '" << i << "'\n";
-      
+
       if( cur_ns->namespaces.count(i) )
         cur_ns = cur_ns->namespaces.at(i).get();
       else if( cur_ns->modules.count(i) )
         cur_ns = cur_ns->modules.at(i).get();
       else
         return std::shared_ptr<T>(nullptr);
-    } 
+    }
 
     auto m = cur_ns->*field;
 
@@ -74,6 +74,28 @@ namespace ir {
     return std::shared_ptr<T>(nullptr);
   }
 
+
+  template<typename Impl>
+  std::shared_ptr<Module<Impl>> find_instance(std::shared_ptr<Module<Impl>> mod,
+      std::string const& path) {
+    auto path_elems = parse_path(path, ".");
+
+    //std::cout << "PATH: " << path << "\n";
+    auto cur_mod = mod;
+    for(auto it=path_elems.begin();
+        !path_elems.empty() && (it != path_elems.end());
+        ++it) {
+      auto i = *it;
+      //std::cout << "   '" << i << "'\n";
+
+      if( cur_mod->instantiations.count(i) )
+        cur_mod = cur_mod->instantiations[i]->module;
+      else
+        return std::shared_ptr<Module<Impl>>(nullptr);
+    }
+
+    return cur_mod;
+  }
 
 
   template<typename Impl>

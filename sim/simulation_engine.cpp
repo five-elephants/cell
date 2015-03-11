@@ -171,13 +171,9 @@ namespace sim {
     if( !m_setup_complete )
       throw std::runtime_error("Call Simulation_engine::setup() before Simulation_engine::inspect_module()");
 
-    // TODO search the module in instances under the top module
-    auto& mod = m_top_mod;
-    //std::shared_ptr<sim::Llvm_module> mod = ir::find_by_path<sim::Llvm_module>(*(m_lib->ns),
-        //&ir::Namespace<sim::Llvm_impl>::modules,
-        //"m");
-    //if( !mod )
-      //throw std::runtime_error("failed to find module in design hierarchy");
+    auto mod = ir::find_instance(m_top_mod, name);
+    if( !mod )
+      throw std::runtime_error("Could not find requested module");
 
     auto layout = m_layout->getStructLayout(mod->impl.mod_type);
     auto num_elements = mod->impl.mod_type->getNumElements();
