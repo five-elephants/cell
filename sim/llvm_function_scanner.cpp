@@ -88,6 +88,7 @@ namespace sim {
   void
   Llvm_function_scanner::init_scanner() {
     this->template on_leave_if_type<ast::Return_statement>(&Llvm_function_scanner::insert_return);
+    this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::enter_variable_ref);
     this->template on_leave_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
     this->template on_leave_if_type<ast::Op_element>(&Llvm_function_scanner::leave_op_element);
     this->template on_enter_if_type<ast::Name_lookup>(&Llvm_function_scanner::enter_name_lookup);
@@ -97,6 +98,7 @@ namespace sim {
     this->template on_visit_if_type<ast::Literal<bool>>(&Llvm_function_scanner::insert_literal_bool);
     this->template on_visit_if_type<ast::Literal<std::string>>(&Llvm_function_scanner::insert_literal_string);
     this->template on_enter_if_type<ast::Phys_literal>(&Llvm_function_scanner::insert_phys_literal);
+    this->template on_enter_if_type<ast::Op_at>(&Llvm_function_scanner::enter_op_at);
     this->template on_leave_if_type<ast::Op_at>(&Llvm_function_scanner::insert_op_at);
     this->template on_leave_if_type<ast::Op_not>(&Llvm_function_scanner::insert_op_not);
     this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
@@ -111,6 +113,7 @@ namespace sim {
     this->template on_leave_if_type<ast::Op_lesser_then>(&Llvm_function_scanner::insert_op_lt);
     this->template on_leave_if_type<ast::Op_greater_or_equal_then>(&Llvm_function_scanner::insert_op_ge);
     this->template on_leave_if_type<ast::Op_lesser_or_equal_then>(&Llvm_function_scanner::insert_op_le);
+    this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
     this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
@@ -172,6 +175,12 @@ namespace sim {
 
 
   bool
+  Llvm_function_scanner::enter_variable_ref(ast::Variable_ref const& node) {
+    m_lookups.push_back(Lookup_source::in);
+    return true;
+  }
+
+  bool
   Llvm_function_scanner::insert_variable_ref(ast::Variable_ref const& node) {
     auto ptr = m_values.at(&(node.expression()));
     auto type = m_types.at(&(node.expression()));
@@ -182,6 +191,8 @@ namespace sim {
 
     m_values[&node] = m_builder.CreateLoad(ptr, "load");
     m_types[&node] = type;
+
+    m_lookups.pop_back();
 
     return true;
   }
@@ -244,11 +255,21 @@ namespace sim {
       // lookup name in module
       auto p = m_mod->objects.find(id.identifier());
       if( p != m_mod->objects.end() ) {
-        auto this_in = m_named_values.at("this_in");
+        if( m_lookups.empty() )
+          throw std::runtime_error("expecting source specifier for name lookup");
+
+        llvm::Value* source_ptr;
+        if( m_lookups.back() == Lookup_source::in )
+          source_ptr = m_named_values.at("this_in");
+        else if( m_lookups.back() == Lookup_source::out )
+          source_ptr = m_named_values.at("this_out");
+        else if( m_lookups.back() == Lookup_source::prev )
+          source_ptr = m_named_values.at("this_prev");
+
         auto index = p->second->impl.struct_index;
         std::string twine("elem_ptr_");
         twine += id.identifier();
-        auto ptr_v = m_builder.CreateStructGEP(this_in, index, twine);
+        auto ptr_v = m_builder.CreateStructGEP(source_ptr, index, twine);
 
         m_values[&node] = ptr_v;
         m_types[&node] = p->second->type;
@@ -428,6 +449,12 @@ namespace sim {
 
 
   bool
+  Llvm_function_scanner::enter_op_at(ast::Op_at const& node) {
+    m_lookups.push_back(Lookup_source::in);
+    return true;
+  }
+
+  bool
   Llvm_function_scanner::insert_op_at(ast::Op_at const& node) {
     auto ty = m_types.at(&(node.operand()));
     auto value = m_values.at(&(node.operand()));
@@ -445,8 +472,9 @@ namespace sim {
     if( op ) {
       auto ret_ty = op->return_type;
       // get previous value of operand
-      auto operand = dynamic_cast<ast::Name_lookup const&>(node.operand());
-      auto operand_id = dynamic_cast<ast::Identifier const&>(operand.identifier());
+      auto operand = dynamic_cast<ast::Variable_ref const&>(node.operand());
+      auto lookup = dynamic_cast<ast::Name_lookup const&>(operand.expression());
+      auto operand_id = dynamic_cast<ast::Identifier const&>(lookup.identifier());
       auto p = m_mod->objects.find(operand_id.identifier());
       if( p != m_mod->objects.end() ) {
         auto this_prev = m_named_values.at("this_prev");
@@ -474,6 +502,7 @@ namespace sim {
       throw std::runtime_error(strm.str());
     }
 
+    m_lookups.pop_back();
     return true;
   }
 
@@ -592,6 +621,13 @@ namespace sim {
 
 
   bool
+  Llvm_function_scanner::enter_assignment(ast::Assignment const& node) {
+    m_lookups.push_back(Lookup_source::out);
+    return true;
+  }
+
+
+  bool
   Llvm_function_scanner::leave_assignment(ast::Assignment const& node) {
     auto ptr = m_values.at(&(node.identifier()));
     auto target_type = m_types.at(&(node.identifier()));
@@ -636,6 +672,8 @@ namespace sim {
 
     m_values[&node] = rval;
     m_types[&node] = target_type;
+
+    m_lookups.pop_back();
 
     return true;
   }

@@ -18,12 +18,16 @@ namespace sim {
 
 
     private:
+      enum class Lookup_source { in, out, prev };
+
       typedef std::unordered_map<ast::Node_if const*, llvm::Value*> Node_value_map;
       //typedef std::unordered_map<ir::Label, llvm::AllocaInst*> Name_value_map;
       typedef std::unordered_map<ir::Label, llvm::Value*> Name_value_map;
       typedef std::unordered_map<ast::Node_if const*, std::shared_ptr<Llvm_type>> Node_type_map;
       typedef std::unordered_map<ir::Label, std::shared_ptr<Llvm_type>> Name_type_map;
       typedef std::vector<std::shared_ptr<Llvm_type>> Type_stack;
+      typedef std::vector<Lookup_source> Lookup_source_stack;
+
 
       Llvm_namespace& m_ns;
       Llvm_module* m_mod = nullptr;
@@ -34,6 +38,7 @@ namespace sim {
       Node_type_map m_types;
       Name_type_map m_named_types;
       Type_stack m_type_targets;
+      Lookup_source_stack m_lookups;
       log4cxx::LoggerPtr m_logger;
 
 
@@ -45,6 +50,7 @@ namespace sim {
 
       // scanner callbacks
       virtual bool insert_return(ast::Return_statement const& node);
+      virtual bool enter_variable_ref(ast::Variable_ref const& node);
       virtual bool insert_variable_ref(ast::Variable_ref const& node);
       virtual bool leave_op_element(ast::Op_element const& node);
       virtual bool enter_name_lookup(ast::Name_lookup const& node);
@@ -54,6 +60,7 @@ namespace sim {
       virtual bool insert_literal_bool(ast::Literal<bool> const& node);
       virtual bool insert_literal_string(ast::Literal<std::string> const& node);
       virtual bool insert_phys_literal(ast::Phys_literal const& node);
+      virtual bool enter_op_at(ast::Op_at const& node);
       virtual bool insert_op_at(ast::Op_at const& node);
       virtual bool insert_op_not(ast::Op_not const& node);
       virtual bool insert_op_equal(ast::Op_equal const& node);
@@ -68,6 +75,7 @@ namespace sim {
       virtual bool insert_op_lt(ast::Op_lesser_then const& node);
       virtual bool insert_op_ge(ast::Op_greater_or_equal_then const& node);
       virtual bool insert_op_le(ast::Op_lesser_or_equal_then const& node);
+      virtual bool enter_assignment(ast::Assignment const& node);
       virtual bool leave_assignment(ast::Assignment const& node);
       virtual bool leave_compound(ast::Compound const& node);
       virtual bool enter_if_statement(ast::If_statement const& node);
