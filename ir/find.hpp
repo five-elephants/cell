@@ -31,8 +31,8 @@ namespace ir {
       Label const& sock_name) {
     auto rv = find_in_namespace<Type<Impl>>(ns, &Namespace<Impl>::sockets, sock_name);
     if( !rv ) {
-      if( sock_name == Builtins<Impl>::null_socket->name ) {
-        return Builtins<Impl>::null_socket;
+      if( sock_name == "unit" ) {
+        return Builtins<Impl>::types.at("unit");
       }
     }
     return rv;

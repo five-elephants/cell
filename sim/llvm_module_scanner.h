@@ -14,18 +14,23 @@ namespace sim {
     protected:
       typedef std::tuple< std::shared_ptr<Llvm_function>, ast::Node_if const* > Function_node_tuple;
       typedef std::vector<Function_node_tuple> Function_todo_list;
+      typedef std::vector<std::shared_ptr<Llvm_instantiation>> Instantiation_todo_list;
 
       std::vector<llvm::Type*> m_member_types;
       Function_todo_list m_todo_functions;
+      Instantiation_todo_list m_todo_insts;
 
 
       virtual bool insert_function(ast::Function_def const& func);
       virtual bool insert_object(ast::Variable_def const& var);
+      virtual bool insert_instantiation(ast::Module_instantiation const& node);
       virtual bool insert_process(ast::Process const& node);
       virtual bool insert_periodic(ast::Periodic const& node);
       virtual bool insert_once(ast::Once const& node);
       virtual bool insert_recurrent(ast::Recurrent const& node);
       virtual bool leave_module(ast::Module_def const& node);
+
+      void create_connect(std::shared_ptr<Llvm_instantiation> inst);
   };
 
 }

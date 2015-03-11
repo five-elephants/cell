@@ -6,9 +6,10 @@ namespace demo = {
         => y : int
     }
 
-    /*mod adder : binop = {*/
-        /*process = { port.y = port.a + port.b; }*/
-    /*}*/
+
+    mod adder : binop = {
+        process = { port.y = port.a + port.b; }
+    }
 
     /*mod multiplier : binop = {*/
         /*process = { port.y = port.a * port.b; }*/
@@ -17,16 +18,16 @@ namespace demo = {
 
     mod dataflow = {
         var to_plus : binop
-        var mul_res : int
-
-        def get() -> binop = to_plus
+        var add_res : int
 
         def __init__() = {
-            to_plus.a = 1;
-            to_plus.b = 2;
+            plus.a = 1;
+            plus.b = 2;
+            add_res = plus.y;
         }
 
-        /*adder plus(p)*/
+        adder plus( a : aa, b : bb, y : yy)
+        /*adder plus(to_plus)*/
         /*multiplier mul( a : p.y, b : 2, y : mul_res)*/
     }
 

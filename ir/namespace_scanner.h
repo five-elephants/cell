@@ -108,8 +108,13 @@ namespace ir {
               return insert_socket(sock);
             }
           } else {
-            m_mod.socket = Builtins<Impl>::null_socket;
+            m_mod.socket = Builtins<Impl>::types.at("unit");
           }
+
+          auto port_obj = std::make_shared<Object<Impl>>();
+          port_obj->name = "port";
+          port_obj->type = m_mod.socket;
+          m_mod.objects["port"] = port_obj;
 
           // generate code for module initialization
           // TODO
@@ -139,6 +144,7 @@ namespace ir {
 
       virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
       virtual std::shared_ptr<ir::Object<Impl>> create_object(ast::Variable_def const& node);
+      virtual std::shared_ptr<ir::Instantiation<Impl>> create_instantiation(ast::Module_instantiation const& node);
       virtual std::shared_ptr<ir::Process<Impl>> create_process(ast::Process const& node);
   };
 

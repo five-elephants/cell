@@ -45,6 +45,92 @@ namespace ir {
   template<typename Impl>
   bool
   Module_scanner<Impl>::insert_instantiation(ast::Module_instantiation const& node) {
+    create_instantiation(node);
+    return false;
+  }
+
+
+  template<typename Impl>
+  bool
+  Module_scanner<Impl>::insert_process(ast::Process const& node) {
+    auto proc = create_process(node);
+    m_mod.processes.push_back(proc);
+
+    return false;
+  }
+
+
+  template<typename Impl>
+  bool
+  Module_scanner<Impl>::insert_periodic(ast::Periodic const& node) {
+    auto rv = std::make_shared<Periodic<Impl>>();
+
+    rv->period = Time(2, Time::ns);
+    m_mod.periodicals.push_back(rv);
+
+    return false;
+  }
+
+
+  template<typename Impl>
+  bool
+  Module_scanner<Impl>::insert_once(ast::Once const& node) {
+    auto rv = std::make_shared<Once<Impl>>();
+
+    rv->time = Time(2, Time::ns);
+    m_mod.onces.push_back(rv);
+
+    return false;
+  }
+
+
+  template<typename Impl>
+  bool
+  Module_scanner<Impl>::insert_recurrent(ast::Recurrent const& node) {
+    auto rv = std::make_shared<Recurrent<Impl>>();
+    rv->time_id = dynamic_cast<ast::Identifier const&>(node.time_id()).identifier();
+    m_mod.recurrents.push_back(rv);
+
+    return false;
+  }
+
+
+  template<typename Impl>
+  std::shared_ptr<Object<Impl>>
+  Module_scanner<Impl>::create_object(ast::Variable_def const& node) {
+    std::shared_ptr<Object<Impl>> obj(new Object<Impl>());
+
+    // get name
+    obj->name = dynamic_cast<ast::Identifier const&>(node.identifier()).identifier();
+    if( m_mod.objects.count(obj->name) > 0 )
+      throw std::runtime_error(std::string("Variable with name ")
+          + obj->name
+          + std::string(" already exists"));
+
+    // get type
+    if( typeid(node.type()) == typeid(ast::Identifier) ) {
+      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
+      obj->type = find_type(m_mod, type_name);
+      if( !obj->type ) {
+        std::stringstream strm;
+        strm << node.type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+    } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
+      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
+
+      obj->type = make_array_type(m_mod, ar_type);
+      m_mod.types[obj->type->name] = obj->type;
+    }
+
+    return obj;
+  }
+
+
+  template<typename Impl>
+  std::shared_ptr<Instantiation<Impl>>
+  Module_scanner<Impl>::create_instantiation(ast::Module_instantiation const& node) {
     std::shared_ptr<Instantiation<Impl>> inst(new Instantiation<Impl>);
     inst->name = dynamic_cast<ast::Identifier const&>(node.instance_name()).identifier();
     if( m_mod.instantiations.count(inst->name) > 0 )
@@ -127,8 +213,8 @@ namespace ir {
         for(auto assignee_port_pair : assignee_socket->elements) {
           auto port_name = assignee_port_pair.first;
           auto assignee_port = assignee_port_pair.second;
-          auto searchit = m_mod.socket->elements.find(port_name);
-          if( searchit != m_mod.socket->elements.end() ) {
+          auto searchit = assignee->type->elements.find(port_name);
+          if( searchit != assignee->type->elements.end() ) {
             auto it = searchit->second;
             if( !type_compatible(*(it->type), *(assignee_port->type)) ) {
               std::stringstream strm;
@@ -156,92 +242,19 @@ namespace ir {
             matched_ports.insert(assignee_port->name);
           }
         }
-      }
+      } else
+        throw std::runtime_error("connection items should be either a list or a single identifier");
     }
-
     m_mod.instantiations[inst->name] = inst;
 
-    return false;
+    auto obj = std::make_shared<Object<Impl>>();
+    obj->name = inst->name;
+    obj->type = inst->module->socket;
+
+    m_mod.objects[obj->name] = obj;
+
+    return inst;
   }
-
-
-  template<typename Impl>
-  bool
-  Module_scanner<Impl>::insert_process(ast::Process const& node) {
-    auto proc = create_process(node);
-    m_mod.processes.push_back(proc);
-
-    return false;
-  }
-
-
-  template<typename Impl>
-  bool
-  Module_scanner<Impl>::insert_periodic(ast::Periodic const& node) {
-    auto rv = std::make_shared<Periodic<Impl>>();
-
-    rv->period = Time(2, Time::ns);
-    m_mod.periodicals.push_back(rv);
-
-    return false;
-  }
-
-
-  template<typename Impl>
-  bool
-  Module_scanner<Impl>::insert_once(ast::Once const& node) {
-    auto rv = std::make_shared<Once<Impl>>();
-
-    rv->time = Time(2, Time::ns);
-    m_mod.onces.push_back(rv);
-
-    return false;
-  }
-
-
-  template<typename Impl>
-  bool
-  Module_scanner<Impl>::insert_recurrent(ast::Recurrent const& node) {
-    auto rv = std::make_shared<Recurrent<Impl>>();
-    rv->time_id = dynamic_cast<ast::Identifier const&>(node.time_id()).identifier();
-    m_mod.recurrents.push_back(rv);
-
-    return false;
-  }
-
-
-  template<typename Impl>
-  std::shared_ptr<Object<Impl>>
-  Module_scanner<Impl>::create_object(ast::Variable_def const& node) {
-    std::shared_ptr<Object<Impl>> obj(new Object<Impl>());
-
-    // get name
-    obj->name = dynamic_cast<ast::Identifier const&>(node.identifier()).identifier();
-    if( m_mod.objects.count(obj->name) > 0 )
-      throw std::runtime_error(std::string("Variable with name ")
-          + obj->name
-          + std::string(" already exists"));
-
-    // get type
-    if( typeid(node.type()) == typeid(ast::Identifier) ) {
-      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
-      obj->type = find_type(m_mod, type_name);
-      if( !obj->type ) {
-        std::stringstream strm;
-        strm << node.type().location();
-        strm << ": typename '" << type_name << "' not found.";
-        throw std::runtime_error(strm.str());
-      }
-    } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
-      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
-
-      obj->type = make_array_type(m_mod, ar_type);
-      m_mod.types[obj->type->name] = obj->type;
-    }
-
-    return obj;
-  }
-
 
 
   template<typename Impl>
