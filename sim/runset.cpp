@@ -1,5 +1,6 @@
 #include "sim/runset.h"
 
+#include <iostream>
 
 namespace sim {
 
@@ -60,22 +61,85 @@ namespace sim {
         );
     }
 
-    // call __init__ if it exists
-    auto init_f = mod->functions.find("__init__");
-    if( init_f != mod->functions.end() ) {
-      std::function<void(char*,char*,char*,char*)> init_func;
-      void* ptr = exe->getPointerToFunction(init_f->second->impl.code);
-      typedef void Func(char*,char*,char*,char*);
-      init_func = reinterpret_cast<Func*>(ptr);
-      init_func(rv.this_out->data(),
-          rv.this_in->data(),
-          rv.this_prev->data(),
-          rv.read_mask->data());
-      std::copy(rv.this_out->begin(), rv.this_out->end(), rv.this_in->begin());
-      std::copy(rv.this_out->begin(), rv.this_out->end(), rv.this_prev->begin());
-    }
-
     modules.push_back(std::move(rv));
+
+    // add submodules
+    for(auto inst : mod->instantiations) {
+      add_module(exe, inst.second->module);
+    }
+  }
+
+
+  void
+  Runset::setup_hierarchy() {
+    for(auto& m : modules) {
+      for(auto i : m.mod->instantiations) {
+        ir::Label inst_name;
+        std::shared_ptr<Llvm_instantiation> inst;
+
+        std::tie(inst_name, inst) = i;
+
+        auto obj = m.mod->objects.at(inst_name);
+        auto index = obj->impl.struct_index;
+        auto ofs = m.layout->getElementOffset(index);
+
+        auto it = std::find_if(std::begin(modules),
+            std::end(modules),
+            [&inst](Module x) -> bool { return x.mod == inst->module; }
+          );
+        if( it == std::end(modules) )
+          throw std::runtime_error("instantiated module not found in runset");
+
+        uint64_t subptr_in = reinterpret_cast<uint64_t>(it->this_in->data());
+        uint64_t subptr_out = reinterpret_cast<uint64_t>(it->this_out->data());
+        std::copy_n((char*)&subptr_in,
+            sizeof(subptr_in),
+            m.this_in->data() + ofs);
+        std::copy_n((char*)&subptr_out,
+            sizeof(subptr_out),
+            m.this_out->data() + ofs);
+        std::copy_n((char*)&subptr_in,
+            sizeof(subptr_in),
+            m.this_prev->data() + ofs);
+      }
+    }
+  }
+
+
+  void
+  Runset::call_init(llvm::ExecutionEngine* exe) {
+    for(auto& m : modules) {
+      auto mod = m.mod;
+
+      // call __init__ if it exists
+      auto init_f = mod->functions.find("__init__");
+      if( init_f != mod->functions.end() ) {
+        std::function<void(char*,char*,char*,char*)> init_func;
+        void* ptr = exe->getPointerToFunction(init_f->second->impl.code);
+        typedef void Func(char*,char*,char*,char*);
+        init_func = reinterpret_cast<Func*>(ptr);
+        init_func(m.this_out->data(),
+            m.this_in->data(),
+            m.this_prev->data(),
+            m.read_mask->data());
+        std::copy(m.this_out->begin(), m.this_out->end(), m.this_in->begin());
+        std::copy(m.this_out->begin(), m.this_out->end(), m.this_prev->begin());
+      }
+
+
+      //{
+        //std::cout << "memory contents after init:\n"
+          //<< "this_in: " << std::hex;
+        //std::cout << reinterpret_cast<int64_t>(m.this_in->data()) << ": ";
+        //for(auto const& c : *(m.this_in))
+          //std::cout << +c << ' ';
+        //std::cout << "\nthis_out: " << std::hex;
+        //std::cout << reinterpret_cast<int64_t>(m.this_out->data()) << ": ";
+        //for(auto const& c : *(m.this_out))
+          //std::cout << +c << ' ';
+        //std::cout << std::endl;
+      //}
+    }
   }
 
 

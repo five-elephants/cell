@@ -269,15 +269,18 @@
             throw std::runtime_error("garbage on lookup source stack");
 
           auto index = p->second->impl.struct_index;
+          llvm::Value* ptr_v;
           std::string twine("elem_ptr_");
           twine += id.identifier();
 
           if( m_mod->instantiations.find(id.identifier()) != m_mod->instantiations.end() ) {
             // this is a module, so access port of module
-            source_ptr = m_builder.CreateStructGEP(source_ptr,
+            auto ptr_to_ptr_to_mod = m_builder.CreateStructGEP(source_ptr,
                 index,
-                std::string("port_ptr_") + id.identifier());
-            ptr_v = m_builder.CreateStructGEP(source_ptr, 0, twine);
+                std::string("mod_ptr_ptr_") + id.identifier());
+            auto mod_ptr = m_builder.CreateLoad(ptr_to_ptr_to_mod,
+                std::string("mod_ptr_") + id.identifier());
+            ptr_v = m_builder.CreateStructGEP(mod_ptr, 0, twine);
           } else {
             ptr_v = m_builder.CreateStructGEP(source_ptr, index, twine);
           }

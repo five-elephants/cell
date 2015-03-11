@@ -8,7 +8,13 @@ namespace demo = {
 
 
     mod adder : binop = {
+        var test : int
+
         process = { port.y = port.a + port.b; }
+
+        process = {
+            test = port.a;
+        }
     }
 
     /*mod multiplier : binop = {*/
@@ -21,6 +27,9 @@ namespace demo = {
         var add_res : int
 
         def __init__() = {
+        }
+
+        process = {
             plus.a = 1;
             plus.b = 2;
             add_res = plus.y;

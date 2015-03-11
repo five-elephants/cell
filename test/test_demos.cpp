@@ -11,7 +11,11 @@ class Demos : public ::testing::Test {
   protected:
     virtual void SetUp() {
       init_logging();
+
+      m_logger = log4cxx::Logger::getLogger("cell.sim");
     }
+
+    log4cxx::LoggerPtr m_logger;
 };
 
 
@@ -34,6 +38,16 @@ TEST_F(Demos, dataflow) {
 
   engine.instrument(instr);
   engine.setup();
-  engine.simulate(ir::Time(1000, ir::Time::ms));
+
+  auto intro_dataflow = engine.inspect_module("demo.dataflow");
+
+  LOG4CXX_INFO(m_logger, "init: add_res = "
+      << intro_dataflow.get<int64_t>("add_res"));
+
+  engine.simulate(ir::Time(100, ir::Time::ns));
+
+  LOG4CXX_INFO(m_logger, "after sim: add_res = "
+      << intro_dataflow.get<int64_t>("add_res"));
+
   engine.teardown();
 }

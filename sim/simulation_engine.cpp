@@ -145,6 +145,8 @@ namespace sim {
 */
 
     m_runset.add_module(m_exe, m_top_mod);
+    m_runset.setup_hierarchy();
+    m_runset.call_init(m_exe);
 
     m_setup_complete = true;
   }
@@ -262,6 +264,9 @@ namespace sim {
       rerun = simulate_cycle();
     } while( (cycle++ < max_cycles) && rerun );
 
+    if( cycle >= max_cycles )
+      LOG4CXX_ERROR(m_logger, "Exceeded max number of cycles. Probably a loop.");
+
     return next_t;
   }
 
@@ -272,7 +277,10 @@ namespace sim {
     LOG4CXX_DEBUG(m_logger, "----- simulate cycle -----");
 
     for(auto& mod : m_runset.modules) {
-      LOG4CXX_DEBUG(m_logger, "running " << mod.run_list.size() << " processes");
+      LOG4CXX_DEBUG(m_logger, "running "
+          << mod.run_list.size()
+          << " processes in module "
+          << mod.mod->name);
 
       for(auto const& proc : mod.run_list) {
         LOG4CXX_TRACE(m_logger, "calling process...");
@@ -305,6 +313,8 @@ namespace sim {
 
     // find modified signals
     bool rerun = false;
+    std::set<std::shared_ptr<Llvm_module>> port_event;
+
     for(auto& mod : m_runset.modules) {
       char* ptr_in = mod.this_in->data();
       char* ptr_out = mod.this_out->data();
@@ -316,8 +326,16 @@ namespace sim {
         if( ptr_out[i] != ptr_in[i] ) {
           auto elem = mod.layout->getElementContainingOffset(i);
           LOG4CXX_TRACE(m_logger, "found mismatch at offset " << i
-              << " belongs to element " << elem);
+              << " belongs to element "
+              << elem
+              << " of "
+              << mod.mod->name);
           mod_modified = true;
+
+          if( elem == 0 ) {
+            // port modified
+            port_event.insert(mod.mod);
+          }
 
           // add dependant processes to run list
           for(auto const& dep : mod.sensitivity[elem]) {
@@ -325,6 +343,19 @@ namespace sim {
           }
         }
       }
+
+      //{
+        //std::cout << "memory contents after cycle:\n"
+          //<< "this_in: " << std::hex;
+        //std::cout << reinterpret_cast<int64_t>(mod.this_in->data()) << ": ";
+        //for(auto const& c : *(mod.this_in))
+          //std::cout << +c << ' ';
+        //std::cout << "\nthis_out: " << std::hex;
+        //std::cout << reinterpret_cast<int64_t>(mod.this_out->data()) << ": ";
+        //for(auto const& c : *(mod.this_out))
+          //std::cout << +c << ' ';
+        //std::cout << std::endl;
+      //}
 
       // safe this_in to this_prev frame
       std::copy(mod.this_in->begin(),
@@ -337,6 +368,41 @@ namespace sim {
       if( !mod.run_list.empty() )
         rerun = true;
 
+      //{
+        //std::cout << "memory contents after copy:\n"
+          //<< "this_in: " << std::hex;
+        //std::cout << reinterpret_cast<int64_t>(mod.this_in->data()) << ": ";
+        //for(auto const& c : *(mod.this_in))
+          //std::cout << +c << ' ';
+        //std::cout << "\nthis_out: " << std::hex;
+        //std::cout << reinterpret_cast<int64_t>(mod.this_out->data()) << ": ";
+        //for(auto const& c : *(mod.this_out))
+          //std::cout << +c << ' ';
+        //std::cout << std::endl;
+      //}
+    }
+
+    for(auto& mod : m_runset.modules) {
+      for(auto inst : mod.mod->instantiations) {
+        if( port_event.count( inst.second->module ) ) {
+          auto index = mod.mod->objects.at(inst.first)->impl.struct_index;
+
+          LOG4CXX_TRACE(m_logger, "port event for module '"
+              << inst.second->module->name
+              << "' in '"
+              << mod.mod->name
+              << "' inserting "
+              << mod.sensitivity[index].size()
+              << " processes to runlist");
+          // add dependant processes to run list
+          for(auto const& dep : mod.sensitivity[index]) {
+            mod.run_list.insert(dep);
+          }
+        }
+      }
+
+      if( !mod.run_list.empty() )
+        rerun = true;
     }
 
 

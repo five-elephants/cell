@@ -71,6 +71,9 @@ namespace sim {
       void add_module(llvm::ExecutionEngine* exe,
           std::shared_ptr<Llvm_module> mod);
 
+      void setup_hierarchy();
+      void call_init(llvm::ExecutionEngine* exe);
+
 
       Module_frame allocate_module_frame(std::shared_ptr<Llvm_module> mod);
       Read_mask allocate_read_mask(std::shared_ptr<Llvm_module> mod);

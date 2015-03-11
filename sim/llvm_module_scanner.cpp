@@ -75,7 +75,9 @@ namespace sim {
         << "'");
 
     m_mod.objects.at(inst->name)->impl.struct_index = m_member_types.size();
-    m_member_types.push_back(inst->module->impl.mod_type);
+    m_member_types.push_back(
+        llvm::PointerType::getUnqual(inst->module->impl.mod_type)
+      );
     //m_todo_insts.push_back(inst);
 
     return false;
@@ -196,90 +198,9 @@ namespace sim {
 
     m_todo_functions.clear();
 
-    //for(auto i : m_todo_insts) {
-      //create_connect(i);
-    //}
-    //m_todo_insts.clear();
-
     return true;
   }
 
-
-  void
-  Llvm_module_scanner::create_connect(std::shared_ptr<Llvm_instantiation> inst) {
-    using namespace llvm;
-
-    LOG4CXX_TRACE(m_logger, "creating connection process for instance '"
-        << inst->name
-        << "'");
-
-    auto func = std::make_shared<Llvm_function>();
-    func->name = std::string("__connect_") + inst->name + "__";
-    func->return_type = ir::Builtins<Llvm_impl>::types.at("unit");
-    func->within_module = true;
-
-    auto lib = ir::find_library(m_mod);
-    IRBuilder<> builder(lib->impl.context);
-    auto self_ptr_ty = PointerType::getUnqual(m_mod.impl.mod_type);
-    auto read_mask_ty = PointerType::getUnqual(
-        ArrayType::get(IntegerType::get(lib->impl.context, 1),
-        m_mod.impl.mod_type->getNumElements())
-      );
-    std::vector<Type*> args {
-        self_ptr_ty,
-        self_ptr_ty,
-        self_ptr_ty,
-        read_mask_ty
-      };
-
-    func->impl.func_type = FunctionType::get(func->return_type->impl.type,
-        args,
-        false);
-
-    func->impl.code = Function::Create(func->impl.func_type,
-        Function::ExternalLinkage,
-        func->name,
-        lib->impl.module.get());
-
-    auto bb = BasicBlock::Create(getGlobalContext(), "entry", func->impl.code);
-    builder.SetInsertPoint(bb);
-
-    auto this_out = func->impl.code->arg_begin();
-    this_out->setName("this_out");
-    auto this_in = ++this_out;
-    this_in->setName("this_in");
-    auto this_prev = ++this_in;
-    this_prev->setName("this_prev");
-    auto read_mask = ++this_prev;
-    read_mask->setName("read_mask");
-
-    for(auto assign : inst->connection) {
-      LOG4CXX_TRACE(m_logger, "connection assignment '"
-          << assign->port->name
-          << "' : '"
-          //<< assign->object->name
-          << "'");
-      //if( assign->port->direction == ir::Direction::Input ) {
-        //// input to instantiated module
-        //auto ptr_rhs = builder.CreateStructGEP(this_in,
-            //assign->object->impl.struct_index,
-            //std::string("ptrin_") + assign->object->name);
-
-        //auto load = builder.CreateLoad(ptr_rhs,
-            //std::string("load_") + assign->object->name);
-
-      //} else if( assign->port->direction == ir::Direction::Output ) {
-        //// output from instantiated module
-      //}
-    }
-
-    // return statement
-    {
-      auto ty = ir::Builtins<Llvm_impl>::types.at("unit");
-      auto v = llvm::Constant::getNullValue(ty->impl.type);
-      builder.CreateRet(v);
-    }
-  }
 
 }
 
