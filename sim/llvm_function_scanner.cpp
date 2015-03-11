@@ -111,7 +111,6 @@ namespace sim {
     this->template on_leave_if_type<ast::Op_lesser_then>(&Llvm_function_scanner::insert_op_lt);
     this->template on_leave_if_type<ast::Op_greater_or_equal_then>(&Llvm_function_scanner::insert_op_ge);
     this->template on_leave_if_type<ast::Op_lesser_or_equal_then>(&Llvm_function_scanner::insert_op_le);
-    this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
     this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
     this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
     this->template on_enter_if_type<ast::If_statement>(&Llvm_function_scanner::enter_if_statement);
@@ -436,19 +435,15 @@ namespace sim {
     if( !m_mod )
       throw std::runtime_error("Cannot use operator '@' outside of module");
 
-    if( m_type_targets.empty() )
-      throw std::runtime_error("Don't know return type for unary operator");
-
-    auto ret_ty = m_type_targets.back();
-
     // select an operator
     std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
         "@",
-        ret_ty,
         ty,
         ty);
 
+
     if( op ) {
+      auto ret_ty = op->return_type;
       // get previous value of operand
       auto operand = dynamic_cast<ast::Name_lookup const&>(node.operand());
       auto operand_id = dynamic_cast<ast::Identifier const&>(operand.identifier());
@@ -475,8 +470,6 @@ namespace sim {
         << "@"
         << "' with signature: ["
         << ty->name
-        << "] -> ["
-        << ret_ty->name
         << "]";
       throw std::runtime_error(strm.str());
     }
@@ -490,30 +483,22 @@ namespace sim {
     auto ty = m_types.at(&(node.operand()));
     auto value = m_values.at(&(node.operand()));
 
-    if( m_type_targets.empty() )
-      throw std::runtime_error("Don't know return type for unary operator");
-
-    auto ret_ty = m_type_targets.back();
-
     // select an operator
     std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
         "!",
-        ret_ty,
         ty,
         ty);
 
     if( op ) {
       auto v = op->impl.insert_func(m_builder, value, value);
       m_values[&node] = v;
-      m_types[&node] = ret_ty;
+      m_types[&node] = op->return_type;
     } else {
       std::stringstream strm;
       strm << node.location() << ": failed to find operator '"
         << "!"
         << "' with signature: ["
         << ty->name
-        << "] -> ["
-        << ret_ty->name
         << "]";
       throw std::runtime_error(strm.str());
     }
@@ -607,136 +592,51 @@ namespace sim {
 
 
   bool
-  Llvm_function_scanner::enter_assignment(ast::Assignment const& node) {
-    std::cout << "enter_assignment" << std::endl;
-    auto target_id = dynamic_cast<ast::Identifier const&>(node.identifier());
-
-    // find target symbol
-    std::shared_ptr<Llvm_type> ty;
-    bool found = false;
-
-    auto it = m_named_types.find(target_id.identifier());
-    if( it != m_named_types.end() ) {
-      ty = it->second;
-      found = true;
-    } else if( m_mod ) {
-      // lookup name in module
-      auto p = m_mod->objects.find(target_id.identifier());
-      if( p != m_mod->objects.end() ) {
-        ty = p->second->type;
-        found = true;
-      }
-    }
-
-    if( !found) {
-      std::stringstream strm;
-      strm << node.location()
-        << ": unable to find symbol '"
-        << target_id.identifier()
-        << "' for assignment ("
-        << __func__
-        << ")";
-      throw std::runtime_error(strm.str());
-    }
-
-    // propagate type
-    m_types[&target_id] = ty;
-    m_types[&node] = ty;
-
-    m_type_targets.push_back(ty);
-    return true;
-  }
-
-
-  bool
   Llvm_function_scanner::leave_assignment(ast::Assignment const& node) {
-    std::cout << "leave_assignment" << std::endl;
-    auto target_id = dynamic_cast<ast::Identifier const&>(node.identifier());
+    auto ptr = m_values.at(&(node.identifier()));
+    auto target_type = m_types.at(&(node.identifier()));
+
+    LOG4CXX_TRACE(m_logger, "leaving assignment for type '"
+        << target_type->name
+        << "'");
 
     // get right-side value
     auto rval = m_values.at(&(node.expression()));
     auto ty = m_types.at(&(node.expression()));
 
+    // conversion needed?
+    if( target_type != ty ) {
+      LOG4CXX_TRACE(m_logger, "looking for type conversion operator '"
+          << ty->name
+          << "' to '"
+          << target_type->name
+          << "'");
+
+      std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
+          "convert",
+          target_type,
+          ty,
+          ty);
+
+      if( op ) {
+        rval = op->impl.insert_func(m_builder, rval, rval);
+      } else {
+        std::stringstream strm;
+        strm << "type mismatch in assignment: expected '"
+          << target_type
+          << "' found '"
+          << ty->name
+          << "' and no conversion found";
+        throw std::runtime_error(strm.str());
+      }
+    }
+
     // store value
-    bool found = false;
-    auto it = m_named_values.find(target_id.identifier());
-    if( it != m_named_values.end() ) {
-      auto ty_it = m_named_types.find(target_id.identifier());
-      if( ty_it == m_named_types.end() )
-        throw std::runtime_error("No type for named value available!");
+    m_builder.CreateStore(rval, ptr);
 
-      if( ty_it->second != ty ) {
-        std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
-            "convert",
-            ty_it->second,
-            ty,
-            ty);
+    m_values[&node] = rval;
+    m_types[&node] = target_type;
 
-        if( op ) {
-          rval = op->impl.insert_func(m_builder, rval, rval);
-        } else {
-          std::stringstream strm;
-          strm << "type mismatch in assignment: expected '"
-            << ty_it->second->name
-            << "' found '"
-            << ty->name
-            << "' and no conversion found";
-          throw std::runtime_error(strm.str());
-        }
-      }
-
-      auto lval = m_builder.CreateStore(rval, it->second);
-      m_values[&node] = rval;
-      m_types[&node] = ty_it->second;
-      found = true;
-    } else if( m_mod ) {
-      // lookup name in module
-      auto p = m_mod->objects.find(target_id.identifier());
-      if( p != m_mod->objects.end() ) {
-        auto this_out = m_named_values.at("this_out");
-        auto index = p->second->impl.struct_index;
-        auto ptr_v = m_builder.CreateStructGEP(this_out, index, "elem_ptr");
-
-        // check types
-        if( p->second->type != ty ) {
-          std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
-              "convert",
-              p->second->type,
-              ty,
-              ty);
-
-          if( op ) {
-            rval = op->impl.insert_func(m_builder, rval, rval);
-          } else {
-            std::stringstream strm;
-            strm << "type mismatch in assignment: expected '"
-              << p->second->type->name
-              << "' found '"
-              << ty->name
-              << "' and no conversion found";
-            throw std::runtime_error(strm.str());
-          }
-        }
-
-        m_values[&node] = rval;
-        m_types[&node] = p->second->type;
-        m_builder.CreateStore(rval, ptr_v);
-        found = true;
-      }
-    }
-
-    if( !found ) {
-      std::stringstream strm;
-      strm << node.location()
-        << ": unable to find symbol '"
-        << target_id.identifier()
-        << "' for assignment ("
-        << __func__
-        << ")";
-      throw std::runtime_error(strm.str());
-    }
-
-    m_type_targets.pop_back();
     return true;
   }
 

@@ -19,10 +19,11 @@ namespace demo = {
         var to_plus : binop
         var mul_res : int
 
+        def get() -> binop = to_plus
+
         def __init__() = {
-            var tmp = to_plus.a;
-            /*to_plus.a = 1;*/
-            /*to_plus.b = 2;*/
+            to_plus.a = 1;
+            to_plus.b = 2;
         }
 
         /*adder plus(p)*/
