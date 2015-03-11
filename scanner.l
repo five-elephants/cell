@@ -89,6 +89,7 @@ blank      [ \t]
 "@"         return token::AT;
 ":"         return token::COLON;
 "->"        return token::ARROW_RIGHT;
+"."         return token::POINT;
 ","         return token::COMMA;
 ";"         return token::SEMICOLON;
 "in"        return token::IN;

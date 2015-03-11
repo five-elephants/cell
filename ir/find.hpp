@@ -27,9 +27,9 @@ namespace ir {
 
 
   template<typename Impl = No_impl>
-  std::shared_ptr<Socket<Impl>> find_socket(Namespace<Impl> const& ns,
+  std::shared_ptr<Type<Impl>> find_socket(Namespace<Impl> const& ns,
       Label const& sock_name) {
-    auto rv = find_in_namespace<Socket<Impl>>(ns, &Namespace<Impl>::sockets, sock_name);
+    auto rv = find_in_namespace<Type<Impl>>(ns, &Namespace<Impl>::sockets, sock_name);
     if( !rv ) {
       if( sock_name == Builtins<Impl>::null_socket->name ) {
         return Builtins<Impl>::null_socket;
@@ -88,8 +88,8 @@ namespace ir {
   template<typename Impl = No_impl>
   std::shared_ptr<Port<Impl>> find_port(Module<Impl> const& mod,
       Label const& port_name) {
-    auto it = mod.socket->ports.find(port_name);
-    if( it != mod.socket->ports.end() ) {
+    auto it = mod.socket->elements.find(port_name);
+    if( it != mod.socket->elements.end() ) {
       return it->second;
     }
 

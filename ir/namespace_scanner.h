@@ -63,7 +63,7 @@ namespace ir {
       virtual std::shared_ptr<ir::Namespace<Impl>> create_namespace(ast::Namespace_def const& node);
       virtual std::shared_ptr<ir::Module<Impl>> create_module(ast::Module_def const& node);
       virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
-      virtual std::shared_ptr<ir::Socket<Impl>> create_socket(ast::Socket_def const& node);
+      virtual std::shared_ptr<ir::Type<Impl>> create_socket(ast::Socket_def const& node);
   };
 
 

@@ -76,8 +76,8 @@ namespace sim {
 
     std::size_t i = 0;
     std::vector<llvm::Type*> port_tys;
-    port_tys.reserve(sock->ports.size());
-    for(auto p : sock->ports) {
+    port_tys.reserve(sock->elements.size());
+    for(auto p : sock->elements) {
       p.second->impl.struct_index = i++;
       port_tys.push_back(p.second->type->impl.type);
     }

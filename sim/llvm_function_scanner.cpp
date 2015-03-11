@@ -12,7 +12,8 @@ namespace sim {
   Llvm_function_scanner::Llvm_function_scanner(Llvm_namespace& ns, Llvm_function& function)
     : m_ns(ns),
       m_function(function),
-      m_builder(llvm::getGlobalContext()) {
+      m_builder(llvm::getGlobalContext()),
+      m_logger(log4cxx::Logger::getLogger("cell.scan")) {
     init_function();
     init_scanner();
   }
@@ -22,7 +23,8 @@ namespace sim {
     : m_ns(mod),
       m_mod(&mod),
       m_function(function),
-      m_builder(llvm::getGlobalContext()) {
+      m_builder(llvm::getGlobalContext()),
+      m_logger(log4cxx::Logger::getLogger("cell.scan")) {
     init_function();
     init_scanner();
   }
@@ -86,7 +88,9 @@ namespace sim {
   void
   Llvm_function_scanner::init_scanner() {
     this->template on_leave_if_type<ast::Return_statement>(&Llvm_function_scanner::insert_return);
-    this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
+    this->template on_leave_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
+    this->template on_leave_if_type<ast::Op_element>(&Llvm_function_scanner::leave_op_element);
+    this->template on_enter_if_type<ast::Name_lookup>(&Llvm_function_scanner::enter_name_lookup);
     this->template on_leave_if_type<ast::Variable_def>(&Llvm_function_scanner::leave_variable_def);
     this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
     this->template on_visit_if_type<ast::Literal<double>>(&Llvm_function_scanner::insert_literal_double);
@@ -170,16 +174,71 @@ namespace sim {
 
   bool
   Llvm_function_scanner::insert_variable_ref(ast::Variable_ref const& node) {
-    auto id = dynamic_cast<ast::Identifier const&>(node.identifier());
+    auto ptr = m_values.at(&(node.expression()));
+    auto type = m_types.at(&(node.expression()));
+
+    LOG4CXX_TRACE(m_logger, "dereferencing variable of type '"
+        << type->name
+        << "'");
+
+    m_values[&node] = m_builder.CreateLoad(ptr, "load");
+    m_types[&node] = type;
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::leave_op_element(ast::Op_element const& node) {
+    auto elem_name = dynamic_cast<ast::Identifier const&>(node.right())
+        .identifier();
+    auto obj_ptr = m_values.at(&node.left());
+    auto type = m_types.at(&node.left());
+
+    LOG4CXX_TRACE(m_logger, "element access on '"
+        << type->name
+        << "' for element '"
+        << elem_name
+        << "'");
+
+    auto it = type->elements.find(elem_name);
+    if( it == type->elements.end() ) {
+      std::stringstream strm;
+      strm << node.location()
+        << ": failed to find element '"
+        << elem_name
+        << "' within '"
+        << type->name
+        << "' ("
+        << __func__
+        << ")";
+      throw std::runtime_error(strm.str());
+    }
+
+    auto index = it->second->impl.struct_index;
+    auto ptr = m_builder.CreateStructGEP(obj_ptr,
+        index,
+        std::string("ptr_") + elem_name);
+
+    m_values[&node] = ptr;
+    m_types[&node] = it->second->type;
+
+    return true;
+  }
+
+
+  bool
+  Llvm_function_scanner::enter_name_lookup(ast::Name_lookup const& node) {
+    auto id = node.identifier();
     bool found = false;
+
+    LOG4CXX_TRACE(m_logger, "name lookup for '" << id.identifier() << "'");
 
     // load value
     auto p = m_named_values.find(id.identifier());
 
     if( p != m_named_values.end() ) {
-      std::string twine("load_");
-      twine += id.identifier();
-      m_values[&node] = m_builder.CreateLoad(p->second, twine);
+      m_values[&node] = p->second;
       m_types[&node] = m_named_types.at(id.identifier());
       found = true;
     } else if( m_mod ) {
@@ -192,9 +251,7 @@ namespace sim {
         twine += id.identifier();
         auto ptr_v = m_builder.CreateStructGEP(this_in, index, twine);
 
-        std::string twine2("mod_load_");
-        twine2 += id.identifier();
-        m_values[&node] = m_builder.CreateLoad(ptr_v, twine2);
+        m_values[&node] = ptr_v;
         m_types[&node] = p->second->type;
         found = true;
 
@@ -218,7 +275,7 @@ namespace sim {
       throw std::runtime_error(strm.str());
     }
 
-    return true;
+    return false;
   }
 
 
@@ -254,7 +311,7 @@ namespace sim {
         m_mod.types[obj->type->name] = obj->type;
       }*/
     } else if( !node.without_expression() ) {
-      type = m_types[&(node.expression())];
+      type = m_types.at(&(node.expression()));
     } else {
       throw std::runtime_error("Can not infer type for variable definition");
     }
@@ -270,7 +327,7 @@ namespace sim {
           << "declared type is '"
           << type->name
           << "' but assigned type is '"
-          << m_types[&(node.expression())]->name
+          << m_types.at(&(node.expression()))->name
           << "'";
         throw std::runtime_error(strm.str());
       }
@@ -393,7 +450,7 @@ namespace sim {
 
     if( op ) {
       // get previous value of operand
-      auto operand = dynamic_cast<ast::Variable_ref const&>(node.operand());
+      auto operand = dynamic_cast<ast::Name_lookup const&>(node.operand());
       auto operand_id = dynamic_cast<ast::Identifier const&>(operand.identifier());
       auto p = m_mod->objects.find(operand_id.identifier());
       if( p != m_mod->objects.end() ) {

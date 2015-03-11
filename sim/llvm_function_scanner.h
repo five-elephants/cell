@@ -6,6 +6,7 @@
 #include "ast/ast.h"
 #include "ir/find.hpp"
 #include "ir/find_hierarchy.h"
+#include "logging/logger.h"
 
 
 namespace sim {
@@ -33,6 +34,7 @@ namespace sim {
       Node_type_map m_types;
       Name_type_map m_named_types;
       Type_stack m_type_targets;
+      log4cxx::LoggerPtr m_logger;
 
 
       void init_function();
@@ -44,6 +46,8 @@ namespace sim {
       // scanner callbacks
       virtual bool insert_return(ast::Return_statement const& node);
       virtual bool insert_variable_ref(ast::Variable_ref const& node);
+      virtual bool leave_op_element(ast::Op_element const& node);
+      virtual bool enter_name_lookup(ast::Name_lookup const& node);
       virtual bool leave_variable_def(ast::Variable_def const& node);
       virtual bool insert_literal_int(ast::Literal<int> const& node);
       virtual bool insert_literal_double(ast::Literal<double> const& node);

@@ -139,10 +139,10 @@ namespace ir {
 
 
   template<typename Impl>
-  std::shared_ptr<Socket<Impl>>
+  std::shared_ptr<Type<Impl>>
   Namespace_scanner<Impl>::create_socket(ast::Socket_def const& sock) {
     auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
-    auto s = std::make_shared<Socket<Impl>>(label);
+    auto s = std::make_shared<Type<Impl>>(label);
     if( m_ns.sockets.count(s->name) > 0 )
       throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
     if( m_ns.types.count(s->name) > 0 )

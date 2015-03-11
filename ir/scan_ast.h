@@ -9,14 +9,14 @@
 namespace ir {
 
   template<typename Impl = No_impl>
-  void scan_ast(Socket<Impl>& socket, ast::Node_if const& tree) {
+  void scan_ast(Type<Impl>& socket, ast::Node_if const& tree) {
     auto port_nodes = ast::find_by_type<ast::Socket_item>(tree);
-    
+
     for(auto i : port_nodes) {
       std::shared_ptr<Port<Impl>> port(new Port<Impl>);
 
       port->name = dynamic_cast<ast::Identifier const&>(i->name()).identifier();
-      if( socket.ports.count(port->name) > 0 ) {
+      if( socket.elements.count(port->name) > 0 ) {
         std::stringstream strm;
         strm << i->location();
         strm << ": socket already contains port of name '" << port->name << "'";
@@ -49,7 +49,7 @@ namespace ir {
         throw std::runtime_error(strm.str());
       }
 
-      socket.ports[port->name] = port;
+      socket.elements[port->name] = port;
     }
   }
 

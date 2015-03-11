@@ -6,14 +6,14 @@ namespace ast {
 
   class Variable_ref : public Tree_base {
     public:
-      Variable_ref(Node_if& identifier);
+      Variable_ref(Node_if& expression);
 
       virtual void visit();
 
-      Node_if const& identifier() const { return m_identifier; }
+      Node_if const& expression() const { return m_expression; }
 
     private:
-      Node_if& m_identifier;
+      Node_if& m_expression;
   };
 
 }

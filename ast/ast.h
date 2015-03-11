@@ -31,4 +31,5 @@
 #include "ast/array_type.h"
 #include "ast/phys_literal.h"
 #include "ast/recurrent.h"
+#include "ast/name_lookup.h"
 

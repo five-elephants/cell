@@ -50,7 +50,9 @@ namespace ir {
     //};
 
     Label name;
+    Namespace<Impl>* enclosing_ns;
     //std::vector<std::shared_ptr<Field>> fields;
+    std::map<Label, std::shared_ptr<Port<Impl>>> elements;
     std::size_t array_size = 1;
 
     typename Impl::Type impl;
@@ -184,7 +186,7 @@ namespace ir {
 
     std::map<Label, std::shared_ptr<Module<Impl>>> modules;
     std::map<Label, std::shared_ptr<Namespace<Impl>>> namespaces;
-    std::map<Label, std::shared_ptr<Socket<Impl>>> sockets;
+    std::map<Label, std::shared_ptr<Type<Impl>>> sockets;
     std::map<Label, std::shared_ptr<Type<Impl>>> types;
     std::map<Label, std::shared_ptr<Function<Impl>>> functions;
     std::multimap<Label, std::shared_ptr<Operator<Impl>>> operators;
@@ -203,7 +205,7 @@ namespace ir {
       : Namespace<Impl>(label) {
     }
 
-    std::shared_ptr<Socket<Impl>> socket;
+    std::shared_ptr<Type<Impl>> socket;
     std::map<Label, std::shared_ptr<Object<Impl>>> objects;
     std::map<Label, std::shared_ptr<Instantiation<Impl>>> instantiations;
     std::vector<std::shared_ptr<Process<Impl>>> processes;

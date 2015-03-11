@@ -30,6 +30,7 @@ namespace ast {
   BINOP(lesser_or_equal_then);
   BINOP(and);
   BINOP(or);
+  BINOP(element);
 
 }
 

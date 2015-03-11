@@ -124,11 +124,11 @@ namespace ir {
           throw std::runtime_error(strm.str());
         }
 
-        for(auto assignee_port_pair : assignee_socket->ports) {
+        for(auto assignee_port_pair : assignee_socket->elements) {
           auto port_name = assignee_port_pair.first;
           auto assignee_port = assignee_port_pair.second;
-          auto searchit = m_mod.socket->ports.find(port_name);
-          if( searchit != m_mod.socket->ports.end() ) {
+          auto searchit = m_mod.socket->elements.find(port_name);
+          if( searchit != m_mod.socket->elements.end() ) {
             auto it = searchit->second;
             if( !type_compatible(*(it->type), *(assignee_port->type)) ) {
               std::stringstream strm;

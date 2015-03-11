@@ -2,10 +2,10 @@
 
 namespace ast {
 
-  Variable_ref::Variable_ref(Node_if& id)
+  Variable_ref::Variable_ref(Node_if& expression)
       : Tree_base(),
-        m_identifier(id) {
-    register_branches({&m_identifier});
+        m_expression(expression) {
+    register_branches({&m_expression});
   }
 
 

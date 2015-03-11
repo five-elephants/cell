@@ -76,6 +76,7 @@
 %token        AT                      "@"
 %token        COLON                   ":"
 %token        ARROW_RIGHT             "->"
+%token        POINT                   "."
 %token        COMMA                   ","
 %token        SEMICOLON               ";"
 %token        RETURN                  "return"
@@ -117,6 +118,7 @@
 %type <node> periodic
 %type <node> once
 %type <node> var_def
+%type <node> elem_access
 %type <list> statements
 %type <node> statement
 %type <node> func_call
@@ -158,6 +160,7 @@
 %left '+' '-';
 %left '*' '/' PERCENT;
 %right '!';
+%left POINT;
 
 
 unit: unit namespace_item       { $$ = $1; $1->append(*$2); }
@@ -335,7 +338,10 @@ phys_literal:
 
 una_exp:
   "!" exp                        { $$ = new ast::Op_not(*$2); }
-  | "@" var_ref                  { $$ = new ast::Op_at(*$2); };
+  | "@" identifier               {
+                                  auto nm = new ast::Name_lookup(*$2);
+                                  $$ = new ast::Op_at(*nm);
+                                 };
 
 bin_exp:
   exp '+' exp                    { $$ = new ast::Op_plus(*$1, *$3); }
@@ -368,7 +374,9 @@ exp:
   | func_call                    { $$ = $1; }
   | PAREN_OPEN exp PAREN_CLOSE   { $$ = $2; };
 
-var_ref: identifier              { $$ = new ast::Variable_ref(*$1); };
+var_ref: elem_access             { $$ = new ast::Variable_ref(*$1); };
+elem_access: identifier          { $$ = new ast::Name_lookup(*$1); }
+  | elem_access "." identifier   { $$ = new ast::Op_element(*$1, *$3); };
 identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; $$->location(@$); };
 type_identifier: identifier      { $$ = $1; }
   | type_identifier "[" "number" "]"
