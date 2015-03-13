@@ -7,11 +7,11 @@
 static void init_logging() {
   using namespace log4cxx;
 
-  LayoutPtr layout(new PatternLayout("%-5p %d{yyyy-MM-dd HH:mm:ss,SSS} [%c]:  %m%n"));
+  LayoutPtr layout(new PatternLayout("%-5p %r [%c]:  %m%n"));
   AppenderPtr appender(new ConsoleAppender(layout));
   auto logger = Logger::getRootLogger();
   logger->addAppender(appender);
-  logger->setLevel(Level::getTrace());
+  logger->setLevel(Level::getInfo());
 }
 
 
