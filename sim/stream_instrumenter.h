@@ -12,7 +12,11 @@ namespace sim {
         : m_os(os) {
       }
 
-      virtual void module(ir::Time const& t, Module_inspector& insp);
+      virtual void push_hierarchy();
+      virtual void pop_hierarchy();
+      virtual void register_module(std::shared_ptr<Module_inspector> insp);
+      virtual void initial(ir::Time const& t);
+      virtual void step(ir::Time const& t);
 
     protected:
       std::ostream& m_os;

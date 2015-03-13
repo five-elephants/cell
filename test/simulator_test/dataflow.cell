@@ -27,19 +27,20 @@ namespace demo = {
         var add_res : int
 
         def __init__() = {
+            plus.a = 0;
+            plus.b = 0;
         }
 
         process = {
-            plus.a = 1;
-            plus.b = 2;
             add_res = plus.y;
         }
 
-        inst plus : adder
+        periodic(2 ns) = {
+            plus.a = plus.a + 1;
+            plus.b = plus.b + 1;
+        }
 
-        /*adder plus( a : aa, b : bb, y : yy)*/
-        /*adder plus(to_plus)*/
-        /*multiplier mul( a : p.y, b : 2, y : mul_res)*/
+        inst plus : adder
     }
 
 

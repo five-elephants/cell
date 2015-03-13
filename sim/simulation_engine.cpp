@@ -437,13 +437,17 @@ namespace sim {
       for(auto const& mod : m_runset.modules) {
         auto num_elements = mod.mod->impl.mod_type->getNumElements();
         auto layout = m_layout->getStructLayout(mod.mod->impl.mod_type);
-        Module_inspector insp(mod.mod,
+        auto insp = std::make_shared<Module_inspector>(mod.mod,
             layout,
             num_elements,
             m_exe,
             m_runset);
-        m_instrumenter->module(ir::Time(0, ir::Time::ps), insp);
+        m_instrumenter->push_hierarchy();
+        m_instrumenter->register_module(insp);
+        m_instrumenter->pop_hierarchy();
       }
+
+      m_instrumenter->initial(ir::Time(0, ir::Time::ps));
     }
   }
 
@@ -453,18 +457,8 @@ namespace sim {
     for(ir::Time t=m_time; t<(m_time + duration); ) {
       ir::Time next_t = simulate_step(t, duration);
 
-      if( m_instrumenter ) {
-        for(auto const& mod : m_runset.modules) {
-          auto num_elements = mod.mod->impl.mod_type->getNumElements();
-          auto layout = m_layout->getStructLayout(mod.mod->impl.mod_type);
-          Module_inspector insp(mod.mod,
-              layout,
-              num_elements,
-              m_exe,
-              m_runset);
-          m_instrumenter->module(t.to_unit(ir::Time::ps), insp);
-        }
-      }
+      if( m_instrumenter )
+        m_instrumenter->step(t);
 
       t = next_t;
     }
