@@ -1,0 +1,55 @@
+namespace demo = {
+
+    socket Ctrl = {
+        <= clk : bool
+        <= reset : bool
+        <= en : bool
+        <= op : int
+    }
+
+    mod Controller : Ctrl = {
+        var clk : bool
+        var state : int
+
+        process = { clk = port.clk; }
+
+        process = {
+            if( port.reset ) {
+                state = 0;
+            } else if( @clk && clk ) {
+                if( state == 0 )
+                    state = 1
+                else
+                    state = 0;
+            }
+        }
+    }
+
+    mod Datapath : Ctrl = {
+    }
+
+    mod Fsm = {
+        inst controller : Controller
+        inst datapath : Datapath
+
+        var ctrl : Ctrl
+
+        def __init__() = {
+            ctrl.clk = false;
+            ctrl.reset = true;
+        }
+
+        process = {
+            controller.clk = ctrl.clk;
+            controller.reset = ctrl.reset;
+            ctrl.en = controller.en;
+            ctrl.op = controller.op;
+            datapath = ctrl;
+        }
+
+
+        periodic(2 ns) = { ctrl.clk = ~ctrl.clk; }
+        once(10 ns) = { ctrl.reset = false }
+    }
+
+}

@@ -17,7 +17,6 @@ namespace sim {
   Vcd_instrumenter::Vcd_instrumenter(std::string const& filename)
     : m_filename(filename),
       m_logger(log4cxx::Logger::getLogger("cell.vcd")) {
-    m_logger->setLevel(log4cxx::Level::getTrace());
     m_os.open(filename);
     if( !m_os ) {
       std::stringstream strm;

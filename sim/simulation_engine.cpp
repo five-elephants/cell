@@ -92,15 +92,18 @@ namespace sim {
 
     m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
     if( !m_top_mod ) {
-      cerr << "Can not find top level module '"
+      std::stringstream strm;
+      strm << "Can not find top level module '"
         << toplevel
         << "'\n";
-      cerr << "The following modules were found in toplevel namespace '"
+      strm << "The following modules were found in toplevel namespace '"
         << m_lib->ns->name
         << "':\n";
       for(auto m : m_lib->ns->modules) {
-        cerr << "    " << m.first << '\n';
+        strm << "    " << m.first << '\n';
       }
+
+      throw std::runtime_error(strm.str());
 
       return;
     }

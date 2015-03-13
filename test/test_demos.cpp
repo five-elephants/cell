@@ -56,3 +56,15 @@ TEST_F(Demos, dataflow) {
 
   engine.teardown();
 }
+
+
+TEST_F(Demos, fsm) {
+  sim::Instrumented_simulation_engine engine("test/simulator_test/demo_fsm.cell",
+      "demo.Fsm");
+  sim::Vcd_instrumenter instr("demo_fsm.vcd");
+
+  engine.instrument(instr);
+  engine.setup();
+  engine.simulate(ir::Time(100, ir::Time::ns));
+  engine.teardown();
+}
