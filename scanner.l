@@ -61,6 +61,7 @@ blank      [ \t]
 "socket"    return token::SOCKET;
 "namespace" return token::NAMESPACE;
 "mod"       return token::MOD;
+"inst"      return token::INST;
 "def"       return token::DEF;
 "var"       return token::VAR;
 "if"        return token::IF;

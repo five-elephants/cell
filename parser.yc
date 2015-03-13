@@ -69,6 +69,7 @@
 %token        NAMESPACE               "namespace"
 %token        SOCKET                  "socket"
 %token        MOD                     "mod"
+%token        INST                    "inst"
 %token        IF                      "if"
 %token        ELSE                    "else"
 %token        WHILE                   "while"
@@ -248,8 +249,13 @@ func_param: identifier "=" exp ":" identifier
   | identifier "=" exp           { auto v = new ast::Function_param(*$1); v->expression(*$3); $$ = v; };
 
 
-mod_inst: identifier identifier PAREN_OPEN connection_items PAREN_CLOSE
-                                 { $$ = new ast::Module_instantiation(*$1, *$2, *$4); };
+mod_inst: "inst" identifier ":" identifier
+                                 {
+                                  auto empty = new ast::Node_list;
+                                  $$ = new ast::Module_instantiation(*$4, *$2, *empty);
+                                 };
+/*mod_inst: identifier identifier PAREN_OPEN connection_items PAREN_CLOSE*/
+                                 /*{ $$ = new ast::Module_instantiation(*$1, *$2, *$4); };*/
 connection_items: connection_items_
                                  { $$ = $1; }
   | connection_items_ COMMA      { $$ = $1; }

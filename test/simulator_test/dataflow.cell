@@ -35,7 +35,9 @@ namespace demo = {
             add_res = plus.y;
         }
 
-        adder plus( a : aa, b : bb, y : yy)
+        inst plus : adder
+
+        /*adder plus( a : aa, b : bb, y : yy)*/
         /*adder plus(to_plus)*/
         /*multiplier mul( a : p.y, b : 2, y : mul_res)*/
     }
