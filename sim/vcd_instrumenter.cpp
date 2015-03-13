@@ -5,6 +5,15 @@
 
 namespace sim {
 
+  // local helper functions
+  static std::string reference(std::size_t i);
+  static std::size_t write_value(std::ostream& os,
+      std::shared_ptr<Module_inspector> const& insp,
+      std::size_t index,
+      std::size_t ref);
+
+
+
   Vcd_instrumenter::Vcd_instrumenter(std::string const& filename)
     : m_filename(filename),
       m_logger(log4cxx::Logger::getLogger("cell.vcd")) {
@@ -114,25 +123,51 @@ namespace sim {
       if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
         os << "$var "
           << "real 1 "
-          << reference(m_ref_counter + i)
+          << reference(m_ref_counter++)
           << ' '
           << insp->get_name(i)
           << " $end\n";
+      } else if( !obj->type->elements.empty() ) {
+        auto bits = insp->get_element_bits(i);
+        std::size_t j = 0;
+        for(auto const& elem : obj->type->elements) {
+          if( elem.second->type == ir::Builtins<sim::Llvm_impl>::types["float"] )
+            os << "$var "
+              << "real 1 "
+              << reference(m_ref_counter++)
+              << ' '
+              << insp->get_name(i)
+              << '.'
+              << elem.first
+              << " $end\n";
+          else
+            os << "$var "
+              << "integer "
+              << bits[j].size()
+              << ' '
+              << reference(m_ref_counter++)
+              << ' '
+              << insp->get_name(i)
+              << '.'
+              << elem.first
+              << " $end\n";
+          ++j;
+        }
       } else {
         auto bits = insp->get_bits(i);
 
-        os << "$var "
-          << "integer "
-          << bits.size()
-          << ' '
-          << reference(m_ref_counter + i)
-          << ' '
-          << insp->get_name(i)
-          << " $end\n";
+        if( bits.size() > 0 ) {
+          os << "$var "
+            << "integer "
+            << bits.size()
+            << ' '
+            << reference(m_ref_counter++)
+            << ' '
+            << insp->get_name(i)
+            << " $end\n";
+        }
       }
     }
-
-    m_ref_counter += insp->num_elements();
   }
 
   void
@@ -141,25 +176,8 @@ namespace sim {
 
     std::size_t ref_counter = 0;
     for(auto const& insp : m_inspected) {
-      for(std::size_t i=0; i<insp->num_elements(); ++i) {
-        auto obj = insp->get_object(i);
-
-        if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
-          os << 'r'
-            << insp->get<double>(i)
-            << ' '
-            << reference(ref_counter + i)
-            << '\n';
-        } else {
-          os << 'b'
-            << insp->get_bits(i)
-            << ' '
-            << reference(ref_counter + i)
-            << '\n';
-        }
-      }
-
-      ref_counter += insp->num_elements();
+      for(std::size_t i=0; i<insp->num_elements(); ++i)
+        ref_counter = write_value(os, insp, i, ref_counter);
     }
 
     os << "$end\n";
@@ -173,27 +191,66 @@ namespace sim {
 
     std::size_t ref_counter = 0;
     for(auto const& insp : m_inspected) {
-      for(std::size_t i=0; i<insp->num_elements(); ++i) {
-        auto obj = insp->get_object(i);
-        if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
-          os << 'r'
-            << insp->get<double>(i)
-            << ' '
-            << reference(ref_counter + i)
-            << '\n';
-        } else {
-          os << 'b'
-            << std::bitset<64>(insp->get<int64_t>(i))
-            << ' '
-            << reference(ref_counter + i)
-            << '\n';
-        }
-      }
-
-      ref_counter += insp->num_elements();
+      for(std::size_t i=0; i<insp->num_elements(); ++i)
+        ref_counter = write_value(os, insp, i, ref_counter);
     }
   }
 
+
+
+  std::string reference(std::size_t i) {
+    static char const lowest = 33;
+    static char const highest = 126;
+    static std::size_t const num_codes = highest - lowest;
+
+    std::string rv;
+
+    rv.reserve(i / num_codes + 1);
+
+    for(std::size_t j = 0; j < (i / num_codes); ++j)
+      rv.push_back(highest);
+
+    rv.push_back(lowest + (i % num_codes));
+
+    return rv;
+  }
+
+
+
+  static std::size_t write_value(std::ostream& os,
+      std::shared_ptr<Module_inspector> const& insp,
+      std::size_t index,
+      std::size_t ref) {
+    auto obj = insp->get_object(index);
+    if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
+      os << 'r'
+        << insp->get<double>(index)
+        << ' '
+        << reference(ref++)
+        << '\n';
+    } else if( !obj->type->elements.empty() ) {
+      auto bits = insp->get_element_bits(index);
+
+      for(auto const& b : bits) {
+        os << 'b'
+          << b
+          << ' '
+          << reference(ref++)
+          << '\n';
+      }
+    } else {
+      auto bits = insp->get_bits(index);
+      if( bits.size() > 0 ) {
+        os << 'b'
+          << bits
+          << ' '
+          << reference(ref++)
+          << '\n';
+      }
+    }
+
+    return ref;
+  }
 }
 
 /* vim: set et fenc= ff=unix sts=2 sw=2 ts=2 : */
