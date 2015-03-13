@@ -20,7 +20,7 @@ TEST_F(Simulator_test, basic_process) {
       "test.basic_process");
 
   engine.setup();
-  auto intro = engine.inspect_module("test.basic_process");
+  auto intro = engine.inspect_module("");
 
   EXPECT_EQ(1, intro.get<int64_t>("a"));
 
@@ -44,7 +44,7 @@ TEST_F(Simulator_test, basic_periodic) {
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
 
-  auto intro = engine.inspect_module("test.basic_periodic");
+  auto intro = engine.inspect_module("");
   auto counter = intro.get<int64_t>("counter");
   auto acc = intro.get<int64_t>("acc");
 
@@ -58,7 +58,7 @@ TEST_F(Simulator_test, basic_fsm) {
   sim::Simulation_engine engine("test/simulator_test/basic_fsm.cell", "test");
 
   engine.setup();
-  auto intro = engine.inspect_module("test");
+  auto intro = engine.inspect_module("");
 
   auto ctr = intro.get<int64_t>("ctr");
   auto state = intro.get<int64_t>("state");
@@ -112,7 +112,7 @@ TEST_F(Simulator_test, functions) {
 
   int tmp;
   bool tmpb;
-  auto insp = engine.inspect_module("m");
+  auto insp = engine.inspect_module("");
 
   auto addf = std::bind(insp.get_function_ptr<int(char*,char*,char*,char*,int,int)>("add"),
       nullptr,
@@ -205,7 +205,7 @@ TEST_F(Simulator_test, module_access) {
     "m");
 
   engine.setup();
-  auto insp = engine.inspect_module("m");
+  auto insp = engine.inspect_module("");
 
   insp.call("set_a", 5);
   int a;
