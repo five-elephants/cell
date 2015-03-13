@@ -97,6 +97,42 @@ namespace sim {
       }
 
 
+      std::vector<ir::Bitset> get_element_bits(std::size_t idx) {
+        llvm::StructType* ty = static_cast<llvm::StructType*>(get_object(idx)->type->impl.type);
+        auto lay = m_exe->getDataLayout();
+        auto bit_sz = lay->getTypeSizeInBits(ty);
+        auto alloc_bit_sz = lay->getTypeAllocSizeInBits(ty);
+        auto byte_sz = bit_sz / 8;
+        auto ofs = m_layout->getElementOffset(idx);
+
+        std::vector<ir::Bitset> rv;
+
+        if( !ty->isStructTy() )
+          throw std::runtime_error("requested variable is not a structure type");
+
+        for(auto it=ty->element_begin(); it != ty->element_end(); ++it) {
+          auto el_bit_sz = lay->getTypeSizeInBits(*it);
+          auto el_alloc_bit_sz = lay->getTypeAllocSizeInBits(*it);
+          auto el_byte_sz = bit_sz / 8;
+          auto el_ofs = m_layout->getElementOffset(idx);
+
+          ir::Bitset elem(alloc_bit_sz);
+          char* ptr = this_in->data() + ofs + el_ofs;
+          for(std::size_t i=0; i<alloc_bit_sz; i++) {
+            auto bit_i = i % 8;
+            elem[i] = (*ptr >> bit_i) & 1;
+
+            if( bit_i == 7 )
+              ++ptr;
+          }
+          elem.resize(el_bit_sz);
+          rv.push_back(elem);
+        }
+
+        return rv;
+      }
+
+
       /** get the bit representation of the full module */
       ir::Bitset get_bits() {
         auto a = reinterpret_cast<ir::Bitset::block_type*>(
