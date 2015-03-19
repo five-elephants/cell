@@ -49,7 +49,7 @@ namespace demo = {
         }
 
 
-        periodic(2 ns) = { ctrl.clk = ~ctrl.clk; }
+        periodic(2 ns) = { ctrl.clk = !ctrl.clk; }
         once(10 ns) = { ctrl.reset = false }
     }
 
