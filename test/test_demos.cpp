@@ -12,7 +12,7 @@ class Demos : public ::testing::Test {
     virtual void SetUp() {
       init_logging();
 
-      m_logger = log4cxx::Logger::getLogger("cell.sim");
+      m_logger = log4cxx::Logger::getLogger("cell.test");
     }
 
     log4cxx::LoggerPtr m_logger;
@@ -63,8 +63,18 @@ TEST_F(Demos, fsm) {
       "demo.Fsm");
   sim::Vcd_instrumenter instr("demo_fsm.vcd");
 
+
   engine.instrument(instr);
   engine.setup();
+
+  auto intro = engine.inspect_module("");
+  std::vector<ir::Bitset> ebits = intro.get_element_bits("ctrl");
+  for(auto const& b : ebits)
+    LOG4CXX_INFO(m_logger, "bits: " << b);
+
+  ir::Bitset bits = intro.get_bits("ctrl");
+  LOG4CXX_INFO(m_logger, "all bits: " << bits);
+
   engine.simulate(ir::Time(100, ir::Time::ns));
   engine.teardown();
 }

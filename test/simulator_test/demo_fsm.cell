@@ -37,6 +37,7 @@ namespace demo = {
         def __init__() = {
             ctrl.clk = false;
             ctrl.reset = true;
+            ctrl.en = false;
         }
 
         process = {

@@ -115,6 +115,7 @@ def build(bld):
       test/test_simple_sim.cpp
       test/test_codegen.cpp
       test/test_demos.cpp
+      test/test_module_inspector.cpp
     """
     #test/test_simple_sim.cpp
 
@@ -194,7 +195,7 @@ def build(bld):
     bld.program(
       source = test_src,
       target = 'test-main',
-      cxxflags = '-std=c++11',
+      cxxflags = '-std=c++11 -ggdb',
       includes = [
         'gtest/gtest-1.7.0/include',
         '.',

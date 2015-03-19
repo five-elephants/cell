@@ -97,6 +97,62 @@ namespace sim {
       }
 
 
+      std::map<ir::Label,ir::Bitset> get_named_element_bits(std::size_t idx) {
+        auto type = get_object(idx)->type;
+        llvm::StructType* ty = static_cast<llvm::StructType*>(type->impl.type);
+        auto lay = m_exe->getDataLayout();
+        auto bit_sz = lay->getTypeSizeInBits(ty);
+        auto alloc_bit_sz = lay->getTypeAllocSizeInBits(ty);
+        auto byte_sz = bit_sz / 8;
+        auto ofs = m_layout->getElementOffset(idx);
+
+        std::map<ir::Label,ir::Bitset> rv;
+
+        if( !ty->isStructTy() )
+          throw std::runtime_error("requested variable is not a structure type");
+
+        auto str_lay = lay->getStructLayout(ty);
+
+        for(auto const& it : type->elements) {
+          auto el_idx = it.second->impl.struct_index;
+          auto el = ty->getElementType(el_idx);
+          auto el_bit_sz = lay->getTypeSizeInBits(el);
+          auto el_alloc_bit_sz = lay->getTypeAllocSizeInBits(el);
+          auto el_byte_sz = bit_sz / 8;
+          auto el_ofs = str_lay->getElementOffset(el_idx);
+
+          ir::Bitset elem(alloc_bit_sz);
+          char* ptr = this_in->data() + ofs + el_ofs;
+          for(std::size_t i=0; i<alloc_bit_sz; i++) {
+            auto bit_i = i % 8;
+            elem[i] = (*ptr >> bit_i) & 1;
+
+            if( bit_i == 7 )
+              ++ptr;
+          }
+          elem.resize(el_bit_sz);
+          rv[it.first] = elem;
+        }
+
+        return rv;
+      }
+
+
+      std::map<ir::Label,ir::Bitset> get_named_element_bits(ir::Label const& var_name) {
+        auto it = m_module->objects.find(var_name);
+        if( it == m_module->objects.end() ) {
+          std::stringstream strm;
+          strm << "object '" << var_name << "' requested for introspection"
+            " not found in module '"
+            << m_module->name << "'";
+          throw std::runtime_error(strm.str());
+        }
+
+        auto idx = it->second->impl.struct_index;
+        return get_named_element_bits(idx);
+      }
+
+
       std::vector<ir::Bitset> get_element_bits(std::size_t idx) {
         llvm::StructType* ty = static_cast<llvm::StructType*>(get_object(idx)->type->impl.type);
         auto lay = m_exe->getDataLayout();
@@ -110,11 +166,14 @@ namespace sim {
         if( !ty->isStructTy() )
           throw std::runtime_error("requested variable is not a structure type");
 
+        auto str_lay = lay->getStructLayout(ty);
+
         for(auto it=ty->element_begin(); it != ty->element_end(); ++it) {
+          auto el_idx = it - ty->element_begin();
           auto el_bit_sz = lay->getTypeSizeInBits(*it);
           auto el_alloc_bit_sz = lay->getTypeAllocSizeInBits(*it);
           auto el_byte_sz = bit_sz / 8;
-          auto el_ofs = m_layout->getElementOffset(idx);
+          auto el_ofs = str_lay->getElementOffset(el_idx);
 
           ir::Bitset elem(alloc_bit_sz);
           char* ptr = this_in->data() + ofs + el_ofs;
@@ -130,6 +189,21 @@ namespace sim {
         }
 
         return rv;
+      }
+
+
+      std::vector<ir::Bitset> get_element_bits(ir::Label const& var_name) {
+        auto it = m_module->objects.find(var_name);
+        if( it == m_module->objects.end() ) {
+          std::stringstream strm;
+          strm << "object '" << var_name << "' requested for introspection"
+            " not found in module '"
+            << m_module->name << "'";
+          throw std::runtime_error(strm.str());
+        }
+
+        auto idx = it->second->impl.struct_index;
+        return get_element_bits(idx);
       }
 
 
