@@ -112,12 +112,18 @@ namespace sim {
   void
   Vcd_instrumenter::write_signal_list(std::ostream& os,
       std::shared_ptr<Module_inspector> insp) {
+    auto mod = insp->module();
     os << "$scope module "
-      << insp->module()->name
+      << mod->name
       << " $end\n";
 
     for(std::size_t i=0; i<insp->num_elements(); ++i) {
       auto obj = insp->get_object(i);
+      if( obj->name == "port" )
+        continue;
+
+      if( mod->instantiations.count(obj->name) != 0 )
+        continue;
 
       if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
         os << "$var "
@@ -220,7 +226,14 @@ namespace sim {
       std::shared_ptr<Module_inspector> const& insp,
       std::size_t index,
       std::size_t ref) {
+    auto mod = insp->module();
     auto obj = insp->get_object(index);
+    if( obj->name == "port" )
+      return ref;
+
+    if( mod->instantiations.count(obj->name) != 0 )
+      return ref;
+
     if( obj->type == ir::Builtins<sim::Llvm_impl>::types["float"] ) {
       os << 'r'
         << insp->get<double>(index)
