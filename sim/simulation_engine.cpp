@@ -181,8 +181,8 @@ namespace sim {
   void
   Simulation_engine::optimize() {
     m_mpm = std::make_shared<llvm::PassManager>();
-    m_mpm->add(llvm::createPrintFunctionPass("function optimization in:",
-          new llvm::raw_os_ostream(std::cout)));
+    //m_mpm->add(llvm::createPrintFunctionPass("function optimization in:",
+          //new llvm::raw_os_ostream(std::cout)));
     m_mpm->add(new llvm::DataLayout(*m_layout));
     m_mpm->add(llvm::createBasicAliasAnalysisPass());
     m_mpm->add(llvm::createPromoteMemoryToRegisterPass());
@@ -193,8 +193,8 @@ namespace sim {
     m_mpm->add(llvm::createConstantPropagationPass());
     //m_mpm->add(llvm::createDCEPass());
     m_mpm->add(llvm::createDeadInstEliminationPass());
-    m_mpm->add(llvm::createPrintFunctionPass("function optimization out:",
-          new llvm::raw_os_ostream(std::cout)));
+    //m_mpm->add(llvm::createPrintFunctionPass("function optimization out:",
+          //new llvm::raw_os_ostream(std::cout)));
 
     m_mpm->run(*m_lib->impl.module.get());
   }
