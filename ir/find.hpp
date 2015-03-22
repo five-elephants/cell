@@ -47,6 +47,8 @@ namespace ir {
       auto it = Builtins<Impl>::types.find(type_name);
       if( it != Builtins<Impl>::types.end() )
         return it->second;
+      else
+        return std::shared_ptr<Type<Impl>>(nullptr);
     }
     return rv;
   }

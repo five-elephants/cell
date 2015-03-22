@@ -202,6 +202,31 @@ namespace sim {
   }
 
 
+  bool
+  Llvm_module_scanner::insert_socket(ast::Socket_def const& node) {
+    auto sock = create_socket(node);
+    auto lib = find_library(m_ns);
+    auto hier_name = hierarchical_name(m_ns, sock->name);
+    auto ty = llvm::StructType::create(lib->impl.context, hier_name);
+
+    std::size_t i = 0;
+    std::vector<llvm::Type*> port_tys;
+    port_tys.reserve(sock->elements.size());
+    for(auto p : sock->elements) {
+      p.second->impl.struct_index = i++;
+      port_tys.push_back(p.second->type->impl.type);
+    }
+
+    ty->setBody(port_tys);
+    sock->Type::impl.type = ty;
+    LOG4CXX_DEBUG(m_logger, "created socket definition for '" << sock->name << "'");
+
+    m_mod.socket = sock;
+
+    return false;
+  }
+
+
 }
 
 /* vim: set et fenc= ff=unix sts=0 sw=2 ts=2 : */

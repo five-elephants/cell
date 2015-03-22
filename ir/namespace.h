@@ -38,10 +38,13 @@ namespace ir {
 
   template<typename Impl = No_impl>
   struct Type {
-    Type() {}
+    Type()
+      : enclosing_ns(nullptr) {
+    }
 
     Type(Label _name)
-      : name(_name) {
+      : name(_name),
+        enclosing_ns(nullptr) {
     }
 
     //struct Field {
@@ -152,11 +155,11 @@ namespace ir {
     }
 
     Socket(Label name)
-        : enclosing_ns(nullptr) {
+        : Type<Impl>(name) {
       this->name = name;
     }
 
-    Namespace<Impl>* enclosing_ns;
+    //Namespace<Impl>* enclosing_ns;
     std::map<Label, std::shared_ptr<Port<Impl>>> ports;
 
     typename Impl::Socket impl;

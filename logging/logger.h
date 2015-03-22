@@ -11,7 +11,8 @@ static void init_logging() {
   AppenderPtr appender(new ConsoleAppender(layout));
   auto logger = Logger::getRootLogger();
   logger->addAppender(appender);
-  logger->setLevel(Level::getInfo());
+  //logger->setLevel(Level::getInfo());
+  logger->setLevel(Level::getDebug());
 }
 
 

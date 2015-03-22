@@ -153,6 +153,12 @@ namespace ir {
     m_ns.sockets[s->name] = s;
     m_ns.types[s->name] = s;
 
+    LOG4CXX_DEBUG(m_logger, "created socket '"
+        << s->name
+        << "' in namespace '"
+        << m_ns.name
+        << "'");
+
     return s;
   }
 

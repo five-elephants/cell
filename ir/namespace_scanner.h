@@ -105,7 +105,7 @@ namespace ir {
               }
             } else if( typeid(mod.socket()) == typeid(ast::Socket_def) ) {
               auto& sock = dynamic_cast<ast::Socket_def const&>(mod.socket());
-              return insert_socket(sock);
+              insert_socket(sock);
             }
           } else {
             m_mod.socket = Builtins<Impl>::types.at("unit");

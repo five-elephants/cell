@@ -16,20 +16,8 @@ namespace ir {
 
   template<typename Impl>
   bool
-  Module_scanner<Impl>::insert_socket(ast::Socket_def const& sock) {
-    auto label = dynamic_cast<ast::Identifier const*>(&(sock.identifier()))->identifier();
-    auto s = std::make_shared<Socket<Impl>>(label);
-    //auto s = std::shared_ptr<Socket>(new Socket(label));
-    if( this->m_ns.sockets.count(s->name) > 0 )
-      throw std::runtime_error(std::string("Socket with name ") + s->name +std::string(" already exists"));
-    if( this->m_ns.types.count(s->name) > 0 )
-      throw std::runtime_error(std::string("Type with name ") + s->name +std::string(" already exists"));
-
-    s->enclosing_ns = &this->m_ns;
-    scan_ast(*s, sock);
-    m_mod.socket = s;
-
-    return false;
+  Module_scanner<Impl>::insert_socket(ast::Socket_def const& node) {
+    return Namespace_scanner<Impl>::insert_socket(node);
   }
 
 
