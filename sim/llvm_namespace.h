@@ -5,10 +5,10 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
-#include <llvm/PassManager.h>
-#include <llvm/Analysis/Passes.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Transforms/Scalar.h>
+//#include <llvm/PassManager.h>
+//#include <llvm/Analysis/Passes.h>
+//#include <llvm/Analysis/Verifier.h>
+//#include <llvm/Transforms/Scalar.h>
 #include <llvm/IR/TypeBuilder.h>
 #include <stdexcept>
 
@@ -56,7 +56,7 @@ namespace sim {
       llvm::LLVMContext& context;
       std::unique_ptr<llvm::IRBuilder<>> builder;
       std::unique_ptr<llvm::Module> module;
-      std::unique_ptr<llvm::FunctionPassManager> fpm;
+      //std::unique_ptr<llvm::FunctionPassManager> fpm;
 
 
       Library()
@@ -67,7 +67,7 @@ namespace sim {
         : context(other.context) {
         builder = std::move(other.builder);
         module = std::move(other.module);
-        fpm = std::move(other.fpm);
+        //fpm = std::move(other.fpm);
       }
 
       Library& operator = (Library&& o) {
@@ -76,7 +76,7 @@ namespace sim {
 
         builder = std::move(o.builder);
         module = std::move(o.module);
-        fpm = std::move(o.fpm);
+        //fpm = std::move(o.fpm);
 
         return *this;
       }

@@ -8,6 +8,11 @@
 #include <llvm/ExecutionEngine/JIT.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Analysis/Verifier.h>
+#include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/Analysis/Passes.h>
+#include <llvm/Analysis/Verifier.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Support/raw_os_ostream.h>
 
 #include "parse_driver.h"
 #include "sim/llvm_namespace_scanner.h"
@@ -63,13 +68,7 @@ namespace sim {
     sim::Llvm_namespace_scanner scanner(*(m_lib->ns));
     driver.ast_root().accept(scanner);
 
-    // show generated code
-    cout << "Generated code:\n=====\n";
-    m_lib->impl.module->dump();
-    cout << "\n====="
-      << endl;
-
-    verifyModule(*(m_lib->impl.module));
+    //verifyModule(*(m_lib->impl.module));
 
     // create JIT execution engine
     EngineBuilder exe_bld(m_lib->impl.module.get());
@@ -89,6 +88,15 @@ namespace sim {
 
     m_layout = m_exe->getDataLayout();
     m_runset.layout(m_layout);
+
+    // optimize
+    optimize();
+
+    // show generated code
+    cout << "Generated code:\n=====\n";
+    m_lib->impl.module->dump();
+    cout << "\n====="
+      << endl;
 
     m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
     if( !m_top_mod ) {
@@ -152,6 +160,7 @@ namespace sim {
     m_runset.call_init(m_exe);
 
     m_setup_complete = true;
+
   }
 
 
@@ -166,6 +175,28 @@ namespace sim {
   void
   Simulation_engine::teardown() {
     m_setup_complete = false;
+  }
+
+
+  void
+  Simulation_engine::optimize() {
+    m_mpm = std::make_shared<llvm::PassManager>();
+    m_mpm->add(llvm::createPrintFunctionPass("function optimization in:",
+          new llvm::raw_os_ostream(std::cout)));
+    m_mpm->add(new llvm::DataLayout(*m_layout));
+    m_mpm->add(llvm::createBasicAliasAnalysisPass());
+    m_mpm->add(llvm::createPromoteMemoryToRegisterPass());
+    m_mpm->add(llvm::createInstructionCombiningPass());
+    m_mpm->add(llvm::createReassociatePass());
+    m_mpm->add(llvm::createGVNPass());
+    m_mpm->add(llvm::createCFGSimplificationPass());
+    m_mpm->add(llvm::createConstantPropagationPass());
+    //m_mpm->add(llvm::createDCEPass());
+    m_mpm->add(llvm::createDeadInstEliminationPass());
+    m_mpm->add(llvm::createPrintFunctionPass("function optimization out:",
+          new llvm::raw_os_ostream(std::cout)));
+
+    m_mpm->run(*m_lib->impl.module.get());
   }
 
 

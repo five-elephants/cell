@@ -10,15 +10,15 @@ namespace sim {
 
     rv.builder.reset(new llvm::IRBuilder<>(rv.context));
     rv.module.reset(new llvm::Module(name, rv.context));
-    rv.fpm.reset(new llvm::FunctionPassManager(rv.module.get()));
+    //rv.fpm.reset(new llvm::FunctionPassManager(rv.module.get()));
 
-    rv.fpm->add(llvm::createBasicAliasAnalysisPass());
-    rv.fpm->add(llvm::createPromoteMemoryToRegisterPass());
-    rv.fpm->add(llvm::createInstructionCombiningPass());
-    rv.fpm->add(llvm::createReassociatePass());
-    rv.fpm->add(llvm::createGVNPass());
-    rv.fpm->add(llvm::createCFGSimplificationPass());
-    rv.fpm->doInitialization();
+    //rv.fpm->add(llvm::createBasicAliasAnalysisPass());
+    //rv.fpm->add(llvm::createPromoteMemoryToRegisterPass());
+    //rv.fpm->add(llvm::createInstructionCombiningPass());
+    //rv.fpm->add(llvm::createReassociatePass());
+    //rv.fpm->add(llvm::createGVNPass());
+    //rv.fpm->add(llvm::createCFGSimplificationPass());
+    //rv.fpm->doInitialization();
 
     return rv;
   }

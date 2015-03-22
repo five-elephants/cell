@@ -75,6 +75,7 @@ namespace sim {
       virtual bool insert_op_lt(ast::Op_lesser_then const& node);
       virtual bool insert_op_ge(ast::Op_greater_or_equal_then const& node);
       virtual bool insert_op_le(ast::Op_lesser_or_equal_then const& node);
+      virtual bool insert_op_bidir(ast::Op_bidir const& node);
       virtual bool enter_assignment(ast::Assignment const& node);
       virtual bool leave_assignment(ast::Assignment const& node);
       virtual bool leave_compound(ast::Compound const& node);

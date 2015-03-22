@@ -58,8 +58,8 @@ namespace demo = {
         }
 
         process = {
-            /*ctrl <> controller;*/
-            /*datapath <> ctrl;*/
+            ctrl <> controller;
+            datapath <> ctrl;
 
             controller.clk = ctrl.clk;
             controller.reset = ctrl.reset;

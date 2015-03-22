@@ -636,6 +636,13 @@
 
 
     bool
+    Llvm_function_scanner::insert_op_bidir(ast::Op_bidir const& node) {
+      insert_bin_op(node, "<>");
+      return true;
+    }
+
+
+    bool
     Llvm_function_scanner::enter_assignment(ast::Assignment const& node) {
       m_lookups.push_back(Lookup_source::out);
       return true;

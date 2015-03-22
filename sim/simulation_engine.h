@@ -8,6 +8,7 @@
 #include <map>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/PassManager.h>
 #include <log4cxx/logger.h>
 
 #include "sim/runset.h"
@@ -52,9 +53,12 @@ namespace sim {
       ir::Time m_time;
       bool m_setup_complete = false;
       log4cxx::LoggerPtr m_logger;
+      std::shared_ptr<llvm::PassManager> m_mpm;
+      std::shared_ptr<llvm::FunctionPassManager> m_fpm;
 
 
       void init(std::string const& filename, std::string const& toplevel);
+      void optimize();
       ir::Time simulate_step(ir::Time const& t, ir::Time const& duration);
       bool simulate_cycle();
   };

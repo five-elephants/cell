@@ -123,7 +123,7 @@ TEST(Codegen_test, functions) {
   {
     using namespace llvm;
 
-    verifyModule(*(lib->impl.module));
+    //verifyModule(*(lib->impl.module));
 
     EngineBuilder exe_bld(lib->impl.module.get());
     string err_str;
