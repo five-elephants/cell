@@ -159,6 +159,25 @@ namespace ir {
         << m_ns.name
         << "'");
 
+    auto op_left = std::make_shared<Operator<Impl>>();
+    op_left->name = "<<";
+    op_left->return_type = s;
+    op_left->left = s;
+    op_left->right = s;
+
+    m_ns.operators.insert(std::make_pair(op_left->name, op_left));
+
+    auto op_right = std::make_shared<Operator<Impl>>();
+    op_right->name = ">>";
+    op_right->return_type = s;
+    op_right->left = s;
+    op_right->right = s;
+
+    m_ns.operators.insert(std::make_pair(op_right->name, op_right));
+
+    LOG4CXX_DEBUG(m_logger, "created operator '<<' and '>>' for '"
+        << s->name << "'");
+
     return s;
   }
 

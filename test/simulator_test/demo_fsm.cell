@@ -58,17 +58,18 @@ namespace demo = {
         }
 
         process = {
+            /*datapath <> ctrl <> controller;*/
             ctrl <> controller;
             datapath <> ctrl;
 
-            controller.clk = ctrl.clk;
-            controller.reset = ctrl.reset;
-            ctrl.en = controller.en;
-            ctrl.op = controller.op;
-            datapath = ctrl;
+            /*controller.clk = ctrl.clk;*/
+            /*controller.reset = ctrl.reset;*/
+            /*ctrl.en = controller.en;*/
+            /*ctrl.op = controller.op;*/
+            /*datapath = ctrl;*/
 
-            nested.a = true;
-            nested.ctrl = ctrl;
+            /*nested.a = true;*/
+            /*nested.ctrl = ctrl;*/
         }
 
 

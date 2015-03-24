@@ -113,6 +113,7 @@
       this->template on_leave_if_type<ast::Op_lesser_then>(&Llvm_function_scanner::insert_op_lt);
       this->template on_leave_if_type<ast::Op_greater_or_equal_then>(&Llvm_function_scanner::insert_op_ge);
       this->template on_leave_if_type<ast::Op_lesser_or_equal_then>(&Llvm_function_scanner::insert_op_le);
+      this->template on_enter_if_type<ast::Op_bidir>(&Llvm_function_scanner::insert_op_bidir);
       this->template on_enter_if_type<ast::Assignment>(&Llvm_function_scanner::enter_assignment);
       this->template on_leave_if_type<ast::Assignment>(&Llvm_function_scanner::leave_assignment);
       this->template on_leave_if_type<ast::Compound>(&Llvm_function_scanner::leave_compound);
@@ -637,8 +638,65 @@
 
     bool
     Llvm_function_scanner::insert_op_bidir(ast::Op_bidir const& node) {
-      insert_bin_op(node, "<>");
-      return true;
+      m_lookups.push_back(Lookup_source::in);
+      node.left().accept(*this);
+      node.right().accept(*this);
+      m_lookups.pop_back();
+
+      auto ptr_in_left = m_values[&(node.left())];
+      auto ptr_in_right= m_values[&(node.right())];
+
+      m_lookups.push_back(Lookup_source::out);
+      node.left().accept(*this);
+      node.right().accept(*this);
+      m_lookups.pop_back();
+
+      auto ptr_out_left = m_values[&(node.left())];
+      auto ptr_out_right= m_values[&(node.right())];
+
+      auto ty_left = m_types.at(&(node.left()));
+      auto ty_right = m_types.at(&(node.right()));
+
+      auto op_left = ir::find_operator(m_ns,
+          "<<",
+          ty_left,
+          ty_right);
+      if( !op_left ) {
+        std::stringstream strm;
+        strm << node.location() << ": failed to find operator '"
+          << "<<"
+          << "' with signature: ["
+          << ty_left->name
+          << "] << ["
+          << ty_right->name
+          << "] -> ["
+          //<< ret_ty->name
+          << "]";
+        throw std::runtime_error(strm.str());
+      }
+
+      auto op_right = ir::find_operator(m_ns,
+          ">>",
+          ty_left,
+          ty_right);
+      if( !op_right ) {
+        std::stringstream strm;
+        strm << node.location() << ": failed to find operator '"
+          << ">>"
+          << "' with signature: ["
+          << ty_left->name
+          << "] >> ["
+          << ty_right->name
+          << "] -> ["
+          //<< ret_ty->name
+          << "]";
+        throw std::runtime_error(strm.str());
+      }
+
+      op_left->impl.insert_func(m_builder, ptr_out_left, ptr_in_right);
+      op_right->impl.insert_func(m_builder, ptr_in_left, ptr_out_right);
+
+      return false;
     }
 
 

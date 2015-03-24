@@ -15,9 +15,14 @@
 
 namespace sim {
 
+  struct Socket_operator_codegen;
+
+
   struct Llvm_impl {
     struct Type {
       llvm::Type* type;
+      std::shared_ptr<Socket_operator_codegen> opgen_left;
+      std::shared_ptr<Socket_operator_codegen> opgen_right;
     };
 
     struct Port {

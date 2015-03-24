@@ -2,6 +2,7 @@
 
 #include "sim/llvm_module_scanner.h"
 #include "sim/llvm_function_scanner.h"
+#include "sim/socket_operator_codegen.h"
 
 #include <iostream>
 
@@ -85,6 +86,23 @@ namespace sim {
     ty->setBody(port_tys);
     sock->Type::impl.type = ty;
     LOG4CXX_DEBUG(m_logger, "created socket definition for '" << sock->name << "'");
+
+    // generate code for operator
+    auto op_left = find_operator(m_ns, "<<", sock, sock);
+    if( !op_left )
+      throw std::runtime_error("failed to find operator << for socket");
+
+    auto op_right = find_operator(m_ns, ">>", sock, sock);
+    if( !op_right )
+      throw std::runtime_error("failed to find operator >> for socket");
+
+    sock->impl.opgen_left = std::make_shared<Socket_operator_codegen>(sock,
+        ir::Direction::Input);
+    sock->impl.opgen_right = std::make_shared<Socket_operator_codegen>(sock,
+        ir::Direction::Output);
+
+    op_left->impl.insert_func = *(sock->impl.opgen_left);
+    op_right->impl.insert_func = *(sock->impl.opgen_right);
 
     return false;
   }
