@@ -1,6 +1,6 @@
-namespace test = {
+namespace test: {
 
-	def func() = {
+	def func(): {
 	}
 
 }

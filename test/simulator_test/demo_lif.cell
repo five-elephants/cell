@@ -1,6 +1,6 @@
-namespace demo = {
+namespace demo: {
 
-    mod lif_neuron = {
+    mod lif_neuron: {
         var m : float
         var gl : float
         var el : float
@@ -11,7 +11,7 @@ namespace demo = {
         var fire_out : bool
 
 
-        def __init__() = {
+        def __init__(): {
             gl = 0.1;
             el = -60.0;
             m = -60.0;
@@ -25,7 +25,7 @@ namespace demo = {
         }
 
 
-        def integrate(dt : float) -> float = {
+        def integrate(dt : float) -> float: {
             var tmp = gl * (el - m) + intx;
 
             intx = intx - 0.1 * intx;
@@ -37,7 +37,7 @@ namespace demo = {
                 m = m + tmp * dt
         }
 
-        periodic(100 us) = {
+        periodic(100 us): {
             if( fire_out )
                 fire_out = false;
 
@@ -50,14 +50,14 @@ namespace demo = {
         }
 
 
-        once(500 ms) = {
+        once(500 ms): {
             fire_in = true;
             print("fire");
         }
-        once(510 ms) = { fire_in = true; }
+        once(510 ms): { fire_in = true; }
 
 
-        periodic(1 ms) = {
+        periodic(1 ms): {
             fire_in = if( rand() % 1000 < 100 ) true else false;
         }
     }

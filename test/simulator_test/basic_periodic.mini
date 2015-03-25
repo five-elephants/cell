@@ -1,20 +1,20 @@
-namespace test = {
+namespace test: {
 
-	mod basic_periodic = {
+	mod basic_periodic: {
 		var counter : int
 		var acc : int
 
-		def __init__() = {
+		def __init__(): {
 			counter = 0;
 			acc = 0;
 		}
 
 
-		periodic(2 ns) = {
+		periodic(2 ns): {
 			counter = counter + 1;
 		}
 
-		process = {
+		process: {
 			acc = counter;
 		}
 	}

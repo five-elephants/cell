@@ -1,13 +1,13 @@
-mod m = {
+mod m: {
 	var a : int
 	var z : bool
 
-	def test_return(a : int) -> int = {
+	def test_return(a : int) -> int: {
 		a
 	}
 
 
-	def func(a : int, b : int) -> int = {
+	def func(a : int, b : int) -> int: {
 		if( a == b )
 			1
 		else
@@ -15,13 +15,13 @@ mod m = {
 	}
 
 
-	def set_a(x : int) = { a = x; }
-	def set_z(x : bool) = { z = x; }
-	def set_b(x : int) = { b = x; }
+	def set_a(x : int): a = x
+	def set_z(x : bool): z = x
+	def set_b(x : int): b = x
 
-	def get_a() -> int = a
-	def get_z() -> bool = z
-	def get_b() -> int = b
+	def get_a() -> int: a
+	def get_z() -> bool: z
+	def get_b() -> int: b
 
 	var b : int
 }

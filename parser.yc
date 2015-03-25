@@ -167,7 +167,7 @@
 unit: unit namespace_item       { $$ = $1; $1->append(*$2); }
     |                           { $$ = new ast::Unit(); driver.ast_root(*$$);};
 
-namespace: "namespace" identifier "=" CURL_OPEN namespace_body CURL_CLOSE
+namespace: "namespace" identifier ":" CURL_OPEN namespace_body CURL_CLOSE
                                 {
                                   auto v = new ast::Namespace_def(*$2);
                                   v->append(*$5);
@@ -180,18 +180,18 @@ namespace_item: namespace       { $$ = $1; }
     | module                    { $$ = $1; }
     | socket                    { $$ = $1; };
 
-module: "mod" identifier "=" CURL_OPEN module_body CURL_CLOSE
+module: "mod" identifier ":" CURL_OPEN module_body CURL_CLOSE
                                  {
                                   $$ = new ast::Module_def(*$2);
                                   $$->append(*$5);
                                  }
-    | "mod" identifier ":" identifier "=" CURL_OPEN module_body CURL_CLOSE
+    | "mod" identifier "<>" identifier ":" CURL_OPEN module_body CURL_CLOSE
                                  {
                                   $$ = new ast::Module_def(*$2);
                                   $$->socket(*$4);
                                   $$->append(*$7);
                                  }
-    | "mod" identifier ":" SOCKET "=" CURL_OPEN socket_body CURL_CLOSE "=" CURL_OPEN module_body CURL_CLOSE
+    | "mod" identifier "<>" SOCKET ":" CURL_OPEN socket_body CURL_CLOSE ":" CURL_OPEN module_body CURL_CLOSE
                                  {
                                   $$ = new ast::Module_def(*$2);
                                   auto sock = new ast::Socket_def(*$2, *$7);
@@ -210,7 +210,7 @@ module_item: var_def             { $$ = $1; }
   | recurrent                    { $$ = $1; };
 
 
-socket: SOCKET identifier "=" CURL_OPEN socket_body CURL_CLOSE
+socket: SOCKET identifier ":" CURL_OPEN socket_body CURL_CLOSE
                                 {
                                   $$ = new ast::Socket_def(*$2, *$5);
                                 };
@@ -227,12 +227,12 @@ socket_direction: CMP_LT_EQ     { $$ = ast::Socket_input; }
     | BIDIR                     { $$ = ast::Socket_bidirectional; };
 
 
-func: "def" identifier "(" func_params ")" "->" identifier "=" exp
+func: "def" identifier "(" func_params ")" "->" identifier ":" exp
                                  { $$ = new ast::Function_def(*$2, *$7);
                                    $$->append_body(*$9);
                                    $$->append_parameter(*$4);
                                    $$->location(@$); }
-func: "def" identifier "(" func_params ")" "=" exp
+func: "def" identifier "(" func_params ")" ":" exp
                                  { $$ = new ast::Function_def(*$2);
                                    $$->append_body(*$7);
                                    $$->append_parameter(*$4);
@@ -278,13 +278,13 @@ var_def: "var" identifier "=" exp ":" type_identifier
   | "var" identifier "=" exp     { auto v = new ast::Variable_def(*$2); v->expression(*$4); $$ = v; $$->location(@$);}
   | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; $$->location(@$);}
 
-process: "process" "=" statement { $$ = new ast::Process(*$3); };
-periodic: "periodic" "(" phys_literal ")" "=" statement
+process: "process" ":" statement { $$ = new ast::Process(*$3); };
+periodic: "periodic" "(" phys_literal ")" ":" statement
                                  { auto v = new ast::Periodic(*$3, *$6); $$ = v; };
-once: "once" "(" phys_literal ")" "=" statement
+once: "once" "(" phys_literal ")" ":" statement
                                  { $$ = new ast::Once(*$3, *$6); };
 
-recurrent: "recurrent" "(" identifier ")" "=" exp
+recurrent: "recurrent" "(" identifier ")" ":" exp
                                  { $$ = new ast::Recurrent(*$3, *$6); };
 
 statements: statements statement ";" { $$ = $1; $1->push_back($2); }

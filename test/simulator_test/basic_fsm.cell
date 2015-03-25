@@ -1,4 +1,4 @@
-mod test = {
+mod test: {
 
   var clk : bool
   var reset : bool
@@ -7,7 +7,7 @@ mod test = {
   var test : int
 
 
-  def __init__() = {
+  def __init__(): {
     state = 1;
     ctr = 0;
     reset = true;
@@ -15,20 +15,20 @@ mod test = {
     test = 50 ns;
   }
 
-  periodic(4 ns) = {
+  periodic(4 ns): {
     clk = !clk;
   }
 
-  once(8 ns) = {
+  once(8 ns): {
     reset = false;
   }
 
-  recurrent(t) = {
+  recurrent(t): {
     test = test - 10 ns;
     t + test
   }
 
-  process = {
+  process: {
     if( reset ) {
       state = 1;
     } else if( @clk && clk ) {
@@ -42,7 +42,7 @@ mod test = {
     }
   }
 
-  process = {
+  process: {
     if( reset ) {
       ctr = 0;
     } else if( @clk && clk ) {

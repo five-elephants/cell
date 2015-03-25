@@ -1,12 +1,11 @@
-namespace test = {
+namespace test: {
 
-  mod basic_array = {
+  mod basic_array: {
     var a : int[4]
     var b : int[2][10]
     var c : int[1][2][3][4][5][6]
 
-    def __init__() = {
-      
+    def __init__(): {
     }
   }
 

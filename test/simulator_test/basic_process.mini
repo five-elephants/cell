@@ -1,20 +1,20 @@
-namespace test = {
+namespace test: {
 
-  mod basic_process = {
+  mod basic_process: {
     var a : int
     var b : int
     var c : int
 
-    def __init__() = {
+    def __init__(): {
       a = 1;
     }
 
 
-    process = {
+    process: {
       b = a + 1
     }
 
-    process = {
+    process: {
       c = b + 1
     }
   }

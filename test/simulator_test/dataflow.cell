@@ -1,37 +1,37 @@
-namespace demo = {
+namespace demo: {
 
-    socket binop = {
+    socket binop: {
         <= a : int
         <= b : int
         => y : int
     }
 
 
-    mod adder : binop = {
+    mod adder <> binop: {
         var test : int
 
-        process = {
+        process: {
             port.y = port.a + port.b;
             test = port.a;
         }
     }
 
-    mod multiplier : binop = {
-        process = { port.y = port.a * port.b; }
+    mod multiplier <> binop: {
+        process: { port.y = port.a * port.b; }
     }
 
 
-    mod dataflow = {
+    mod dataflow: {
         var add_res : int
         var mult_res : int
 
-        def __init__() = {
+        def __init__(): {
             plus.a = 0;
             plus.b = 0;
         }
 
 
-        periodic(2 ns) = {
+        periodic(2 ns): {
             plus.a = plus.a + 1;
             plus.b = plus.b + 1;
         }
@@ -39,7 +39,7 @@ namespace demo = {
         inst plus : adder
         inst mult : multiplier
 
-        process = {
+        process: {
             mult.a = plus.y;
             mult.b = 2;
             add_res = plus.y;

@@ -1,35 +1,33 @@
-namespace demo = {
+namespace demo: {
 
-    socket Ctrl = {
+    socket Ctrl: {
         <= clk : bool
         <= reset : bool
         <= en : bool
         <= op : int
     }
 
-    socket Nested = {
+    socket Nested: {
         <= clk : bool
         <= reset : bool
         <= ctrl : Ctrl
     }
 
-    mod Test : socket = {
+    mod Test <> socket: {
         <= a : bool
         <= ctrl : Ctrl
-    } = {
-        process = {
-            port.ctrl.en = true;
-        }
+    } : {
+        process: port.ctrl.en = true
     }
 
     /*mod Controller <> Ctrl : {*/
-    mod Controller : Ctrl = {
+    mod Controller <> Ctrl: {
         var clk : bool
         var state : int
 
-        process = { clk = port.clk; }
+        process: clk = port.clk
 
-        process = {
+        process: {
             if( port.reset ) {
                 state = 0;
             } else if( @clk && clk ) {
@@ -41,23 +39,23 @@ namespace demo = {
         }
     }
 
-    mod Datapath : Ctrl = {
+    mod Datapath <> Ctrl: {
     }
 
-    mod Fsm = {
+    mod Fsm: {
         inst controller : Controller
         inst datapath : Datapath
         inst nested : Test
 
         var ctrl : Ctrl
 
-        def __init__() = {
+        def __init__(): {
             ctrl.clk = false;
             ctrl.reset = true;
             ctrl.en = false;
         }
 
-        process = {
+        process: {
             ctrl <> controller;
             datapath <> ctrl;
 
@@ -66,8 +64,8 @@ namespace demo = {
         }
 
 
-        periodic(2 ns) = { ctrl.clk = !ctrl.clk; }
-        once(10 ns) = { ctrl.reset = false }
+        periodic(2 ns): ctrl.clk = !ctrl.clk
+        once(10 ns): ctrl.reset = false
     }
 
 }
