@@ -159,6 +159,14 @@ def build(bld):
       #use = 'core sim LLVM'
     #)
 
+    bld.program(
+      source = 'sim/cellsim.cpp',
+      target = 'cellsim',
+      includes = '.',
+      cxxflags = '-std=c++11 -ggdb',
+      use = 'core sim LLVM',
+    )
+
     if False:
       bindings_lib = bld(
         source = bindings_src,
