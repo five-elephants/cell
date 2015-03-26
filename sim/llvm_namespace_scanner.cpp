@@ -25,7 +25,7 @@ namespace sim {
 
   bool
   Llvm_namespace_scanner::insert_namespace(ast::Namespace_def const& ns) {
-    std::cout << "Llvm_namespace_scanner::insert_namespace" << std::endl;
+    LOG4CXX_TRACE(m_logger, "Llvm_namespace_scanner::insert_namespace");
 
     auto n = create_namespace(ns);
 
@@ -40,7 +40,7 @@ namespace sim {
 
   bool
   Llvm_namespace_scanner::insert_module(ast::Module_def const& mod) {
-    std::cout << "Llvm_namespace_scanner::insert_module" << std::endl;
+    LOG4CXX_TRACE(m_logger, "Llvm_namespace_scanner::insert_module");
     auto m = create_module(mod);
 
     Llvm_module_scanner scanner(*m);

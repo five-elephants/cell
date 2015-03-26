@@ -37,7 +37,7 @@
       auto lib = ir::find_library(m_ns);
       auto name = ir::hierarchical_name(m_ns, m_function.name);
 
-      std::cout << "creating function '" << name << "'" << std::endl;
+      LOG4CXX_TRACE(m_logger, "creating function '" << name << "'");
 
       // create function type
       m_function.impl.func_type = get_function_type(m_function);

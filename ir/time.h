@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <ostream>
+#include <istream>
+#include <stdexcept>
 
 namespace ir {
 
@@ -81,6 +83,23 @@ namespace std {
       default: os << "x10^" << t.magnitude << " s";
     }
     return os;
+  }
+
+
+  inline std::istream& operator >> (std::istream& is, ir::Time& t) {
+    std::string unit;
+    is >> t.v;
+    is >> unit;
+
+    if( unit == "ps" ) t.magnitude = ir::Time::ps;
+    else if( unit == "ns" ) t.magnitude = ir::Time::ns;
+    else if( unit == "us" ) t.magnitude = ir::Time::us;
+    else if( unit == "ms" ) t.magnitude = ir::Time::ms;
+    else if( unit == "s" ) t.magnitude = ir::Time::s;
+    else
+      throw std::runtime_error("Unknown time unit");
+
+    return is;
   }
 
 }

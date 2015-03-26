@@ -61,8 +61,10 @@ namespace sim {
     init_builtins(m_lib);
 
     // print AST
-    ast::Ast_printer printer(std::cout);
+    std::stringstream strm_ast;
+    ast::Ast_printer printer(strm_ast);
     driver.ast_root().accept(printer);
+    LOG4CXX_DEBUG(m_logger, strm_ast.str());
 
     // generate code
     sim::Llvm_namespace_scanner scanner(*(m_lib->ns));
@@ -93,10 +95,14 @@ namespace sim {
     optimize();
 
     // show generated code
-    cout << "Generated code:\n=====\n";
-    m_lib->impl.module->dump();
-    cout << "\n====="
-      << endl;
+    std::stringstream strm_ir;
+    //cout << "Generated code:\n=====\n";
+    llvm::raw_os_ostream strm_ir_os(strm_ir);
+    m_lib->impl.module->print(strm_ir_os, nullptr);
+    LOG4CXX_DEBUG(m_logger, strm_ir.str());
+    //m_lib->impl.module->dump();
+    //cout << "\n====="
+      //<< endl;
 
     m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
     if( !m_top_mod ) {
@@ -118,6 +124,12 @@ namespace sim {
 
     m_time.v = 0;
     m_time.magnitude = ir::Time::ps;
+
+    LOG4CXX_INFO(m_logger, "initialized simulation using file '"
+        << filename
+        << "' with top module '"
+        << toplevel
+        << "'");
   }
 
 
@@ -166,6 +178,7 @@ namespace sim {
 
   void
   Simulation_engine::simulate(ir::Time const& duration) {
+    LOG4CXX_INFO(m_logger, "simulating " << duration);
     for(ir::Time t=m_time; t<(m_time + duration); ) {
       t = simulate_step(t, duration);
     }
@@ -488,6 +501,8 @@ namespace sim {
 
   void
   Instrumented_simulation_engine::simulate(ir::Time const& duration) {
+    LOG4CXX_INFO(m_logger, "simulating " << duration);
+
     for(ir::Time t=m_time; t<(m_time + duration); ) {
       ir::Time next_t = simulate_step(t, duration);
 

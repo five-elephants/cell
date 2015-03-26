@@ -40,7 +40,7 @@ namespace sim {
 
   bool
   Llvm_module_scanner::insert_function(ast::Function_def const& node) {
-    std::cout << "inserting function" << std::endl;
+    LOG4CXX_TRACE(m_logger, "inserting function");
 
     std::shared_ptr<Llvm_function> func = create_function(node);
 
