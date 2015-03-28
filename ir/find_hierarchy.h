@@ -47,23 +47,29 @@ namespace ir {
   template<typename T, typename Impl>
   std::shared_ptr<T> find_by_path(Namespace<Impl> const& ns,
       std::map<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
-      std::string const& path) {
-    auto path_elems = parse_path(path, ".");
-
+      std::vector<Label> const& path_elems) {
     //std::cout << "PATH: " << path << "\n";
     Namespace<Impl> const* cur_ns = &ns;
-    for(auto it=path_elems.begin();
-        (path_elems.size() > 1) && (it != --(path_elems.end()));
-        ++it) {
-      auto i = *it;
-      //std::cout << "   '" << i << "'\n";
 
-      if( cur_ns->namespaces.count(i) )
-        cur_ns = cur_ns->namespaces.at(i).get();
-      else if( cur_ns->modules.count(i) )
-        cur_ns = cur_ns->modules.at(i).get();
-      else
+    if( path_elems.size() > 1 ) {
+      auto tmp = find_namespace(ns, path_elems[0]);
+      if( !tmp )
         return std::shared_ptr<T>(nullptr);
+      cur_ns = tmp.get();
+
+      for(auto it=++(path_elems.begin());
+          it != --(path_elems.end());
+          ++it) {
+        auto i = *it;
+        //std::cout << "   '" << i << "'\n";
+
+        if( cur_ns->namespaces.count(i) )
+          cur_ns = cur_ns->namespaces.at(i).get();
+        else if( cur_ns->modules.count(i) )
+          cur_ns = cur_ns->modules.at(i).get();
+        else
+          return std::shared_ptr<T>(nullptr);
+      }
     }
 
     auto m = cur_ns->*field;
@@ -72,6 +78,16 @@ namespace ir {
       return m[path_elems.back()];
 
     return std::shared_ptr<T>(nullptr);
+  }
+
+
+  template<typename T, typename Impl>
+  std::shared_ptr<T> find_by_path(Namespace<Impl> const& ns,
+      std::map<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
+      std::string const& path) {
+    auto path_elems = parse_path(path, ".");
+
+    return find_by_path<T, Impl>(ns, field, path_elems);
   }
 
 

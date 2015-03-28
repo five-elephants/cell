@@ -833,16 +833,24 @@
 
     bool
     Llvm_function_scanner::leave_function_call(ast::Function_call const& node) {
-      auto& callee_id = dynamic_cast<ast::Identifier const&>(node.identifier());
-
+      std::vector<ir::Label> qname;
       std::vector<llvm::Value*> args;
 
       // find function
-      auto func = ir::find_function(m_ns, callee_id.identifier());
+      for(auto const& n : node.name()) {
+        auto const& p = dynamic_cast<ast::Identifier const&>(*n);
+        qname.push_back(p.identifier());
+      }
+      auto func = ir::find_by_path(m_ns,
+          &Llvm_namespace::functions,
+          qname);
       if( !func ) {
         std::stringstream strm;
-        strm << "Unable to find function '" << callee_id.identifier()
-          << "' to call ("
+        strm << "Unable to find function '";
+        std::copy(qname.begin(),
+            qname.end(),
+            std::ostream_iterator<std::string>(strm, "::"));
+        strm << "' to call ("
           << __func__
           << ")";
         throw std::runtime_error(strm.str());

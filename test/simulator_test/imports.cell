@@ -1,0 +1,19 @@
+namespace a: {
+    def test() -> int : 3
+}
+
+namespace b: {
+    def test() -> int : 4
+}
+
+namespace imported: {
+    def test() -> int : 5
+}
+
+mod m: {
+    var a : int
+
+    def __init__(): {
+        a = imported::test() + a::test() + b::test();
+    }
+}

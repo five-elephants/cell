@@ -89,6 +89,7 @@ blank      [ \t]
 "!"         return token::BANG;
 "@"         return token::AT;
 ":"         return token::COLON;
+"::"        return token::DCOLON;
 "->"        return token::ARROW_RIGHT;
 "."         return token::POINT;
 ","         return token::COMMA;

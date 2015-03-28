@@ -76,6 +76,16 @@ namespace ir {
 
 
   template<typename Impl = No_impl>
+  std::shared_ptr<Namespace<Impl>> find_namespace(Namespace<Impl> const& ns,
+      Label const& ns_name) {
+    auto rv = find_in_namespace<Namespace<Impl>>(ns,
+        &Namespace<Impl>::namespaces,
+        ns_name);
+    return rv;
+  }
+
+
+  template<typename Impl = No_impl>
   std::shared_ptr<Object<Impl>> find_object(Module<Impl> const& mod,
       Label const& object_name) {
     auto it = mod.objects.find(object_name);

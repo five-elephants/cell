@@ -7,11 +7,10 @@
 
 namespace ast {
 
-	Function_call::Function_call(Node_if& identifier)
+	Function_call::Function_call(std::vector<Node_if*> const& name)
 		:	Tree_base(),
-			m_identifier(identifier) {
-    register_branches({&m_identifier});
-    register_branch_lists({&m_expressions});
+			m_name(name) {
+        register_branch_lists({&m_name, &m_expressions});
 	}
 
 	void
@@ -22,14 +21,14 @@ namespace ast {
 			//i->visit();
 	}
 
-	Node_if&
-	Function_call::identifier() {
-		return m_identifier;
+    std::vector<Node_if*>&
+	Function_call::name() {
+		return m_name;
 	}
 
-	Node_if const&
-	Function_call::identifier() const {
-		return m_identifier;
+    std::vector<Node_if*> const&
+	Function_call::name() const {
+		return m_name;
 	}
 
 	void

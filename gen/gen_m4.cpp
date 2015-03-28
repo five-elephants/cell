@@ -120,7 +120,7 @@
 		DEF_GENERATOR_FUNC(function_call, Function_call, f) {
 			indent();
 			m_out << "function_call(";
-			f.identifier().visit();
+			//f.identifier().visit();
 			m_out << ", ";
 			for(auto i : f.expressions()) {
 				i->visit();
