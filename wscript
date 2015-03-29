@@ -13,7 +13,7 @@ def configure(conf):
     conf.load('compiler_cxx compiler_c boost bison flex swig')
     #conf.load('python')
     #conf.check_tool('bison flex')
-    conf.check_boost(lib='program_options serialization')
+    conf.check_boost(lib='program_options serialization system filesystem')
     #conf.check_python_headers()
     conf.check(lib='pthread', uselib_store='PTHREAD')
     #conf.check(lib='gtest', uselib_store='GTEST')
@@ -119,20 +119,24 @@ def build(bld):
     """
     #test/test_simple_sim.cpp
 
+    flags = {
+      'cxxflags': '-fPIC -std=c++11 -ggdb -DBOOST_FILESYSTEM_NO_DEPRECATED',
+    }
+
     bld.objects(
       source = core_src,
       target = 'core',
       includes = '.',
-      cxxflags = '-fPIC -std=c++11 -ggdb',
       use = 'BOOST',
+      **flags
     )
 
     bld.objects(
       source = sim_src,
       target = 'sim',
       includes = '.',
-      cxxflags = '-fPIC -std=c++11 -ggdb',
-      use = 'BOOST LLVM LOG4CXX'
+      use = 'BOOST LLVM LOG4CXX',
+      **flags
     )
 
     #bld.program(
@@ -147,8 +151,8 @@ def build(bld):
       source = 'sim/compiler.cpp',
       target = 'compiler',
       includes = '.',
-      cxxflags = '-std=c++11 -ggdb',
-      use = 'core sim LLVM'
+      use = 'core sim LLVM',
+      **flags
     )
 
     #bld.program(
@@ -163,8 +167,8 @@ def build(bld):
       source = 'sim/cellsim.cpp',
       target = 'cellsim',
       includes = '.',
-      cxxflags = '-std=c++11 -ggdb',
       use = 'core sim LLVM',
+      **flags
     )
 
     if False:
@@ -203,12 +207,12 @@ def build(bld):
     bld.program(
       source = test_src,
       target = 'test-main',
-      cxxflags = '-std=c++11 -ggdb',
       includes = [
         'gtest/gtest-1.7.0/include',
         '.',
       ],
       use = 'core sim gtest LLVM',
+      **flags
     )
 
 

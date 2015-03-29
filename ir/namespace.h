@@ -225,6 +225,7 @@ namespace ir {
   struct Library {
     Label name;
     std::shared_ptr<Namespace<Impl>> ns;
+    std::vector<std::string> lookup_path;
 
     typename Impl::Library impl;
   };

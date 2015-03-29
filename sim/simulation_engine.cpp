@@ -13,6 +13,7 @@
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Support/raw_os_ostream.h>
+#include <boost/filesystem.hpp>
 
 #include "parse_driver.h"
 #include "sim/llvm_namespace_scanner.h"
@@ -40,6 +41,7 @@ namespace sim {
   Simulation_engine::init(std::string const& filename, std::string const& toplevel) {
     using namespace llvm;
     using namespace std;
+    namespace bf = boost::filesystem;
 
     m_logger = log4cxx::Logger::getLogger("cell.sim");
 
@@ -53,6 +55,11 @@ namespace sim {
     m_lib->ns = std::make_shared<sim::Llvm_namespace>();
     m_lib->ns->enclosing_library = m_lib;
     m_lib->impl = sim::create_library_impl(m_lib->name);
+
+    // set-up lookup path
+    bf::path file_path(filename);
+    m_lib->lookup_path.push_back(file_path.parent_path().string());
+
 
     // LLVM initialization
     llvm::InitializeNativeTarget();

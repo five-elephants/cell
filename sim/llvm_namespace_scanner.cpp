@@ -3,6 +3,8 @@
 #include "sim/llvm_module_scanner.h"
 #include "sim/llvm_function_scanner.h"
 #include "sim/socket_operator_codegen.h"
+#include "ir/path.h"
+#include "parse_driver.h"
 
 #include <iostream>
 
@@ -28,9 +30,27 @@ namespace sim {
     LOG4CXX_TRACE(m_logger, "Llvm_namespace_scanner::insert_namespace");
 
     auto n = create_namespace(ns);
-
     Llvm_namespace_scanner scanner(*n);
-    ns.accept(scanner);
+
+    if( ns.empty() ) {
+      // try to parse namespace from another file
+      auto filename = ir::path_lookup(m_ns.enclosing_library.lock(), n->name);
+      if( filename.empty() ) {
+        std::stringstream strm;
+        strm << ns.location() << ": "
+          << "Could not find file for namespace reference '"
+          << n->name
+          << "'";
+        throw std::runtime_error(strm.str());
+      }
+      Parse_driver driver;
+      if( driver.parse(filename) )
+        throw std::runtime_error("Parse failed");
+
+      driver.ast_root().accept(scanner);
+    } else {
+      ns.accept(scanner);
+    }
 
     m_ns.namespaces[n->name] = n;
 

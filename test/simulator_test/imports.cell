@@ -1,3 +1,5 @@
+namespace functions
+
 namespace a: {
     def test() -> int : 3
 }
@@ -12,8 +14,10 @@ namespace imported: {
 
 mod m: {
     var a : int
+    var b : int
 
     def __init__(): {
         a = imported::test() + a::test() + b::test();
+        b = functions::m::fac(3);
     }
 }

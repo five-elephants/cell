@@ -16,6 +16,8 @@ namespace ast {
 			Node_if& identifier() { return m_identifier; }
 			Node_if const& identifier() const { return m_identifier; }
 
+      bool empty() const { return m_elements.empty(); }
+
 		private:
 			Node_if& m_identifier;
 			std::vector<Node_if*> m_elements;
