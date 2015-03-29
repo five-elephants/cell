@@ -28,7 +28,14 @@ namespace sim {
 
   Simulation_engine::Simulation_engine(std::string const& filename,
       std::string const& toplevel) {
-    init(filename, toplevel);
+    init(filename, toplevel, std::vector<std::string>());
+  }
+
+
+  Simulation_engine::Simulation_engine(std::string const& filename,
+      std::string const& toplevel,
+      std::vector<std::string> const& lookup_path) {
+    init(filename, toplevel, lookup_path);
   }
 
 
@@ -38,7 +45,9 @@ namespace sim {
 
 
   void
-  Simulation_engine::init(std::string const& filename, std::string const& toplevel) {
+  Simulation_engine::init(std::string const& filename,
+      std::string const& toplevel,
+      std::vector<std::string> const& lookup_path) {
     using namespace llvm;
     using namespace std;
     namespace bf = boost::filesystem;
@@ -59,6 +68,9 @@ namespace sim {
     // set-up lookup path
     bf::path file_path(filename);
     m_lib->lookup_path.push_back(file_path.parent_path().string());
+    std::copy(lookup_path.begin(),
+        lookup_path.end(),
+        std::back_inserter(m_lib->lookup_path));
 
 
     // LLVM initialization

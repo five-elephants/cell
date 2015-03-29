@@ -6,6 +6,7 @@
 #include <log4cxx/patternlayout.h>
 #include <log4cxx/consoleappender.h>
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 #include <iostream>
 #include <sstream>
 
@@ -15,20 +16,23 @@ namespace po = boost::program_options;
 void simulate(std::string const& sourcefile,
     std::string const& top_module,
     std::string const& vcd_dump,
-    std::string const& time) {
+    std::string const& time,
+    std::vector<std::string> const& lookup_path) {
   ir::Time t;
   std::stringstream strm(time);
   strm >> t;
 
   if( !vcd_dump.empty() ) {
-    sim::Instrumented_simulation_engine engine(sourcefile, top_module);
+    sim::Instrumented_simulation_engine engine(sourcefile,
+        top_module,
+        lookup_path);
     sim::Vcd_instrumenter instr(vcd_dump);
     engine.instrument(instr);
     engine.setup();
     engine.simulate(t);
     engine.teardown();
   } else {
-    sim::Simulation_engine engine(sourcefile, top_module);
+    sim::Simulation_engine engine(sourcefile, top_module, lookup_path);
     engine.setup();
     engine.simulate(t);
     engine.teardown();
@@ -38,6 +42,7 @@ void simulate(std::string const& sourcefile,
 
 int main(int argc, char* argv[]) {
   using namespace std;
+  namespace bf = boost::filesystem;
 
   try {
     po::options_description desc("Options");
@@ -53,6 +58,8 @@ int main(int argc, char* argv[]) {
        "top level module for elaboration")
       ("time,t", po::value<std::string>(),
        "simulated duration of simulation")
+      ("lookup_path,L", po::value<std::vector<std::string>>(),
+       "add a lookup path for namespace resolution (can be given multiple times)")
     ;
     po::positional_options_description pos_opts;
     pos_opts.add("file", 1);
@@ -60,7 +67,6 @@ int main(int argc, char* argv[]) {
     pos_opts.add("time", 1);
 
     po::variables_map vm;
-    //po::store(po::parse_command_line(argc, argv, desc), vm);
     po::store(po::command_line_parser(argc, argv)
         .options(desc)
         .positional(pos_opts)
@@ -72,7 +78,12 @@ int main(int argc, char* argv[]) {
         || !vm.count("file")
         || !vm.count("top_module")
         || !vm.count("time") ) {
-      cout << desc << endl;
+      cout << "Usage: " << argv[0]
+        << " [options] <source> <top-level module> <simulation time>\n\n"
+        << "   <top-level module> : e.g. my_namespace::module_name\n"
+        << "   <simulation time>  : <integer> [ms|us|ns|ps]\n"
+        << "\n"
+        << desc << endl;
       return 0;
     }
 
@@ -86,10 +97,16 @@ int main(int argc, char* argv[]) {
     else
       logger->setLevel(log4cxx::Level::getInfo());
 
+
+    std::vector<std::string> lookup_path;
+    if( vm.count("lookup_path") )
+      lookup_path = vm["lookup_path"].as<std::vector<std::string>>();
+
     simulate(vm["file"].as<std::string>(),
         vm["top_module"].as<std::string>(),
         vm["vcd"].as<std::string>(),
-        vm["time"].as<std::string>());
+        vm["time"].as<std::string>(),
+        lookup_path);
 
   } catch( std::runtime_error const& err ) {
     cerr << "Encountered runtime error: " << err.what() << endl;

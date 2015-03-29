@@ -28,6 +28,9 @@ namespace sim {
 
       Simulation_engine(std::string const& filename,
           std::string const& toplevel);
+      Simulation_engine(std::string const& filename,
+          std::string const& toplevel,
+          std::vector<std::string> const& lookup_path);
       ~Simulation_engine();
 
 
@@ -57,7 +60,9 @@ namespace sim {
       std::shared_ptr<llvm::FunctionPassManager> m_fpm;
 
 
-      void init(std::string const& filename, std::string const& toplevel);
+      void init(std::string const& filename,
+          std::string const& toplevel,
+          std::vector<std::string> const& lookup_path);
       void optimize();
       ir::Time simulate_step(ir::Time const& t, ir::Time const& duration);
       bool simulate_cycle();
@@ -70,6 +75,12 @@ namespace sim {
       Instrumented_simulation_engine(std::string const& filename,
           std::string const& toplevel)
         : Simulation_engine(filename, toplevel) {
+      }
+
+      Instrumented_simulation_engine(std::string const& filename,
+          std::string const& toplevel,
+          std::vector<std::string> const& lookup_path)
+        : Simulation_engine(filename, toplevel, lookup_path) {
       }
 
       void setup();
