@@ -349,11 +349,7 @@ phys_literal:
 
 una_exp:
   "!" exp                        { $$ = new ast::Op_not(*$2); }
-  | "@" identifier               {
-                                  auto nm = new ast::Name_lookup(*$2);
-                                  auto vr = new ast::Variable_ref(*nm);
-                                  $$ = new ast::Op_at(*vr);
-                                 };
+  | "@" elem_access              { $$ = new ast::Op_at(*$2); };
 
 bin_exp:
   exp '+' exp                    { $$ = new ast::Op_plus(*$1, *$3); }

@@ -99,7 +99,7 @@
       this->template on_visit_if_type<ast::Literal<std::string>>(&Llvm_function_scanner::insert_literal_string);
       this->template on_enter_if_type<ast::Phys_literal>(&Llvm_function_scanner::insert_phys_literal);
       this->template on_enter_if_type<ast::Op_at>(&Llvm_function_scanner::enter_op_at);
-      this->template on_leave_if_type<ast::Op_at>(&Llvm_function_scanner::insert_op_at);
+      //this->template on_leave_if_type<ast::Op_at>(&Llvm_function_scanner::insert_op_at);
       this->template on_leave_if_type<ast::Op_not>(&Llvm_function_scanner::insert_op_not);
       this->template on_leave_if_type<ast::Op_equal>(&Llvm_function_scanner::insert_op_equal);
       this->template on_leave_if_type<ast::Op_plus>(&Llvm_function_scanner::insert_op_plus);
@@ -467,7 +467,46 @@
     bool
     Llvm_function_scanner::enter_op_at(ast::Op_at const& node) {
       m_lookups.push_back(Lookup_source::in);
-      return true;
+      node.operand().accept(*this);
+      m_lookups.pop_back();
+
+      auto ptr_in = m_values.at(&(node.operand()));
+      auto ty = m_types.at(&(node.operand()));
+
+      m_lookups.push_back(Lookup_source::prev);
+      node.operand().accept(*this);
+      m_lookups.pop_back();
+
+      auto ptr_prev = m_values.at(&(node.operand()));
+
+      // select an operator
+      std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
+          "@",
+          ty,
+          ty);
+
+      if( op ) {
+        auto ret_ty = op->return_type;
+        // get current value
+        auto cur_val = m_builder.CreateLoad(ptr_in,
+            std::string("mod_load_in"));
+        // get previous value of operand
+        auto prev_val = m_builder.CreateLoad(ptr_prev,
+            std::string("mod_load_prev"));
+
+        auto v = op->impl.insert_func(m_builder, cur_val, prev_val);
+        m_values[&node] = v;
+        m_types[&node] = ret_ty;
+      } else {
+        std::stringstream strm;
+        strm << node.location() << ": failed to find operator '"
+          << "@"
+          << "' with signature: ["
+          << ty->name
+          << "]";
+        throw std::runtime_error(strm.str());
+      }
+      return false;
     }
 
     bool
