@@ -17,7 +17,7 @@ class Simulator_test : public ::testing::Test {
 
 TEST_F(Simulator_test, basic_process) {
   sim::Simulation_engine engine("test/simulator_test/basic_process.mini",
-      "test.basic_process");
+      "test::basic_process");
 
   engine.setup();
   auto intro = engine.inspect_module("");
@@ -39,7 +39,7 @@ TEST_F(Simulator_test, basic_process) {
 
 
 TEST_F(Simulator_test, basic_periodic) {
-  sim::Simulation_engine engine("test/simulator_test/basic_periodic.mini", "test.basic_periodic");
+  sim::Simulation_engine engine("test/simulator_test/basic_periodic.mini", "test::basic_periodic");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
@@ -95,7 +95,7 @@ TEST_F(Simulator_test, basic_fsm) {
 
 
 TEST_F(Simulator_test, empty_module) {
-  sim::Simulation_engine engine("test/simulator_test/empty_module.mini", "test.empty_module");
+  sim::Simulation_engine engine("test/simulator_test/empty_module.mini", "test::empty_module");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
@@ -216,7 +216,7 @@ TEST_F(Simulator_test, module_access) {
 }
 
 TEST_F(Simulator_test, basic_logging) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test.basic_periodic");
+  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test::basic_periodic");
 
   std::stringstream strm;
   sim::Stream_instrumenter instr(strm);
@@ -231,7 +231,7 @@ TEST_F(Simulator_test, basic_logging) {
 }
 
 TEST_F(Simulator_test, vcd_logging) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test.basic_periodic");
+  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test::basic_periodic");
 
   sim::Vcd_instrumenter instr("simulator_test__vcd_logging.vcd");
   engine.instrument(instr);

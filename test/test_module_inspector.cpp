@@ -73,7 +73,7 @@ TEST_F(Test_module_inspector, get_bits) {
 
 TEST_F(Test_module_inspector, get_element_bits) {
   sim::Simulation_engine engine("test/simulator_test/demo_fsm.cell",
-      "demo.Fsm");
+      "demo::Fsm");
 
   engine.setup();
   auto intro = engine.inspect_module("");

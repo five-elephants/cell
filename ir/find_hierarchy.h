@@ -85,7 +85,7 @@ namespace ir {
   std::shared_ptr<T> find_by_path(Namespace<Impl> const& ns,
       std::map<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
       std::string const& path) {
-    auto path_elems = parse_path(path, ".");
+    auto path_elems = parse_path(path, "::");
 
     return find_by_path<T, Impl>(ns, field, path_elems);
   }
