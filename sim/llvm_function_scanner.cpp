@@ -841,15 +841,23 @@
         auto const& p = dynamic_cast<ast::Identifier const&>(*n);
         qname.push_back(p.identifier());
       }
-      auto func = ir::find_by_path(m_ns,
-          &Llvm_namespace::functions,
-          qname);
+
+      std::shared_ptr<Llvm_function> func;
+      if( qname.size() > 1 ) {
+        func = ir::find_by_path(m_ns,
+            &Llvm_namespace::functions,
+            qname);
+      } else {
+        func = ir::find_function(m_ns, qname.front());
+      }
+
       if( !func ) {
         std::stringstream strm;
         strm << "Unable to find function '";
         std::copy(qname.begin(),
-            qname.end(),
+            --(qname.end()),
             std::ostream_iterator<std::string>(strm, "::"));
+        strm << qname.back();
         strm << "' to call ("
           << __func__
           << ")";
