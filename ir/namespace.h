@@ -70,6 +70,14 @@ namespace ir {
   };
 
   template<typename Impl = No_impl>
+  struct Constant {
+    std::shared_ptr<Type<Impl>> type;
+    Label name;
+
+    typename Impl::Constant impl;
+  };
+
+  template<typename Impl = No_impl>
   struct Port_assignment {
     std::shared_ptr<Port<Impl>> port;
     std::shared_ptr<Object<Impl>> object;
@@ -193,6 +201,7 @@ namespace ir {
     std::map<Label, std::shared_ptr<Type<Impl>>> types;
     std::map<Label, std::shared_ptr<Function<Impl>>> functions;
     std::multimap<Label, std::shared_ptr<Operator<Impl>>> operators;
+    std::map<Label, std::shared_ptr<Constant<Impl>>> constants;
 
     typename Impl::Namespace impl;
   };
@@ -209,13 +218,12 @@ namespace ir {
     }
 
     std::shared_ptr<Type<Impl>> socket;
-    std::map<Label, std::shared_ptr<Object<Impl>>> objects;
     std::map<Label, std::shared_ptr<Instantiation<Impl>>> instantiations;
     std::vector<std::shared_ptr<Process<Impl>>> processes;
     std::vector<std::shared_ptr<Periodic<Impl>>> periodicals;
     std::vector<std::shared_ptr<Once<Impl>>> onces;
     std::vector<std::shared_ptr<Recurrent<Impl>>> recurrents;
-    //std::shared_ptr<Codeblock_if> constructor_code;
+    std::map<Label, std::shared_ptr<Object<Impl>>> objects;
 
     typename Impl::Module impl;
   };

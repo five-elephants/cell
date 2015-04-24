@@ -240,6 +240,7 @@
 
     bool
     Llvm_function_scanner::enter_name_lookup(ast::Name_lookup const& node) {
+      std::shared_ptr<Llvm_constant> cnst;
       auto id = node.identifier();
       bool found = false;
 
@@ -251,6 +252,14 @@
       if( p != m_named_values.end() ) {
         m_values[&node] = p->second;
         m_types[&node] = m_named_types.at(id.identifier());
+        found = true;
+      } else if( (cnst = ir::find_constant(m_ns, id.identifier())) ) {
+        auto alloc_v = m_builder.CreateAlloca(cnst->type->impl.type,
+            nullptr,
+            cnst->name);
+        auto v = m_builder.CreateStore(cnst->impl.expr, alloc_v);
+        m_values[&node] = alloc_v;
+        m_types[&node] = cnst->type;
         found = true;
       } else if( m_mod ) {
         // lookup name in module

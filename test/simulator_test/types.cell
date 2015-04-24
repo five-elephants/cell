@@ -1,0 +1,43 @@
+namespace test: {
+
+	table State -> int : {
+		IDLE = 1
+		ACTIVE = 2
+	}
+
+	struct Logic_value: {
+		bool defined
+		bool driven
+		bool value
+	}
+
+	table Logic -> Logic_value : {
+		"0" -> (true, true, false)
+		"1" -> (true, true, true)
+		"z" -> (false, false, true)
+		"x" -> (false, true, false)
+	}
+
+	const v : Logic[8] = "xx01 10zz"
+
+
+	enum State: {
+		IDLE,
+		ACTIVE(int)
+	}
+
+	const ex : (float, float, float) = (1, 0, 0);
+	const ey : (float, float, float) = (0, 1, 0);
+	const ez : (float, float, float) = (0, 0, 1);
+
+	type Counter : int
+	type Vector : (float, float, float)
+	type Byte : bool[8]
+
+	struct Instruction: {
+		code : int
+		rt : int
+		ra : int
+		rb : int
+	}
+}

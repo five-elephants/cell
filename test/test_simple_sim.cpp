@@ -254,6 +254,16 @@ TEST_F(Simulator_test, vcd_logging_fsm) {
   engine.teardown();
 }
 
+TEST_F(Simulator_test, constants) {
+  sim::Simulation_engine engine("test/simulator_test/constants.cell", "m");
+
+  engine.setup();
+  auto insp = engine.inspect_module("");
+  engine.simulate(ir::Time(10, ir::Time::ns));
+  EXPECT_EQ(42, insp.get<int64_t>("x"));
+  engine.teardown();
+}
+
 
 //TEST_F(Simulator_test, basic_array) {
   //sim::Simulation_engine engine("test/simulator_test/basic_array.mini", "test.basic_array");

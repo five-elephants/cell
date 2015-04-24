@@ -1,6 +1,7 @@
 #include "llvm_module_scanner.h"
 
 #include "sim/llvm_function_scanner.h"
+#include "sim/llvm_constexpr_scanner.h"
 #include "ir/find.hpp"
 #include "ir/find_hierarchy.h"
 #include "ir/builtins.h"
@@ -222,6 +223,20 @@ namespace sim {
     LOG4CXX_DEBUG(m_logger, "created socket definition for '" << sock->name << "'");
 
     m_mod.socket = sock;
+
+    return false;
+  }
+
+
+  bool
+  Llvm_module_scanner::insert_constant(ast::Constant_def const& node) {
+    LOG4CXX_TRACE(m_logger, "Llvm_module_scanner::insert_constant");
+
+    auto c = create_constant(node);
+    m_mod.constants[c->name] = c;
+
+    Llvm_constexpr_scanner scanner(c);
+    node.accept(scanner);
 
     return false;
   }

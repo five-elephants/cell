@@ -64,6 +64,7 @@
 %token        PAREN_CLOSE             ")"
 %token        QUOTE                   "\""
 %token        PERCENT                 "%"
+%token        CONST                   "const"
 %token        VAR                     "var"
 %token        DEF                     "def"
 %token        NAMESPACE               "namespace"
@@ -120,6 +121,7 @@
 %type <node> periodic
 %type <node> once
 %type <node> var_def
+%type <node> const_def
 %type <node> elem_access
 %type <list> statements
 %type <node> statement
@@ -155,7 +157,7 @@
 
 %start unit;
 
-%right '=', "<>";
+%right '=' "<>";
 %left "||";
 %left "&&";
 %left "==" "!=";
@@ -207,6 +209,7 @@ module_body: module_body module_item
                                  { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };
 module_item: var_def             { $$ = $1; }
+  | const_def                    { $$ = $1; }
   | func                         { $$ = $1; }
   | mod_inst                     { $$ = $1; }
   | process                      { $$ = $1; }
@@ -282,6 +285,12 @@ var_def: "var" identifier "=" exp ":" type_identifier
                                  { auto v = new ast::Variable_def(*$2); v->type(*$4); $$ = v; $$->location(@$);}
   | "var" identifier "=" exp     { auto v = new ast::Variable_def(*$2); v->expression(*$4); $$ = v; $$->location(@$);}
   | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; $$->location(@$);}
+
+const_def: "const" identifier "=" exp ":" type_identifier
+                                 {
+                                   $$ = new ast::Constant_def(*$2, *$6, *$4);
+                                   $$->location(@$);
+                                 };
 
 process: "process" ":" statement { $$ = new ast::Process(*$3); };
 periodic: "periodic" "(" phys_literal ")" ":" statement

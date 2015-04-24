@@ -28,6 +28,7 @@ namespace sim {
       virtual bool insert_recurrent(ast::Recurrent const& node);
       virtual bool leave_module(ast::Module_def const& node);
       virtual bool insert_socket(ast::Socket_def const& node);
+      virtual bool insert_constant(ast::Constant_def const& node);
   };
 
 }

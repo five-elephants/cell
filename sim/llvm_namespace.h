@@ -33,6 +33,10 @@ namespace sim {
       std::size_t struct_index;
     };
 
+    struct Constant {
+      llvm::Constant* expr = nullptr;
+    };
+
     struct Port_assignment {};
     struct Instantiation {};
 
@@ -93,6 +97,7 @@ namespace sim {
   typedef ir::Type<Llvm_impl> Llvm_type;
   typedef ir::Port<Llvm_impl> Llvm_port;
   typedef ir::Object<Llvm_impl> Llvm_object;
+  typedef ir::Constant<Llvm_impl> Llvm_constant;
   typedef ir::Port_assignment<Llvm_impl> Llvm_port_assignment;
   typedef ir::Instantiation<Llvm_impl> Llvm_instantiation;
   typedef ir::Function<Llvm_impl> Llvm_function;

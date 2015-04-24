@@ -31,6 +31,7 @@ namespace ir {
         this->template on_enter_if_type<ast::Module_def>(&Namespace_scanner::insert_module);
         this->template on_enter_if_type<ast::Socket_def>(&Namespace_scanner::insert_socket);
         this->template on_enter_if_type<ast::Function_def>(&Namespace_scanner::insert_function);
+        this->template on_enter_if_type<ast::Constant_def>(&Namespace_scanner::insert_constant);
       }
 
 
@@ -59,11 +60,13 @@ namespace ir {
       virtual bool insert_namespace(ast::Namespace_def const& ns);
       virtual bool insert_socket(ast::Socket_def const& sock);
       virtual bool insert_function(ast::Function_def const& node);
+      virtual bool insert_constant(ast::Constant_def const& node);
 
       virtual std::shared_ptr<ir::Namespace<Impl>> create_namespace(ast::Namespace_def const& node);
       virtual std::shared_ptr<ir::Module<Impl>> create_module(ast::Module_def const& node);
       virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
       virtual std::shared_ptr<ir::Type<Impl>> create_socket(ast::Socket_def const& node);
+      virtual std::shared_ptr<ir::Constant<Impl>> create_constant(ast::Constant_def const& node);
   };
 
 
@@ -146,6 +149,7 @@ namespace ir {
       virtual std::shared_ptr<ir::Object<Impl>> create_object(ast::Variable_def const& node);
       virtual std::shared_ptr<ir::Instantiation<Impl>> create_instantiation(ast::Module_instantiation const& node);
       virtual std::shared_ptr<ir::Process<Impl>> create_process(ast::Process const& node);
+      virtual std::shared_ptr<ir::Constant<Impl>> create_constant(ast::Constant_def const& node);
   };
 
 }

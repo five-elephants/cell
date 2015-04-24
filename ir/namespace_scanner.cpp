@@ -49,6 +49,16 @@ namespace ir {
 
 
   template<typename Impl>
+  bool
+  Namespace_scanner<Impl>::insert_constant(ast::Constant_def const& node) {
+    auto c = create_constant(node);
+    m_ns.constants[c->name] = c;
+
+    return false;
+  }
+
+
+  template<typename Impl>
   std::shared_ptr<ir::Namespace<Impl>>
   Namespace_scanner<Impl>::create_namespace(ast::Namespace_def const& ns) {
     auto label = dynamic_cast<ast::Identifier const&>(ns.identifier()).identifier();
@@ -179,6 +189,39 @@ namespace ir {
         << s->name << "'");
 
     return s;
+  }
+
+
+  template<typename Impl>
+  std::shared_ptr<Constant<Impl>>
+  Namespace_scanner<Impl>::create_constant(ast::Constant_def const& node) {
+    std::shared_ptr<Constant<Impl>> cnst(new Constant<Impl>());
+
+    // get name
+    cnst->name = dynamic_cast<ast::Identifier const&>(node.identifier()).identifier();
+    if( m_ns.constants.count(cnst->name) > 0 )
+      throw std::runtime_error(std::string("Constant with name ")
+          + cnst->name
+          + std::string(" already exists"));
+
+    // get type
+    if( typeid(node.type()) == typeid(ast::Identifier) ) {
+      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
+      cnst->type = find_type(m_ns, type_name);
+      if( !cnst->type ) {
+        std::stringstream strm;
+        strm << node.type().location();
+        strm << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+    } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
+      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
+
+      cnst->type = make_array_type(m_ns, ar_type);
+      m_ns.types[cnst->type->name] = cnst->type;
+    }
+
+    return cnst;
   }
 
 }

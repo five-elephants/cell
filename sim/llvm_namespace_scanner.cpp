@@ -2,6 +2,7 @@
 
 #include "sim/llvm_module_scanner.h"
 #include "sim/llvm_function_scanner.h"
+#include "sim/llvm_constexpr_scanner.h"
 #include "sim/socket_operator_codegen.h"
 #include "ir/path.h"
 #include "parse_driver.h"
@@ -123,6 +124,18 @@ namespace sim {
 
     op_left->impl.insert_func = *(sock->impl.opgen_left);
     op_right->impl.insert_func = *(sock->impl.opgen_right);
+
+    return false;
+  }
+
+
+  bool
+  Llvm_namespace_scanner::insert_constant(ast::Constant_def const& node) {
+    auto c = create_constant(node);
+    m_ns.constants[c->name] = c;
+
+    Llvm_constexpr_scanner scanner(c);
+    node.accept(scanner);
 
     return false;
   }

@@ -76,6 +76,15 @@ namespace ir {
 
 
   template<typename Impl = No_impl>
+  std::shared_ptr<Constant<Impl>> find_constant(Namespace<Impl> const& ns,
+      Label const& const_name) {
+    auto rv = find_in_namespace<Constant<Impl>>(ns, &Namespace<Impl>::constants,
+        const_name);
+    return rv;
+  }
+
+
+  template<typename Impl = No_impl>
   std::shared_ptr<Namespace<Impl>> find_namespace(Namespace<Impl> const& ns,
       Label const& ns_name) {
     auto rv = find_in_namespace<Namespace<Impl>>(ns,

@@ -63,6 +63,7 @@ blank      [ \t]
 "mod"       return token::MOD;
 "inst"      return token::INST;
 "def"       return token::DEF;
+"const"     return token::CONST;
 "var"       return token::VAR;
 "if"        return token::IF;
 "else"      return token::ELSE;

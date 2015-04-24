@@ -261,6 +261,22 @@ namespace ir {
     return rv;
   }
 
+
+  template<typename Impl>
+  std::shared_ptr<Constant<Impl>>
+  Module_scanner<Impl>::create_constant(ast::Constant_def const& node) {
+    auto c = Namespace_scanner<Impl>::create_constant(node);
+    if( m_mod.objects.count(c->name) > 0 ) {
+      std::stringstream strm;
+      strm << node.location() << ": "
+        << "Constant definition has conflicting name with previous "
+              "variable definition ('"
+        << c->name << "')";
+      throw std::runtime_error(strm.str());
+    }
+    return c;
+  }
+
 }
 
 /* vim: set et fenc=utf-8 ff=unix sts=2 sw=2 ts=2 : */
