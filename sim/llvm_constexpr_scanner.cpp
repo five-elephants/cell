@@ -9,6 +9,12 @@ namespace sim {
       : m_constant(c) {
     this->template on_visit_if_type<ast::Literal<int>>(
         &Llvm_constexpr_scanner::visit_literal_int);
+    this->template on_visit_if_type<ast::Literal<double>>(
+        &Llvm_constexpr_scanner::visit_literal_double);
+    this->template on_visit_if_type<ast::Literal<bool>>(
+        &Llvm_constexpr_scanner::visit_literal_bool);
+    this->template on_visit_if_type<ast::Literal<std::string>>(
+        &Llvm_constexpr_scanner::visit_literal_string);
     this->template on_leave_if_type<ast::Constant_def>(
         &Llvm_constexpr_scanner::leave_constant_def);
   }
@@ -20,6 +26,43 @@ namespace sim {
 
     m_values[&node] = ConstantInt::get(getGlobalContext(),
         APInt(64, node.value(), true));
+
+    return true;
+  }
+
+
+  bool
+  Llvm_constexpr_scanner::visit_literal_double(ast::Literal<double> const& node) {
+    using namespace llvm;
+
+    auto ty = ir::Builtins<Llvm_impl>::types.at("float");
+    auto v = ConstantFP::get(ty->impl.type, node.value());
+    m_values[&node] = v;
+
+    return true;
+  }
+
+
+  bool
+  Llvm_constexpr_scanner::visit_literal_bool(ast::Literal<bool> const& node) {
+    using namespace llvm;
+
+    auto v = ConstantInt::get(getGlobalContext(),
+        APInt(1, node.value(), true));
+    m_values[&node] = v;
+
+    return true;
+  }
+
+
+  bool
+  Llvm_constexpr_scanner::visit_literal_string(ast::Literal<std::string> const& node) {
+    using namespace llvm;
+
+    //auto v = m_builder.CreateGlobalStringPtr(node.value(), "stringconst");
+    auto v = ConstantDataArray::getString(getGlobalContext(),
+        node.value());
+    m_values[&node] = v;
 
     return true;
   }

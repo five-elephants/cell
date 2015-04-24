@@ -7,6 +7,11 @@ namespace test: {
 		var x : int
 		const c = 42 : int
 
+		const c_str = "hello world" : string
+		const c_float = 4.2 : float
+		const c_bool = true : bool
+
+		const c_ref = c : int
 
 		def __init__(): x = c + nc
 

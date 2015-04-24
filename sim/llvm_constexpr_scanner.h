@@ -22,6 +22,9 @@ namespace sim {
       Node_value_map m_values;
 
       virtual bool visit_literal_int(ast::Literal<int> const& node);
+      virtual bool visit_literal_double(ast::Literal<double> const& node);
+      virtual bool visit_literal_bool(ast::Literal<bool> const& node);
+      virtual bool visit_literal_string(ast::Literal<std::string> const& node);
       virtual bool leave_constant_def(ast::Constant_def const& node);
   };
 
