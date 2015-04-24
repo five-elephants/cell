@@ -1,9 +1,14 @@
-mod m: {
-
-	var x : int
-	const c = 42 : int
+namespace test: {
+	const nc = 13 : int
 
 
-	def __init__(): x = c
+	mod m: {
 
+		var x : int
+		const c = 42 : int
+
+
+		def __init__(): x = c + nc
+
+	}
 }

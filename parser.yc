@@ -185,7 +185,8 @@ namespace_body: namespace_body namespace_item
 namespace_item: namespace       { $$ = $1; }
     | module                    { $$ = $1; }
     | socket                    { $$ = $1; }
-    | func                      { $$ = $1; };
+    | func                      { $$ = $1; }
+    | const_def                 { $$ = $1; };
 
 module: "mod" identifier ":" CURL_OPEN module_body CURL_CLOSE
                                  {
