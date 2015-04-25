@@ -122,6 +122,8 @@
 %type <node> once
 %type <node> var_def
 %type <node> const_def
+%type <node> const_ref
+%type <node> constexp
 %type <node> elem_access
 %type <list> statements
 %type <node> statement
@@ -287,11 +289,19 @@ var_def: "var" identifier "=" exp ":" type_identifier
   | "var" identifier "=" exp     { auto v = new ast::Variable_def(*$2); v->expression(*$4); $$ = v; $$->location(@$);}
   | "var" identifier             { auto v = new ast::Variable_def(*$2); $$ = v; $$->location(@$);}
 
-const_def: "const" identifier "=" exp ":" type_identifier
+const_def: "const" identifier "=" constexp ":" type_identifier
                                  {
                                    $$ = new ast::Constant_def(*$2, *$6, *$4);
                                    $$->location(@$);
                                  };
+
+constexp: literal                { $$ = $1; }
+  | const_ref                    { $$ = $1; }
+  | bin_exp                      { $$ = $1; }
+  | una_exp                      { $$ = $1; }
+  | PAREN_OPEN constexp PAREN_CLOSE { $$ = $2; };
+
+const_ref: identifier            { $$ = new ast::Constant_ref(*$1); };
 
 process: "process" ":" statement { $$ = new ast::Process(*$3); };
 periodic: "periodic" "(" phys_literal ")" ":" statement

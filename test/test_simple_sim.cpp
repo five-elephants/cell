@@ -261,6 +261,11 @@ TEST_F(Simulator_test, constants) {
   auto insp = engine.inspect_module("");
   engine.simulate(ir::Time(10, ir::Time::ns));
   EXPECT_EQ(55, insp.get<int64_t>("x"));
+  EXPECT_EQ(42, insp.get<int64_t>("x_ref"));
+  EXPECT_EQ(4.2, insp.get<double>("x_float"));
+  EXPECT_EQ(true, insp.get<bool>("x_bool"));
+  EXPECT_EQ(false, insp.get<bool>("y_bool"));
+  EXPECT_EQ(55, insp.get<int64_t>("y"));
   engine.teardown();
 }
 

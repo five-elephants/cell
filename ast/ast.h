@@ -8,6 +8,7 @@
 #include "ast/bitstring_literal.h"
 #include "ast/variable_def.h"
 #include "ast/constant_def.h"
+#include "ast/constant_ref.h"
 #include "ast/identifier.h"
 #include "ast/namespace_def.h"
 #include "ast/module_def.h"

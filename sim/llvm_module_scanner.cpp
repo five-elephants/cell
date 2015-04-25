@@ -235,7 +235,7 @@ namespace sim {
     auto c = create_constant(node);
     m_mod.constants[c->name] = c;
 
-    Llvm_constexpr_scanner scanner(c);
+    Llvm_constexpr_scanner scanner(c, m_ns);
     node.accept(scanner);
 
     return false;
