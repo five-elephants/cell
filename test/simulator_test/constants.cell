@@ -20,7 +20,7 @@ namespace test: {
 		const c_ref = c : int
 
 		const tmp = (42 == c_ref) : bool
-		/*const tmp2 = c_float == 4.2 : bool*/
+		const tmp2 = c_float == 4.2 : bool
 
 		def __init__(): {
 			x = c + nc;

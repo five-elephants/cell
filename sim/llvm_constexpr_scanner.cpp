@@ -137,11 +137,25 @@ namespace sim {
   bool
   Llvm_constexpr_scanner::leave_op_equal(ast::Op_equal const& node) {
     auto v_left = m_values.at(&(node.left()));
+    auto ty_left = v_left->getType();
     auto v_right = m_values.at(&(node.right()));
-    // XXX this should check the type...
-    m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_EQ,
-        v_left,
-        v_right);
+    auto ty_right = v_right->getType();
+
+    if( ty_left != ty_right ) {
+      std::stringstream strm;
+      strm << node.location()
+        << ": type mismatch in == comparison for constant expression.";
+      throw std::runtime_error(strm.str());
+    }
+
+    if( ty_left->isDoubleTy() )
+      m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_UEQ,
+          v_left,
+          v_right);
+    else
+      m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_EQ,
+          v_left,
+          v_right);
     return true;
   }
 
