@@ -24,6 +24,7 @@ namespace sim {
         &Llvm_constexpr_scanner::leave_constant_def);
     this->template on_enter_if_type<ast::Constant_ref>(
         &Llvm_constexpr_scanner::enter_constant_ref);
+
     this->template on_leave_if_type<ast::Op_not>(
         &Llvm_constexpr_scanner::leave_op_not);
     this->template on_leave_if_type<ast::Op_equal>(

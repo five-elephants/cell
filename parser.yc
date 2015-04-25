@@ -297,8 +297,20 @@ const_def: "const" identifier "=" constexp ":" type_identifier
 
 constexp: literal                { $$ = $1; }
   | const_ref                    { $$ = $1; }
-  | bin_exp                      { $$ = $1; }
-  | una_exp                      { $$ = $1; }
+  | "!" constexp                 { $$ = new ast::Op_not(*$2); }
+  | constexp '+' constexp        { $$ = new ast::Op_plus(*$1, *$3); }
+  | constexp '-' constexp        { $$ = new ast::Op_minus(*$1, *$3); }
+  | constexp '*' constexp        { $$ = new ast::Op_mult(*$1, *$3); }
+  | constexp '/' constexp        { $$ = new ast::Op_div(*$1, *$3); }
+  | constexp PERCENT constexp    { $$ = new ast::Op_mod(*$1, *$3); }
+  | constexp '<' constexp        { $$ = new ast::Op_lesser_then(*$1, *$3); }
+  | constexp '>' constexp        { $$ = new ast::Op_greater_then(*$1, *$3); }
+  | constexp "==" constexp       { $$ = new ast::Op_equal(*$1, *$3); }
+  | constexp "!=" constexp       { $$ = new ast::Op_not_equal(*$1, *$3); }
+  | constexp ">=" constexp       { $$ = new ast::Op_greater_or_equal_then(*$1, *$3); }
+  | constexp "<=" constexp       { $$ = new ast::Op_lesser_or_equal_then(*$1, *$3); }
+  | constexp "&&" constexp       { $$ = new ast::Op_and(*$1, *$3); }
+  | constexp "||" constexp       { $$ = new ast::Op_or(*$1, *$3); }
   | PAREN_OPEN constexp PAREN_CLOSE { $$ = $2; };
 
 const_ref: identifier            { $$ = new ast::Constant_ref(*$1); };
