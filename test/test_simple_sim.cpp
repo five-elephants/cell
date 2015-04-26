@@ -266,6 +266,7 @@ TEST_F(Simulator_test, constants) {
   EXPECT_EQ(true, insp.get<bool>("x_bool"));
   EXPECT_EQ(false, insp.get<bool>("y_bool"));
   EXPECT_EQ(55, insp.get<int64_t>("y"));
+  EXPECT_EQ(15, insp.get<int64_t>("x_auto_int"));
   engine.teardown();
 }
 

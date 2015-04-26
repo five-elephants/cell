@@ -293,6 +293,13 @@ const_def: "const" identifier "=" constexp ":" type_identifier
                                  {
                                    $$ = new ast::Constant_def(*$2, *$6, *$4);
                                    $$->location(@$);
+                                 }
+  | "const" identifier "=" constexp
+                                 {
+                                   auto v = new ast::Constant_def(*$2);
+                                   v->expression(*$4);
+                                   $$ = v;
+                                   $$->location(@$);
                                  };
 
 constexp:

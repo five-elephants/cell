@@ -18,10 +18,12 @@ namespace sim {
     private:
       typedef std::unordered_map<ast::Node_if const*,
           llvm::Constant*> Node_value_map;
+      typedef std::unordered_map<ast::Node_if const*, std::shared_ptr<Llvm_type>> Node_type_map;
 
       std::shared_ptr<Llvm_constant> m_constant;
       Llvm_namespace& m_ns;
       Node_value_map m_values;
+      Node_type_map m_types;
 
       virtual bool visit_literal_int(ast::Literal<int> const& node);
       virtual bool visit_literal_double(ast::Literal<double> const& node);

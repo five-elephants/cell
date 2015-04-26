@@ -9,17 +9,17 @@ namespace ast {
 	Variable_def::Variable_def(Node_if& identifier)
 		:	Tree_base(),
 			m_identifier(identifier),
-			m_type(new Identifier("void")),
+			//m_type(new Identifier("void")),
 			m_expression(new Empty_expression()),
 			m_without_type(true),
 			m_without_expression(true) {
-		register_branches({&m_identifier, m_type.get(), m_expression.get()});
+		register_branches({&m_identifier, m_expression.get()});
 	}
 
 	Variable_def::Variable_def(Node_if& identifier,
 			Node_if& type,
 			Node_if& expression)
-		:	
+		:
 			Tree_base(),
 			m_identifier(identifier),
 			m_type(&type),

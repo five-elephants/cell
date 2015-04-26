@@ -60,6 +60,7 @@ namespace sim {
 
     m_values[&node] = ConstantInt::get(getGlobalContext(),
         APInt(64, node.value(), true));
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("int");
 
     return true;
   }
@@ -72,6 +73,7 @@ namespace sim {
     auto ty = ir::Builtins<Llvm_impl>::types.at("float");
     auto v = ConstantFP::get(ty->impl.type, node.value());
     m_values[&node] = v;
+    m_types[&node] = ty;
 
     return true;
   }
@@ -84,6 +86,7 @@ namespace sim {
     auto v = ConstantInt::get(getGlobalContext(),
         APInt(1, node.value(), true));
     m_values[&node] = v;
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("bool");
 
     return true;
   }
@@ -97,6 +100,7 @@ namespace sim {
     auto v = ConstantDataArray::getString(getGlobalContext(),
         node.value());
     m_values[&node] = v;
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("string");
 
     return true;
   }
@@ -105,6 +109,25 @@ namespace sim {
   bool
   Llvm_constexpr_scanner::leave_constant_def(ast::Constant_def const& node) {
     m_constant->impl.expr = m_values.at(&node.expression());
+
+    if( m_constant->type ) {
+      // check type
+      if( m_constant->type != m_types.at(&node.expression()) ) {
+        std::stringstream strm;
+        strm << node.location() << ": "
+          << "type mismatch in constant definition: "
+          << "Declared type is '"
+          << m_constant->type->name
+          << "', inferred type is '"
+          << m_types[&node.expression()]->name
+          << "'";
+        throw std::runtime_error(strm.str());
+      }
+    } else {
+      // use inferred type
+      m_constant->type = m_types.at(&node.expression());
+    }
+
     return true;
   }
 
@@ -121,6 +144,7 @@ namespace sim {
     }
 
     m_values[&node] = p->impl.expr;
+    m_types[&node] = p->type;
 
     return true;
   }
@@ -130,6 +154,7 @@ namespace sim {
   Llvm_constexpr_scanner::leave_op_not(ast::Op_not const& node) {
     auto v_oper = m_values.at(&(node.operand()));
     m_values[&node] = llvm::ConstantExpr::getNot(v_oper);
+    m_types[&node] = m_types.at(&(node.operand()));
     return true;
   }
 
@@ -156,6 +181,8 @@ namespace sim {
       m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_EQ,
           v_left,
           v_right);
+
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("bool");
     return true;
   }
 
@@ -165,6 +192,7 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
     m_values[&node] = llvm::ConstantExpr::getAdd(v_left, v_right);
+    m_types[&node] = m_types[&(node.left())];
     return true;
   }
 
@@ -174,6 +202,7 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
     m_values[&node] = llvm::ConstantExpr::getSub(v_left, v_right);
+    m_types[&node] = m_types[&(node.left())];
     return true;
   }
 
@@ -183,6 +212,7 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
     m_values[&node] = llvm::ConstantExpr::getMul(v_left, v_right);
+    m_types[&node] = m_types[&(node.left())];
     return true;
   }
 
@@ -192,6 +222,7 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
     m_values[&node] = llvm::ConstantExpr::getSDiv(v_left, v_right);
+    m_types[&node] = m_types[&(node.left())];
     return true;
   }
 
@@ -201,6 +232,7 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
     m_values[&node] = llvm::ConstantExpr::getSRem(v_left, v_right);
+    m_types[&node] = m_types[&(node.left())];
     return true;
   }
 
@@ -210,6 +242,7 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
     m_values[&node] = llvm::ConstantExpr::getAnd(v_left, v_right);
+    m_types[&node] = m_types[&(node.left())];
     return true;
   }
 
@@ -219,6 +252,7 @@ namespace sim {
     auto v_left = m_values.at(&(node.left()));
     auto v_right = m_values.at(&(node.right()));
     m_values[&node] = llvm::ConstantExpr::getOr(v_left, v_right);
+    m_types[&node] = m_types[&(node.left())];
     return true;
   }
 
@@ -230,6 +264,7 @@ namespace sim {
     m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SGT,
         v_left,
         v_right);
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("bool");
     return true;
   }
 
@@ -241,6 +276,7 @@ namespace sim {
     m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SLT,
         v_left,
         v_right);
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("bool");
     return true;
   }
 
@@ -252,6 +288,7 @@ namespace sim {
     m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SGE,
         v_left,
         v_right);
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("bool");
     return true;
   }
 
@@ -263,6 +300,7 @@ namespace sim {
     m_values[&node] = llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SLE,
         v_left,
         v_right);
+    m_types[&node] = ir::Builtins<Llvm_impl>::types.at("bool");
     return true;
   }
 

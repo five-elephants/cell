@@ -12,6 +12,8 @@ namespace test: {
 		var y_bool : bool
 		var y : int
 
+		var x_auto_int : int
+
 		const c = 42 : int
 		const c_float = 4.2 : float
 		const c_bool = true : bool
@@ -19,6 +21,8 @@ namespace test: {
 
 		const tmp = (42 == c_ref) : bool
 		const tmp2 = c_float == 4.2 : bool
+
+		const auto_int = 15
 
 		def __init__(): {
 			x = c + nc;
@@ -28,6 +32,8 @@ namespace test: {
 
 			y = c + nc;
 			y_bool = !c_bool;
+
+			x_auto_int = auto_int;
 		}
 
 	}

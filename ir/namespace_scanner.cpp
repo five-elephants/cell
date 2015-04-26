@@ -205,20 +205,22 @@ namespace ir {
           + std::string(" already exists"));
 
     // get type
-    if( typeid(node.type()) == typeid(ast::Identifier) ) {
-      auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
-      cnst->type = find_type(m_ns, type_name);
-      if( !cnst->type ) {
-        std::stringstream strm;
-        strm << node.type().location();
-        strm << ": typename '" << type_name << "' not found.";
-        throw std::runtime_error(strm.str());
-      }
-    } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
-      auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
+    if( node.has_type() ) {
+      if( typeid(node.type()) == typeid(ast::Identifier) ) {
+        auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
+        cnst->type = find_type(m_ns, type_name);
+        if( !cnst->type ) {
+          std::stringstream strm;
+          strm << node.type().location();
+          strm << ": typename '" << type_name << "' not found.";
+          throw std::runtime_error(strm.str());
+        }
+      } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
+        auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
 
-      cnst->type = make_array_type(m_ns, ar_type);
-      m_ns.types[cnst->type->name] = cnst->type;
+        cnst->type = make_array_type(m_ns, ar_type);
+        m_ns.types[cnst->type->name] = cnst->type;
+      }
     }
 
     return cnst;

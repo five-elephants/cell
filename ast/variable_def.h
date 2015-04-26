@@ -18,6 +18,7 @@ namespace ast {
 
       Node_if& identifier() { return m_identifier; }
       Node_if const& identifier() const { return m_identifier; }
+      bool has_type() const { return static_cast<bool>(m_type); }
       Node_if& type() { return *m_type; }
       Node_if const& type() const { return *m_type; }
       void type(Node_if& node) {
