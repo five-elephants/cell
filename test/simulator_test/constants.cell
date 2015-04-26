@@ -8,13 +8,11 @@ namespace test: {
 		var x_ref : int
 		var x_float : float
 		var x_bool : bool
-		var x_str : string
 
 		var y_bool : bool
 		var y : int
 
 		const c = 42 : int
-		const c_str = "hello world" : string
 		const c_float = 4.2 : float
 		const c_bool = true : bool
 		const c_ref = c : int
@@ -27,7 +25,6 @@ namespace test: {
 			x_ref = c_ref;
 			x_float = c_float;
 			x_bool = c_bool;
-			x_str = c_str;
 
 			y = c + nc;
 			y_bool = !c_bool;

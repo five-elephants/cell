@@ -295,7 +295,10 @@ const_def: "const" identifier "=" constexp ":" type_identifier
                                    $$->location(@$);
                                  };
 
-constexp: literal                { $$ = $1; }
+constexp:
+  "number"                       { $$ = new ast::Literal<int>($1); }
+  | "float"                      { $$ = new ast::Literal<double>($1); }
+  | bool_literal                 { $$ = $1; }
   | const_ref                    { $$ = $1; }
   | "!" constexp                 { $$ = new ast::Op_not(*$2); }
   | constexp '+' constexp        { $$ = new ast::Op_plus(*$1, *$3); }
