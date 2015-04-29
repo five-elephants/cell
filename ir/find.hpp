@@ -218,5 +218,4 @@ namespace ir {
     return std::shared_ptr<Operator<Impl>>(nullptr);
   }
 
-
 }

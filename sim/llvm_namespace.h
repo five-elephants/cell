@@ -47,6 +47,7 @@ namespace sim {
 
     struct Operator {
       std::function<llvm::Value* (llvm::IRBuilder<>, llvm::Value* left, llvm::Value* right)> insert_func;
+      std::function<llvm::Constant* (llvm::Constant* left, llvm::Constant* right)> const_insert_func;
     };
 
     struct Process {};

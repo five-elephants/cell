@@ -3,7 +3,9 @@
 #include "ast/ast.h"
 #include "ast/scanner_base.h"
 #include "ir/namespace.h"
+#include "ir/find.hpp"
 #include "sim/llvm_namespace.h"
+#include <sstream>
 
 
 namespace sim {
@@ -44,6 +46,39 @@ namespace sim {
       virtual bool leave_op_lt(ast::Op_lesser_then const& node);
       virtual bool leave_op_ge(ast::Op_greater_or_equal_then const& node);
       virtual bool leave_op_le(ast::Op_lesser_or_equal_then const& node);
+
+
+      template<typename Node>
+      bool insert_bin_op(Node const& node, std::string const& opname) {
+        // get types and values
+        auto ty_left = m_types.at(&(node.left()));
+        auto ty_right = m_types.at(&(node.right()));
+        auto v_left = m_values.at(&(node.left()));
+        auto v_right = m_values.at(&(node.right()));
+
+        // select an operator
+        std::shared_ptr<Llvm_operator> op = ir::find_operator(m_ns,
+            opname,
+            ty_left,
+            ty_right);
+        if( op && op->impl.const_insert_func ) {
+          auto v_cmp = op->impl.const_insert_func(v_left, v_right);
+          m_values[&node] = v_cmp;
+          m_types[&node] = op->return_type;
+        } else {
+          std::stringstream strm;
+          strm << node.location() << ": failed to find constant operator '"
+            << opname
+            << "' with signature: ["
+            << ty_left->name
+            << "] " << opname << " ["
+            << ty_right->name
+            << "]";
+          throw std::runtime_error(strm.str());
+        }
+
+        return true;
+      }
   };
 
 }
