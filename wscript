@@ -49,6 +49,7 @@ def build(bld):
       ast/identifier.cpp
       ast/variable_def.cpp
       ast/module_def.cpp
+      ast/module_template.cpp
       ast/namespace_def.cpp
       ast/function_def.cpp
       ast/function_call.cpp

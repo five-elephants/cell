@@ -104,6 +104,7 @@ blank      [ \t]
 "recurrent" return token::RECURRENT;
 "true"      return token::TRUE;
 "false"     return token::FALSE;
+"template"  return token::TEMPLATE;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;

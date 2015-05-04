@@ -1,0 +1,37 @@
+namespace test: {
+
+	template<T> mod flop <> socket: {
+    <= next : T
+    => q : T
+    <= clk : bool
+  } : {
+    process: {
+      if( @port.clk && port.clk )
+        port.q = port.next;
+    }
+  }
+
+
+  mod test_flop: {
+    var clk : bool
+    var next_state : int
+    var state : int
+
+    inst uut : flop<int>
+
+    process: {
+      state = uut.q;
+      uut.next = next_state;
+      uut.clk = clk;
+    }
+
+
+    def __init__(): {
+      clk = false;
+      next_state = 13;
+    }
+
+    periodic(10 ns): clk = !clk
+  }
+
+}

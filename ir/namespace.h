@@ -230,6 +230,11 @@ namespace ir {
 
 
   template<typename Impl = No_impl>
+  struct Module_template {
+  };
+
+
+  template<typename Impl = No_impl>
   struct Library {
     Label name;
     std::shared_ptr<Namespace<Impl>> ns;
