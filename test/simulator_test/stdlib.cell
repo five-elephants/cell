@@ -1,0 +1,7 @@
+namespace ff
+
+mod test_stdlib: {
+    inst flop : ff::ff<int>
+    inst flop2 : ff::ffr<int>
+    inst flop3 : ff::ffe<int>
+}

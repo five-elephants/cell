@@ -1,0 +1,39 @@
+
+template<T> mod ff <> socket: {
+    <= clk : bool
+    <= next : T
+    => q : T
+} : {
+    process: {
+        if( @port.clk && port.clk )
+            port.q = port.next
+    }
+}
+
+template<T> mod ffr <> socket: {
+    <= clk : bool
+    <= reset : bool
+    <= reset_q : T
+    <= next : T
+    => q : T
+} : {
+    process: {
+        if( port.reset )
+            port.q = port.reset_q
+        else if( @port.clk && port.clk )
+            port.q = port.next
+    }
+}
+
+template<T> mod ffe <> socket: {
+    <= clk : bool
+    <= en : bool
+    <= next : T
+    => q : T
+} : {
+    process: {
+        if( en && @port.clk && port.clk )
+            port.q = port.next
+    }
+}
+
