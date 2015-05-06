@@ -61,8 +61,9 @@ namespace sim {
 
   bool
   Llvm_namespace_scanner::insert_module(ast::Module_def const& mod) {
-    LOG4CXX_TRACE(m_logger, "Llvm_namespace_scanner::insert_module");
     auto m = create_module(mod);
+    LOG4CXX_TRACE(m_logger, "Llvm_namespace_scanner::insert_module for '"
+        << m->name << "'");
 
     Llvm_module_scanner scanner(*m);
     mod.accept(scanner);

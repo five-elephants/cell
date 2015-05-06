@@ -6,6 +6,7 @@
 #include <vector>
 #include <boost/dynamic_bitset.hpp>
 
+#include "ast/module_def.h"
 #include "time.h"
 
 namespace ir {
@@ -23,12 +24,14 @@ namespace ir {
     struct Socket {};
     struct Namespace {};
     struct Module {};
+    struct Module_template {};
     struct Library {};
   };
 
 
   // prototypes
   template<typename Impl> struct Module;
+  template<typename Impl> struct Module_template;
   template<typename Impl> struct Namespace;
   template<typename Impl> struct Port;
   template<typename Impl> struct Library;
@@ -196,6 +199,7 @@ namespace ir {
     std::weak_ptr<Library<Impl>> enclosing_library;
 
     std::map<Label, std::shared_ptr<Module<Impl>>> modules;
+    std::map<Label, std::shared_ptr<Module_template<Impl>>> module_templates;
     std::map<Label, std::shared_ptr<Namespace<Impl>>> namespaces;
     std::map<Label, std::shared_ptr<Type<Impl>>> sockets;
     std::map<Label, std::shared_ptr<Type<Impl>>> types;
@@ -231,6 +235,11 @@ namespace ir {
 
   template<typename Impl = No_impl>
   struct Module_template {
+    Label name;
+    std::vector<Label> type_names;
+    ast::Module_def const* module_node;
+
+    typename Impl::Module_template impl;
   };
 
 

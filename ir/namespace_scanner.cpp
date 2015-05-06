@@ -14,6 +14,16 @@ namespace ir {
     return false;
   }
 
+
+  template<typename Impl>
+  bool
+  Namespace_scanner<Impl>::insert_module_template(ast::Module_template const& mod) {
+    auto m = create_module_template(mod);
+    m_ns.module_templates[m->name] = m;
+    return false;
+  }
+
+
   template<typename Impl>
   bool
   Namespace_scanner<Impl>::insert_namespace(ast::Namespace_def const& ns) {
@@ -145,6 +155,37 @@ namespace ir {
     m->enclosing_library = m_ns.enclosing_library;
 
     return m;
+  }
+
+
+  template<typename Impl>
+  std::shared_ptr<Module_template<Impl>>
+  Namespace_scanner<Impl>::create_module_template(ast::Module_template const& node) {
+    auto label = dynamic_cast<ast::Identifier const&>(
+        node.module_def().identifier()).identifier();
+
+    LOG4CXX_TRACE(m_logger, "Creating module template for '"
+        << label << "'");
+
+    if( m_ns.modules.count(label) || m_ns.module_templates.count(label) ) {
+      std::stringstream strm;
+      strm << node.location() << ": "
+        << "Can not define module template with name '"
+        << label
+        << "', because name is already in use.";
+      throw std::runtime_error(strm.str());
+    }
+
+    auto rv = std::make_shared<Module_template<Impl>>();
+    rv->name = label;
+    rv->module_node = &(node.module_def());
+
+    for(auto const& i : node.args()) {
+      auto ty_id = dynamic_cast<ast::Identifier const&>(*i).identifier();
+      rv->type_names.push_back(ty_id);
+    }
+
+    return rv;
   }
 
 

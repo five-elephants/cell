@@ -29,6 +29,12 @@ namespace sim {
       virtual bool leave_module(ast::Module_def const& node);
       virtual bool insert_socket(ast::Socket_def const& node);
       virtual bool insert_constant(ast::Constant_def const& node);
+      virtual bool insert_module(ast::Module_def const& mod);
+
+      virtual std::shared_ptr<Llvm_module> instantiate_module_template(
+          ir::Label name,
+          ast::Module_def const* node,
+          std::map<ir::Label,std::shared_ptr<Llvm_type>> const& args);
   };
 
 }

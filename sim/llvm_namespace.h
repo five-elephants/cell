@@ -62,6 +62,8 @@ namespace sim {
       llvm::Function* ctor;
     };
 
+    struct Module_template {};
+
     struct Library {
       llvm::LLVMContext& context;
       std::unique_ptr<llvm::IRBuilder<>> builder;

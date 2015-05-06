@@ -242,6 +242,50 @@ namespace sim {
   }
 
 
+  bool
+  Llvm_module_scanner::insert_module(ast::Module_def const& mod) {
+    auto m = create_module(mod);
+    LOG4CXX_TRACE(m_logger, "Llvm_module_scanner::insert_module for '"
+        << m->name << "'");
+
+    Llvm_module_scanner scanner(*m);
+    mod.accept(scanner);
+    m_mod.modules[m->name] = m;
+
+    return false;
+  }
+
+
+  std::shared_ptr<Llvm_module>
+  Llvm_module_scanner::instantiate_module_template(ir::Label inst_name,
+      ast::Module_def const* node,
+      std::map<ir::Label,std::shared_ptr<Llvm_type>> const& args) {
+    LOG4CXX_TRACE(this->m_logger, "creating module '"
+        << inst_name << "' from template");
+
+    auto m = std::make_shared<Llvm_module>(inst_name);
+    if( m_mod.modules.count(m->name) > 0 )
+      throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
+
+    m->enclosing_ns = &m_mod;
+    m->enclosing_library = m_mod.enclosing_library;
+
+
+    // inject type arguments
+    for(auto ty : args) {
+      LOG4CXX_TRACE(this->m_logger, "overriding type parameter '"
+          << ty.first << "' with type '"
+          << ty.second->name << "'");
+      m->types[ty.first] = ty.second;
+    }
+
+    Llvm_module_scanner scanner(*m);
+    node->accept(scanner);
+    m_mod.modules[m->name] = m;
+
+    return m;
+  }
+
 }
 
 /* vim: set et fenc= ff=unix sts=0 sw=2 ts=2 : */

@@ -16,6 +16,25 @@ namespace ast {
 
       virtual void visit() {}
 
+      std::string const& identifier() const {
+        return m_identifier;
+      }
+
+      std::vector<Node_if*> const& args() const {
+        return m_args;
+      }
+
+      std::vector<std::string> arg_type_names() const {
+        std::vector<std::string> rv;
+        rv.reserve(m_args.size());
+
+        for(auto const& arg : m_args) {
+          auto id = dynamic_cast<Identifier const&>(*arg);
+          rv.push_back(id.identifier());
+        }
+
+        return rv;
+      }
 
     private:
       std::string m_identifier;
