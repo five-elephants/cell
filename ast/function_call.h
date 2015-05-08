@@ -11,8 +11,13 @@ namespace ast {
 
 			virtual void visit();
 
-			std::vector<Node_if*>& name();
-			std::vector<Node_if*> const& name() const;
+			std::vector<std::string> name() const {
+				std::vector<std::string> rv;
+				for(auto const& n : m_name)
+					rv.push_back(dynamic_cast<Identifier const&>(n).identifier());
+				return rv;
+			}
+
 			void expressions(std::vector<Node_if*>& nodes);
 			std::vector<Node_if*>& expressions();
 			std::vector<Node_if*> const& expressions() const { return m_expressions; }

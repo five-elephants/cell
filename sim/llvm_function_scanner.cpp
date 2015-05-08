@@ -881,15 +881,10 @@
 
     bool
     Llvm_function_scanner::leave_function_call(ast::Function_call const& node) {
-      std::vector<ir::Label> qname;
+      std::vector<ir::Label> qname = node.name();
       std::vector<llvm::Value*> args;
 
       // find function
-      for(auto const& n : node.name()) {
-        auto const& p = dynamic_cast<ast::Identifier const&>(*n);
-        qname.push_back(p.identifier());
-      }
-
       std::shared_ptr<Llvm_function> func;
       if( qname.size() > 1 ) {
         func = ir::find_by_path(m_ns,
