@@ -120,7 +120,7 @@ TEST(general, regex) {
   using namespace std;
 
   /* neither clang-3.3 nor gcc-4.8 seem to have usable regex support on Fedora 19 */
-  EXPECT_THROW(regex integer("(\\+|-)?[[:digit:]]+"), regex_error);
+  EXPECT_NO_THROW(regex integer("(\\+|-)?[[:digit:]]+"));
 }
 
 

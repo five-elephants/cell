@@ -7,10 +7,9 @@
 #include <cstdlib>
 #include <llvm/ExecutionEngine/JIT.h>
 #include <llvm/Support/TargetSelect.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/IR/Verifier.h>
+//#include <llvm/Assembly/PrintModulePass.h>
 #include <llvm/Analysis/Passes.h>
-#include <llvm/Analysis/Verifier.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Support/raw_os_ostream.h>
 #include <boost/filesystem.hpp>
@@ -215,7 +214,7 @@ namespace sim {
     m_mpm = std::make_shared<llvm::PassManager>();
     //m_mpm->add(llvm::createPrintFunctionPass("function optimization in:",
           //new llvm::raw_os_ostream(std::cout)));
-    m_mpm->add(new llvm::DataLayout(*m_layout));
+    m_mpm->add(new llvm::DataLayoutPass(*m_layout));
     m_mpm->add(llvm::createBasicAliasAnalysisPass());
     m_mpm->add(llvm::createPromoteMemoryToRegisterPass());
     m_mpm->add(llvm::createInstructionCombiningPass());

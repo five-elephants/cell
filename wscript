@@ -24,7 +24,7 @@ def configure(conf):
     for llvm_config in [ 'llvm-config', 'llvm-config-3.4' ]:
       res = conf.check_cfg(
         path=llvm_config,
-        args='--cppflags --includedir --ldflags --libs core jit native',
+        args='--cppflags --includedir --ldflags --system-libs --libs core jit native',
         package='',
         uselib_store='LLVM',
         mandatory=False
