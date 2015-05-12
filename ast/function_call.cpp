@@ -21,15 +21,6 @@ namespace ast {
 			//i->visit();
 	}
 
-    std::vector<Node_if*>&
-	Function_call::name() {
-		return m_name;
-	}
-
-    std::vector<Node_if*> const&
-	Function_call::name() const {
-		return m_name;
-	}
 
 	void
 	Function_call::expressions(std::vector<Node_if*>& nodes) {

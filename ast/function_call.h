@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ast/node_if.h"
+#include "ast/identifier.h"
 #include "ast/tree_base.h"
 #include <vector>
 
@@ -14,7 +16,7 @@ namespace ast {
 			std::vector<std::string> name() const {
 				std::vector<std::string> rv;
 				for(auto const& n : m_name)
-					rv.push_back(dynamic_cast<Identifier const&>(n).identifier());
+					rv.push_back(dynamic_cast<Identifier const&>(*n).identifier());
 				return rv;
 			}
 
