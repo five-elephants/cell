@@ -30,7 +30,7 @@ namespace ast {
         return typeid(m_module_name) == typeid(Template_identifier);
       }
 
-      Template_identifier const& template_name() const {
+      Template_identifier const& template_identifier() const {
         return dynamic_cast<Template_identifier const&>(m_module_name);
       }
 

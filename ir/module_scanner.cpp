@@ -131,21 +131,31 @@
       if( node.is_template_instantiation() ) {
         LOG4CXX_TRACE(Namespace_scanner<Impl>::m_logger, "instantiating module template");
         // extract name
-        auto tmpl_name = node.template_name();
+        auto tmpl_id = node.template_identifier();
+        std::vector<Label> qname = tmpl_id.name();
+        std::string qname_join = boost::algorithm::join(qname, "::");
 
         // find template
-        auto tmpl = find_module_template(m_mod, tmpl_name.identifier());
+        std::shared_ptr<Module_template<Impl>> tmpl;
+        if( qname.size() > 1 ) {
+          tmpl = find_by_path(m_mod,
+              &Module<Impl>::module_templates,
+              qname);
+        } else {
+          tmpl = find_module_template(m_mod, qname[0]);
+        }
+
         if( !tmpl ) {
           std::stringstream strm;
           strm << "Can not find module template with name '"
-            << tmpl_name.identifier()
+            << qname_join
             << "'";
           throw std::runtime_error(strm.str());
         }
 
         // determine module name and type overrides
-        module_name = tmpl_name.identifier() + '<';
-        auto type_names = tmpl_name.arg_type_names();
+        module_name = qname_join + '<';
+        auto type_names = tmpl_id.arg_type_names();
         std::map<Label,std::shared_ptr<Type<Impl>>> types;
         auto it_placeholder = tmpl->type_names.begin();
         for(auto it=type_names.begin();
@@ -158,7 +168,7 @@
               << "failed to find type '"
               << *it
               << "' in instantiation of template '"
-              << tmpl_name.identifier()
+              << qname_join
               << "'";
             throw std::runtime_error(strm.str());
           }
@@ -172,7 +182,7 @@
         }
         module_name += '>';
 
-        // TODO run Module_scanner
+        // run Module_scanner
         inst->module = this->instantiate_module_template(module_name,
             tmpl->module_node,
           types);
@@ -341,7 +351,9 @@
 
     auto m = std::make_shared<Module<Impl>>(inst_name);
     if( m_mod.modules.count(m->name) > 0 )
-      throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
+      throw std::runtime_error(std::string("Module with name ")
+          + m->name
+          + std::string(" already exists"));
 
     m->enclosing_ns = &m_mod;
     m->enclosing_library = m_mod.enclosing_library;

@@ -32,7 +32,7 @@ template<T> mod ffe <> socket: {
     => q : T
 } : {
     process: {
-        if( en && @port.clk && port.clk )
+        if( port.en && @port.clk && port.clk )
             port.q = port.next
     }
 }

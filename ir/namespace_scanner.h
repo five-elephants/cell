@@ -4,12 +4,14 @@
 #include "ast/scanner_base.h"
 #include "ir/namespace.h"
 #include "find.hpp"
+#include "find_hierarchy.h"
 #include "scan_ast.h"
 #include "types.h"
 #include "streamop.h"
 #include "make_array_type.h"
 #include "logging/logger.h"
 
+#include <boost/algorithm/string/join.hpp>
 #include <sstream>
 #include <set>
 #include <stdexcept>
