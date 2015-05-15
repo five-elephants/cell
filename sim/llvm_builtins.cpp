@@ -2,9 +2,9 @@
 
 
 #define OP_LAMBDA \
-      [](llvm::IRBuilder<> bld, llvm::Value* left, llvm::Value* right) -> llvm::Value*
+      [&builtin_types](llvm::IRBuilder<> bld, llvm::Value* left, llvm::Value* right) -> llvm::Value*
 #define OP_C_LAMBDA \
-      [](llvm::Constant* left, llvm::Constant* right) -> llvm::Constant*
+      [&builtin_types](llvm::Constant* left, llvm::Constant* right) -> llvm::Constant*
 
 static void add_operator(ir::Label const& name,
     ir::Label const& return_type_name,
