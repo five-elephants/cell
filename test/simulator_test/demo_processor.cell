@@ -1,0 +1,76 @@
+namespace seq
+
+
+socket ram_if: {
+    <= addr : int
+    <= en : bool
+    <= we : bool
+    <= data_in : int
+    => data_out : int
+}
+
+
+socket mc: {
+    <= clk : bool
+    <= reset : bool
+    <> imem : ram_if
+    <> dmem : ram_if
+}
+
+
+
+const NOP = 0
+const ADD = 1
+const LOAD = 2
+const STORE = 3
+const JMP = 4
+const JMPZ = 5
+
+
+mod processor <> mc: {
+
+    inst pc : seq::ffr<int>
+    inst op : seq::ffr<int>
+    inst a : seq::ff<int>
+    inst b : seq::ff<int>
+
+
+    process: {
+        pc.clk = port.clk;
+        pc.reset = port.reset;
+        op.clk = port.clk;
+        op.reset = port.reset;
+        a.clk = port.clk;
+        b.clk = port.clk;
+        pc.reset_q = 0;
+        op.reset_q = NOP;
+    }
+
+
+    // address generation
+    process: {
+        pc.next = if( op.q == JMP ) a.q else (pc.q + 1)
+    }
+
+    // instruction fetching
+    process: {
+        port.imem.addr = pc.q;
+        port.imem.en = true;
+        port.imem.we = false;
+        op.next = port.imem.data_out;
+    }
+
+    // instruction decoding and execution
+    process: {
+        port.dmem.en = false;
+        port.dmem.we = false;
+        port.dmem.addr = a.q;
+        port.dmem.data_in = b.q;
+
+        if( op.q == LOAD ) {
+            port.dmem.en = true;
+        }
+    }
+
+}
+
