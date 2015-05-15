@@ -263,10 +263,11 @@ namespace sim {
     LOG4CXX_TRACE(this->m_logger, "creating module '"
         << inst_name << "' from template");
 
-    auto m = std::make_shared<Llvm_module>(inst_name);
-    if( m_mod.modules.count(m->name) > 0 )
-      throw std::runtime_error(std::string("Module with name ")+ m->name +std::string(" already exists"));
+    auto existing = m_mod.modules.find(inst_name);
+    if( existing != m_mod.modules.end() )
+      return existing->second;
 
+    auto m = std::make_shared<Llvm_module>(inst_name);
     m->enclosing_ns = &m_mod;
     m->enclosing_library = m_mod.enclosing_library;
 
