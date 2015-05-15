@@ -59,6 +59,7 @@ namespace ir {
     Namespace<Impl>* enclosing_ns;
     //std::vector<std::shared_ptr<Field>> fields;
     std::map<Label, std::shared_ptr<Port<Impl>>> elements;
+    std::shared_ptr<Type<Impl>> array_base_type;
     std::size_t array_size = 1;
 
     typename Impl::Type impl;

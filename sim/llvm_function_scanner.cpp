@@ -91,6 +91,7 @@
       this->template on_enter_if_type<ast::Variable_ref>(&Llvm_function_scanner::enter_variable_ref);
       this->template on_leave_if_type<ast::Variable_ref>(&Llvm_function_scanner::insert_variable_ref);
       this->template on_leave_if_type<ast::Op_element>(&Llvm_function_scanner::leave_op_element);
+      this->template on_leave_if_type<ast::Op_index>(&Llvm_function_scanner::leave_op_index);
       this->template on_enter_if_type<ast::Name_lookup>(&Llvm_function_scanner::enter_name_lookup);
       this->template on_leave_if_type<ast::Variable_def>(&Llvm_function_scanner::leave_variable_def);
       this->template on_visit_if_type<ast::Literal<int>>(&Llvm_function_scanner::insert_literal_int);
@@ -233,6 +234,27 @@
 
       m_values[&node] = ptr;
       m_types[&node] = it->second->type;
+
+      return true;
+    }
+
+
+    bool
+    Llvm_function_scanner::leave_op_index(ast::Op_index const& node) {
+      auto index = m_values.at(&node.right());
+      auto obj_ptr = m_values.at(&node.left());
+      auto type = m_types.at(&node.left());
+
+      LOG4CXX_TRACE(m_logger, "index access on '"
+          << type->name
+          << "'");
+
+      auto ptr = m_builder.CreateGEP(obj_ptr,
+          index,
+          std::string("ptr_index"));
+
+      m_values[&node] = ptr;
+      m_types[&node] = type->array_base_type;
 
       return true;
     }

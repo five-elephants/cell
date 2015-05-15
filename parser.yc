@@ -450,7 +450,8 @@ exp:
 
 var_ref: elem_access             { $$ = new ast::Variable_ref(*$1); };
 elem_access: identifier          { $$ = new ast::Name_lookup(*$1); }
-  | elem_access "." identifier   { $$ = new ast::Op_element(*$1, *$3); };
+  | elem_access "." identifier   { $$ = new ast::Op_element(*$1, *$3); }
+  | elem_access "[" exp "]"      { $$ = new ast::Op_index(*$1, *$3); };
 identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; $$->location(@$); };
 template_identifier: qualified_name '<' template_args '>'
                                  {

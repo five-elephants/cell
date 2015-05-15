@@ -31,6 +31,7 @@ namespace ast {
   BINOP(and);
   BINOP(or);
   BINOP(element);
+  BINOP(index);
   BINOP(bidir);
 
 }

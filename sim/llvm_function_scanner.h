@@ -53,6 +53,7 @@ namespace sim {
       virtual bool enter_variable_ref(ast::Variable_ref const& node);
       virtual bool insert_variable_ref(ast::Variable_ref const& node);
       virtual bool leave_op_element(ast::Op_element const& node);
+      virtual bool leave_op_index(ast::Op_index const& node);
       virtual bool enter_name_lookup(ast::Name_lookup const& node);
       virtual bool leave_variable_def(ast::Variable_def const& node);
       virtual bool insert_literal_int(ast::Literal<int> const& node);
