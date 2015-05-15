@@ -57,6 +57,9 @@ namespace sim {
   bool
   Llvm_module_scanner::insert_object(ast::Variable_def const& node) {
     auto obj = create_object(node);
+
+    LOG4CXX_TRACE(m_logger, "inserting object '" << obj->name << "'");
+
     m_mod.objects[obj->name] = obj;
 
     obj->impl.struct_index = m_member_types.size();
@@ -285,6 +288,50 @@ namespace sim {
     m_mod.modules[m->name] = m;
 
     return m;
+  }
+
+
+  std::shared_ptr<Llvm_type>
+  Llvm_module_scanner::create_array_type(ast::Array_type const& node) {
+    if( typeid(node.base_type()) == typeid(ast::Array_type) ) {
+      auto& base_type = dynamic_cast<ast::Array_type const&>(node.base_type());
+      auto bt = this->create_array_type(base_type);
+
+      std::stringstream strm;
+      strm << bt->name << "[" << node.size() << "]";
+      auto new_type = std::make_shared<Llvm_type>();
+      new_type->name = strm.str();
+      new_type->array_size = node.size();
+      new_type->array_base_type = bt;
+      new_type->impl.type = llvm::ArrayType::get(bt->impl.type,
+          new_type->array_size);
+
+      return new_type;
+    } else if( typeid(node.base_type()) == typeid(ast::Identifier) ) {
+      auto& base_type = dynamic_cast<ast::Identifier const&>(node.base_type());
+      auto type_name = base_type.identifier();
+      auto ir_type = find_type(m_ns, type_name);
+
+      if( !ir_type ) {
+        std::stringstream strm;
+        strm << node.location()
+          << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+
+      std::stringstream strm;
+      strm << ir_type->name << "[" << node.size() << "]";
+      auto new_type = std::make_shared<Llvm_type>();
+      new_type->name = strm.str();
+      new_type->array_base_type = ir_type;
+      new_type->array_size = node.size();
+      new_type->impl.type = llvm::ArrayType::get(ir_type->impl.type,
+          new_type->array_size);
+
+      return new_type;
+    } else {
+      throw std::runtime_error("Array base type is neither array nor identifier.");
+    }
   }
 
 }

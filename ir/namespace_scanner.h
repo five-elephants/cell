@@ -8,7 +8,6 @@
 #include "scan_ast.h"
 #include "types.h"
 #include "streamop.h"
-#include "make_array_type.h"
 #include "logging/logger.h"
 
 #include <boost/algorithm/string/join.hpp>
@@ -74,6 +73,7 @@ namespace ir {
       virtual std::shared_ptr<ir::Function<Impl>> create_function(ast::Function_def const& node);
       virtual std::shared_ptr<ir::Type<Impl>> create_socket(ast::Socket_def const& node);
       virtual std::shared_ptr<ir::Constant<Impl>> create_constant(ast::Constant_def const& node);
+      virtual std::shared_ptr<ir::Type<Impl>> create_array_type(ast::Array_type const& node);
   };
 
 

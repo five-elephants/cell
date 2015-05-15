@@ -108,7 +108,7 @@
       } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
         auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
 
-        obj->type = make_array_type(m_mod, ar_type);
+        obj->type = this->create_array_type(ar_type);
         m_mod.types[obj->type->name] = obj->type;
       }
 

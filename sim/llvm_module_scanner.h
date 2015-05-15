@@ -35,6 +35,8 @@ namespace sim {
           ir::Label name,
           ast::Module_def const* node,
           std::map<ir::Label,std::shared_ptr<Llvm_type>> const& args);
+
+      virtual std::shared_ptr<Llvm_type> create_array_type(ast::Array_type const& node);
   };
 
 }

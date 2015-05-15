@@ -259,7 +259,7 @@ namespace ir {
       } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
         auto& ar_type = dynamic_cast<ast::Array_type const&>(node.type());
 
-        cnst->type = make_array_type(m_ns, ar_type);
+        cnst->type = this->create_array_type(ar_type);
         m_ns.types[cnst->type->name] = cnst->type;
       }
     }
@@ -267,4 +267,44 @@ namespace ir {
     return cnst;
   }
 
+
+  template<typename Impl>
+  std::shared_ptr<ir::Type<Impl>>
+  Namespace_scanner<Impl>::create_array_type(ast::Array_type const& node) {
+    if( typeid(node.base_type()) == typeid(ast::Array_type) ) {
+      auto& base_type = dynamic_cast<ast::Array_type const&>(node.base_type());
+      auto bt = this->create_array_type(base_type);
+
+      std::stringstream strm;
+      strm << bt->name << "[" << node.size() << "]";
+      auto new_type = std::make_shared<Type<Impl>>();
+      new_type->name = strm.str();
+      new_type->array_size = node.size();
+
+      return new_type;
+    } else if( typeid(node.base_type()) == typeid(ast::Identifier) ) {
+      auto& base_type = dynamic_cast<ast::Identifier const&>(node.base_type());
+      auto type_name = base_type.identifier();
+      auto ir_type = find_type(m_ns, type_name);
+
+      if( !ir_type ) {
+        std::stringstream strm;
+        strm << node.location()
+          << ": typename '" << type_name << "' not found.";
+        throw std::runtime_error(strm.str());
+      }
+
+      std::stringstream strm;
+      strm << ir_type->name << "[" << node.size() << "]";
+      auto new_type = std::make_shared<Type<Impl>>();
+      new_type->name = strm.str();
+      new_type->array_size = node.size();
+
+      return new_type;
+    } else {
+      throw std::runtime_error("Array base type is neither array nor identifier.");
+    }
+  }
+
 }
+
