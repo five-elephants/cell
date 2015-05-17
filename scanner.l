@@ -105,6 +105,7 @@ blank      [ \t]
 "true"      return token::TRUE;
 "false"     return token::FALSE;
 "template"  return token::TEMPLATE;
+"table"     return token::TABLE;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;

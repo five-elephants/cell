@@ -1,0 +1,8 @@
+mod m: {
+
+  table tt -> int : {
+    a = 1,
+    b = 2
+  }
+
+}

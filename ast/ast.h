@@ -36,4 +36,6 @@
 #include "ast/phys_literal.h"
 #include "ast/recurrent.h"
 #include "ast/name_lookup.h"
+#include "ast/table_def.h"
+#include "ast/table_def_item.h"
 
