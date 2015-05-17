@@ -68,6 +68,11 @@ namespace ir {
   }
 
 
+  inline bool operator != (Time const& a, Time const& b) {
+    return !(a == b);
+  }
+
+
 }
 
 namespace std {

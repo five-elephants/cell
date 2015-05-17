@@ -19,8 +19,10 @@ void simulate(std::string const& sourcefile,
     std::string const& time,
     std::vector<std::string> const& lookup_path) {
   ir::Time t;
-  std::stringstream strm(time);
-  strm >> t;
+  if( !time.empty() ) {
+    std::stringstream strm(time);
+    strm >> t;
+  }
 
   if( !vcd_dump.empty() ) {
     sim::Instrumented_simulation_engine engine(sourcefile,
@@ -29,12 +31,14 @@ void simulate(std::string const& sourcefile,
     sim::Vcd_instrumenter instr(vcd_dump);
     engine.instrument(instr);
     engine.setup();
-    engine.simulate(t);
+    if( t != ir::Time(0, ir::Time::ns) )
+      engine.simulate(t);
     engine.teardown();
   } else {
     sim::Simulation_engine engine(sourcefile, top_module, lookup_path);
     engine.setup();
-    engine.simulate(t);
+    if( t != ir::Time(0, ir::Time::ns) )
+      engine.simulate(t);
     engine.teardown();
   }
 }
@@ -56,7 +60,7 @@ int main(int argc, char* argv[]) {
        "input source file")
       ("top_module,m", po::value<std::string>(),
        "top level module for elaboration")
-      ("time,t", po::value<std::string>(),
+      ("time,t", po::value<std::string>()->default_value(""),
        "simulated duration of simulation")
       ("lookup_path,L", po::value<std::vector<std::string>>(),
        "add a lookup path for namespace resolution (can be given multiple times)")
