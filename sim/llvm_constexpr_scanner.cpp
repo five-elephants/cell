@@ -10,7 +10,8 @@ namespace sim {
 
   Llvm_constexpr_scanner::Llvm_constexpr_scanner(std::shared_ptr<Llvm_constant> c,
       Llvm_namespace& ns)
-      : m_constant(c),
+      : m_logger(log4cxx::Logger::getLogger("cell.scan")),
+        m_constant(c),
         m_ns(ns) {
     on_visit_if_type<ast::Literal<int>>(
         &Llvm_constexpr_scanner::visit_literal_int);
@@ -22,6 +23,8 @@ namespace sim {
         &Llvm_constexpr_scanner::visit_literal_string);
     on_leave_if_type<ast::Constant_def>(
         &Llvm_constexpr_scanner::leave_constant_def);
+    on_leave_if_type<ast::Table_def_item>(
+        &Llvm_constexpr_scanner::leave_table_def_item);
     on_enter_if_type<ast::Constant_ref>(
         &Llvm_constexpr_scanner::enter_constant_ref);
 
@@ -127,6 +130,35 @@ namespace sim {
       // use inferred type
       m_constant->type = m_types.at(&node.expression());
     }
+
+    return true;
+  }
+
+
+  bool
+  Llvm_constexpr_scanner::leave_table_def_item(ast::Table_def_item const& node) {
+    m_constant->impl.expr = m_values.at(node.value());
+
+    if( m_constant->type ) {
+      // check type
+      if( m_constant->type->array_base_type != m_types.at(node.value()) ) {
+        std::stringstream strm;
+        strm << node.location() << ": "
+          << "type mismatch in constant definition: "
+          << "Declared type is '"
+          << m_constant->type->name
+          << "', inferred type is '"
+          << m_types[node.value()]->name
+          << "'";
+        throw std::runtime_error(strm.str());
+      }
+    } else {
+      // use inferred type
+      m_constant->type = m_types.at(node.value());
+    }
+
+    LOG4CXX_TRACE(m_logger, "Leaving Table_def_item (impl.expr = "
+        << m_constant->impl.expr);
 
     return true;
   }

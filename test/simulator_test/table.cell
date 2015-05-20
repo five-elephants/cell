@@ -1,7 +1,7 @@
 namespace n: {
   table tbl -> int : {
     red = 1,
-    gree = 2,
+    green = 2,
     blue = 3
   }
 
@@ -17,8 +17,8 @@ namespace n: {
 
 
     def __init__(): {
-      /*x = tt::a;*/
-      y = y::red;
+      x = tt::a;
+      y = tbl::red;
     }
 
   }

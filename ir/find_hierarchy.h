@@ -145,6 +145,19 @@ namespace ir {
 
     return rv;
   }
+
+
+  template<typename T, typename Impl>
+  std::shared_ptr<T> find_in_namespace(Namespace<Impl> const& ns,
+      std::map<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
+      std::vector<Label> const& path) {
+    if( path.size() == 1 )
+      return find_in_namespace(ns, field, path[0]);
+    else
+      return find_by_path(ns, field, path);
+  }
+
+
 }
 
 /* vim: set et fenc= ff=unix sts=0 sw=2 ts=2 : */

@@ -1,24 +1,33 @@
 #pragma once
 
+#include <vector>
+#include <algorithm>
+
 namespace ast {
 
   class Name_lookup : public Tree_base {
     public:
-      Name_lookup(Node_if& identifier)
-        : Tree_base(),
-          m_id(identifier) {
-        register_branches({&m_id});
+      Name_lookup(std::vector<Node_if*> qname)
+        : Tree_base() {
+        m_qname.resize(qname.size());
+        std::copy(qname.begin(), qname.end(), m_qname.begin());
+
+        register_branch_lists({&m_qname});
       }
 
       virtual void visit() {}
 
-      Identifier const& identifier() const {
-        return dynamic_cast<Identifier const&>(m_id);
+      std::vector<std::string> qname() const {
+        std::vector<std::string> rv;
+        for(auto const& i : m_qname) {
+          rv.push_back(dynamic_cast<Identifier const&>(*i).identifier());
+        }
+        return rv;
       }
 
-    protected:
-      Node_if& m_id;
 
+    protected:
+      std::vector<Node_if*> m_qname;
   };
 
 }

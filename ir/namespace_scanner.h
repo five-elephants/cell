@@ -76,7 +76,7 @@ namespace ir {
       virtual std::shared_ptr<ir::Type<Impl>> create_socket(ast::Socket_def const& node);
       virtual std::shared_ptr<ir::Constant<Impl>> create_constant(ast::Constant_def const& node);
       virtual std::shared_ptr<ir::Type<Impl>> create_array_type(ast::Array_type const& node);
-      virtual std::shared_ptr<ir::Type<Impl>> create_table_type(ast::Table_def const& node);
+      virtual std::pair<std::shared_ptr<Type<Impl>>, std::shared_ptr<Namespace<Impl>>> create_table_type(ast::Table_def const& node);
   };
 
 

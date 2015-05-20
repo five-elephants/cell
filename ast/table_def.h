@@ -44,7 +44,7 @@ namespace ast {
         std::vector<std::pair<std::string,Node_if const*>> rv;
         for(auto const& i : m_items) {
           auto item = dynamic_cast<Table_def_item const&>(*i);
-          rv.push_back(std::make_pair(item.name(), item.value()));
+          rv.push_back(std::make_pair(item.name(), i));
         }
         return rv;
       }

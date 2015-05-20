@@ -246,6 +246,28 @@ namespace sim {
 
 
   bool
+  Llvm_module_scanner::insert_table(ast::Table_def const& node) {
+    auto ty = create_table_type(node);
+    m_ns.types[ty.first->name] = ty.first;
+    m_ns.namespaces[ty.second->name] = ty.second;
+
+    auto cnst_it = ty.first->allowed_values.begin();
+    for(size_t i=0; i<ty.first->allowed_values.size(); ++i) {
+      auto cnst = (cnst_it++)->second;
+      auto item = node.items().at(i);
+
+      LOG4CXX_TRACE(m_logger, "creating constant for "
+          << ty.first->name << "::" << cnst->name);
+
+      Llvm_constexpr_scanner scanner(cnst, m_ns);
+      item.second->accept(scanner);
+    }
+
+    return false;
+  }
+
+
+  bool
   Llvm_module_scanner::insert_module(ast::Module_def const& mod) {
     auto m = create_module(mod);
     LOG4CXX_TRACE(m_logger, "Llvm_module_scanner::insert_module for '"

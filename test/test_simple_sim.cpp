@@ -278,3 +278,16 @@ TEST_F(Simulator_test, constants) {
   //engine.simulate(ir::Time(10, ir::Time::ns));
   //engine.teardown();
 //}
+
+
+TEST_F(Simulator_test, tables) {
+  sim::Simulation_engine engine("test/simulator_test/table.cell", "n::m");
+
+  engine.setup();
+  auto insp = engine.inspect_module("");
+  engine.simulate(ir::Time(10, ir::Time::ns));
+  EXPECT_EQ(1, insp.get<int64_t>("x"));
+  EXPECT_EQ(3, insp.get<int64_t>("y"));
+  engine.teardown();
+}
+

@@ -145,15 +145,19 @@ namespace sim {
   bool
   Llvm_namespace_scanner::insert_table(ast::Table_def const& node) {
     auto ty = create_table_type(node);
-    m_ns.types[ty->name] = ty;
+    m_ns.types[ty.first->name] = ty.first;
+    m_ns.namespaces[ty.second->name] = ty.second;
 
-    for(auto const& i : ty->allowed_values) {
-      auto cnst = i.second;
+    auto cnst_it = ty.first->allowed_values.begin();
+    for(size_t i=0; i<ty.first->allowed_values.size(); ++i) {
+      auto cnst = (cnst_it++)->second;
+      auto item = node.items().at(i);
+
       LOG4CXX_TRACE(m_logger, "creating constant for "
-          << ty->name << "::" << cnst->name);
+          << ty.first->name << "::" << cnst->name);
 
       Llvm_constexpr_scanner scanner(cnst, m_ns);
-      node.accept(scanner);
+      item.second->accept(scanner);
     }
 
     return false;

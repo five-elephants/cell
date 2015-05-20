@@ -5,6 +5,7 @@
 #include "ir/builtins.h"
 
 #include <functional>
+#include <boost/algorithm/string/join.hpp>
 
 
   namespace sim {
@@ -263,19 +264,21 @@
     bool
     Llvm_function_scanner::enter_name_lookup(ast::Name_lookup const& node) {
       std::shared_ptr<Llvm_constant> cnst;
-      auto id = node.identifier();
+      auto qname = node.qname();
       bool found = false;
 
-      LOG4CXX_TRACE(m_logger, "name lookup for '" << id.identifier() << "'");
+      LOG4CXX_TRACE(m_logger, "name lookup for '"
+          << boost::algorithm::join(qname, "::")
+          << "'");
 
       // load value
-      auto p = m_named_values.find(id.identifier());
+      auto p = m_named_values.find(qname[0]);
 
-      if( p != m_named_values.end() ) {
+      if( (qname.size() == 1) && (p != m_named_values.end()) ) {
         m_values[&node] = p->second;
-        m_types[&node] = m_named_types.at(id.identifier());
+        m_types[&node] = m_named_types.at(qname[0]);
         found = true;
-      } else if( (cnst = ir::find_constant(m_ns, id.identifier())) ) {
+      } else if( (cnst = ir::find_constant(m_ns, qname)) ) {
         auto alloc_v = m_builder.CreateAlloca(cnst->type->impl.type,
             nullptr,
             cnst->name);
@@ -283,9 +286,9 @@
         m_values[&node] = alloc_v;
         m_types[&node] = cnst->type;
         found = true;
-      } else if( m_mod ) {
+      } else if( m_mod && (qname.size() == 1) ) {
         // lookup name in module
-        auto p = m_mod->objects.find(id.identifier());
+        auto p = m_mod->objects.find(qname[0]);
         if( p != m_mod->objects.end() ) {
           if( m_lookups.empty() )
             throw std::runtime_error("expecting source specifier for name lookup");
@@ -303,15 +306,15 @@
           auto index = p->second->impl.struct_index;
           llvm::Value* ptr_v;
           std::string twine("elem_ptr_");
-          twine += id.identifier();
+          twine += qname[0];
 
-          if( m_mod->instantiations.find(id.identifier()) != m_mod->instantiations.end() ) {
+          if( m_mod->instantiations.find(qname[0]) != m_mod->instantiations.end() ) {
             // this is a module, so access port of module
             auto ptr_to_ptr_to_mod = m_builder.CreateStructGEP(source_ptr,
                 index,
-                std::string("mod_ptr_ptr_") + id.identifier());
+                std::string("mod_ptr_ptr_") + qname[0]);
             auto mod_ptr = m_builder.CreateLoad(ptr_to_ptr_to_mod,
-                std::string("mod_ptr_") + id.identifier());
+                std::string("mod_ptr_") + qname[0]);
             ptr_v = m_builder.CreateStructGEP(mod_ptr, 0, twine);
           } else {
             ptr_v = m_builder.CreateStructGEP(source_ptr, index, twine);
@@ -327,7 +330,7 @@
           auto read_mask_elem = m_builder.CreateConstGEP2_32(read_mask,
               0,
               index,
-              std::string("read_mask_elem_") + id.identifier());
+              std::string("read_mask_elem_") + qname[0]);
           m_builder.CreateStore(llvm::ConstantInt::get(llvm::getGlobalContext(),
                 llvm::APInt(1, 1, false)), read_mask_elem);
         }
@@ -337,7 +340,7 @@
         std::stringstream strm;
         strm << node.location()
           << ": unable to find symbol '"
-          << id.identifier()
+          << boost::algorithm::join(qname, "::")
           << "' (" << __func__ << ")";
         throw std::runtime_error(strm.str());
       }
@@ -560,16 +563,20 @@
         // get previous value of operand
         auto operand = dynamic_cast<ast::Variable_ref const&>(node.operand());
         auto lookup = dynamic_cast<ast::Name_lookup const&>(operand.expression());
-        auto operand_id = dynamic_cast<ast::Identifier const&>(lookup.identifier());
-        auto p = m_mod->objects.find(operand_id.identifier());
+        auto operand_qname = lookup.qname();
+
+        if( !(operand_qname.size() == 1) )
+          throw std::runtime_error("Qualified names are not supported for '@'");
+
+        auto p = m_mod->objects.find(operand_qname[0]);
         if( p != m_mod->objects.end() ) {
           auto this_prev = m_named_values.at("this_prev");
           auto index = p->second->impl.struct_index;
           auto ptr_v = m_builder.CreateStructGEP(this_prev,
               index,
-              std::string("elem_ptr_prev_") + operand_id.identifier());
+              std::string("elem_ptr_prev_") + operand_qname[0]);
           auto prev_val = m_builder.CreateLoad(ptr_v,
-              std::string("mod_load_prev_") + operand_id.identifier());
+              std::string("mod_load_prev_") + operand_qname[0]);
 
           auto v = op->impl.insert_func(m_builder, value, prev_val);
           m_values[&node] = v;

@@ -5,6 +5,7 @@
 #include "ir/namespace.h"
 #include "ir/find.hpp"
 #include "sim/llvm_namespace.h"
+#include "logging/logger.h"
 #include <sstream>
 
 
@@ -22,6 +23,7 @@ namespace sim {
           llvm::Constant*> Node_value_map;
       typedef std::unordered_map<ast::Node_if const*, std::shared_ptr<Llvm_type>> Node_type_map;
 
+      log4cxx::LoggerPtr m_logger;
       std::shared_ptr<Llvm_constant> m_constant;
       Llvm_namespace& m_ns;
       Node_value_map m_values;
@@ -32,6 +34,7 @@ namespace sim {
       virtual bool visit_literal_bool(ast::Literal<bool> const& node);
       virtual bool visit_literal_string(ast::Literal<std::string> const& node);
       virtual bool leave_constant_def(ast::Constant_def const& node);
+      virtual bool leave_table_def_item(ast::Table_def_item const& node);
       virtual bool enter_constant_ref(ast::Constant_ref const& node);
       virtual bool leave_op_not(ast::Op_not const& node);
       virtual bool leave_op_equal(ast::Op_equal const& node);

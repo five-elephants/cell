@@ -72,7 +72,8 @@ namespace ir {
   bool
   Namespace_scanner<Impl>::insert_table(ast::Table_def const& node) {
     auto ty = create_table_type(node);
-    m_ns.types[ty->name] = ty;
+    m_ns.types[ty.first->name] = ty.first;
+    m_ns.namespaces[ty.second->name] = ty.second;
 
     return false;
   }
@@ -318,11 +319,13 @@ namespace ir {
 
 
   template<typename Impl>
-  std::shared_ptr<Type<Impl>>
+  std::pair<std::shared_ptr<Type<Impl>>, std::shared_ptr<Namespace<Impl>>>
   Namespace_scanner<Impl>::create_table_type(ast::Table_def const& node) {
     auto rv = std::make_shared<Type<Impl>>();
+    auto ns = std::make_shared<Namespace<Impl>>();
 
     rv->name = node.name();
+    ns->name = node.name();
 
     // find base type
     auto base_ty_qname = node.value_type();
@@ -349,12 +352,13 @@ namespace ir {
     auto items = node.items();
     for(auto const& i : items) {
       auto cnst = std::make_shared<Constant<Impl>>();
-      cnst->type = rv->array_base_type;
+      cnst->type = rv;
       cnst->name = i.first;
       rv->allowed_values[cnst->name] = cnst;
+      ns->constants[cnst->name] = cnst;
     }
 
-    return rv;
+    return std::make_pair(rv, ns);
   }
 
 
