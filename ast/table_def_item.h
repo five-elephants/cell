@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/tree_base.h"
+#include "ast/identifier.h"
 
 
 namespace ast {
@@ -15,6 +16,15 @@ namespace ast {
       }
 
       virtual void visit() {}
+
+      std::string name() const {
+        return dynamic_cast<Identifier const&>(*m_identifier).identifier();
+      }
+
+      Node_if const* value() const {
+        return m_value;
+      }
+
 
     private:
       Node_if* m_identifier;

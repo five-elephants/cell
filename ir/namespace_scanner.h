@@ -35,6 +35,7 @@ namespace ir {
         this->template on_enter_if_type<ast::Socket_def>(&Namespace_scanner::insert_socket);
         this->template on_enter_if_type<ast::Function_def>(&Namespace_scanner::insert_function);
         this->template on_enter_if_type<ast::Constant_def>(&Namespace_scanner::insert_constant);
+        this->template on_enter_if_type<ast::Table_def>(&Namespace_scanner::insert_table);
       }
 
 
@@ -65,6 +66,7 @@ namespace ir {
       virtual bool insert_socket(ast::Socket_def const& sock);
       virtual bool insert_function(ast::Function_def const& node);
       virtual bool insert_constant(ast::Constant_def const& node);
+      virtual bool insert_table(ast::Table_def const& node);
 
       virtual std::shared_ptr<ir::Namespace<Impl>> create_namespace(ast::Namespace_def const& node);
       virtual std::shared_ptr<ir::Module<Impl>> create_module(ast::Module_def const& node);
@@ -74,6 +76,7 @@ namespace ir {
       virtual std::shared_ptr<ir::Type<Impl>> create_socket(ast::Socket_def const& node);
       virtual std::shared_ptr<ir::Constant<Impl>> create_constant(ast::Constant_def const& node);
       virtual std::shared_ptr<ir::Type<Impl>> create_array_type(ast::Array_type const& node);
+      virtual std::shared_ptr<ir::Type<Impl>> create_table_type(ast::Table_def const& node);
   };
 
 

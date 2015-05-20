@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ast/tree_base.h"
+#include "ast/identifier.h"
+#include "ast/table_def_item.h"
 #include <vector>
 #include <algorithm>
 
@@ -27,6 +29,25 @@ namespace ast {
 
       virtual void visit() {}
 
+      std::string name() const {
+        return dynamic_cast<Identifier const&>(*m_identifier).identifier();
+      }
+
+      std::vector<std::string> value_type() const {
+        std::vector<std::string> rv;
+        for(auto const& i : m_value_type)
+          rv.push_back(dynamic_cast<Identifier const&>(*i).identifier());
+        return rv;
+      }
+
+      std::vector<std::pair<std::string,Node_if const*>> items() const {
+        std::vector<std::pair<std::string,Node_if const*>> rv;
+        for(auto const& i : m_items) {
+          auto item = dynamic_cast<Table_def_item const&>(*i);
+          rv.push_back(std::make_pair(item.name(), item.value()));
+        }
+        return rv;
+      }
 
     private:
       Node_if* m_identifier;

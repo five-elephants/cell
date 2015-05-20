@@ -69,6 +69,16 @@ namespace ir {
 
 
   template<typename Impl>
+  bool
+  Namespace_scanner<Impl>::insert_table(ast::Table_def const& node) {
+    auto ty = create_table_type(node);
+    m_ns.types[ty->name] = ty;
+
+    return false;
+  }
+
+
+  template<typename Impl>
   std::shared_ptr<ir::Namespace<Impl>>
   Namespace_scanner<Impl>::create_namespace(ast::Namespace_def const& ns) {
     auto label = dynamic_cast<ast::Identifier const&>(ns.identifier()).identifier();
@@ -305,6 +315,48 @@ namespace ir {
       throw std::runtime_error("Array base type is neither array nor identifier.");
     }
   }
+
+
+  template<typename Impl>
+  std::shared_ptr<Type<Impl>>
+  Namespace_scanner<Impl>::create_table_type(ast::Table_def const& node) {
+    auto rv = std::make_shared<Type<Impl>>();
+
+    rv->name = node.name();
+
+    // find base type
+    auto base_ty_qname = node.value_type();
+    if( base_ty_qname.size() > 1 ) {
+      rv->array_base_type = find_by_path(m_ns,
+          &Namespace<Impl>::types,
+          base_ty_qname);
+    } else {
+      rv->array_base_type = find_type(m_ns, base_ty_qname[0]);
+    }
+
+    if( !rv->array_base_type ) {
+      std::stringstream strm;
+      strm << node.location() << ": Can not find type '"
+        << boost::algorithm::join(base_ty_qname, "::")
+        << "'";
+      throw std::runtime_error(strm.str());
+    }
+
+    // re-use impl from base type
+    rv->impl = rv->array_base_type->impl;
+
+    // register allowed values
+    auto items = node.items();
+    for(auto const& i : items) {
+      auto cnst = std::make_shared<Constant<Impl>>();
+      cnst->type = rv->array_base_type;
+      cnst->name = i.first;
+      rv->allowed_values[cnst->name] = cnst;
+    }
+
+    return rv;
+  }
+
 
 }
 

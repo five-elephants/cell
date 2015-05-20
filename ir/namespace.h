@@ -35,6 +35,7 @@ namespace ir {
   template<typename Impl> struct Namespace;
   template<typename Impl> struct Port;
   template<typename Impl> struct Library;
+  template<typename Impl> struct Constant;
 
   typedef std::string Label;
   typedef boost::dynamic_bitset<> Bitset;
@@ -61,6 +62,7 @@ namespace ir {
     std::map<Label, std::shared_ptr<Port<Impl>>> elements;
     std::shared_ptr<Type<Impl>> array_base_type;
     std::size_t array_size = 1;
+    std::map<Label,std::shared_ptr<Constant<Impl>>> allowed_values;
 
     typename Impl::Type impl;
   };

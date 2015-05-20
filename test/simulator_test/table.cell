@@ -1,8 +1,26 @@
-mod m: {
+namespace n: {
+  table tbl -> int : {
+    red = 1,
+    gree = 2,
+    blue = 3
+  }
 
-  table tt -> int : {
-    a = 1,
-    b = 2
+  mod m: {
+
+    table tt -> int : {
+      a = 1,
+      b = 2
+    }
+
+    var x : tt
+    var y : tbl
+
+
+    def __init__(): {
+      /*x = tt::a;*/
+      y = y::red;
+    }
+
   }
 
 }
