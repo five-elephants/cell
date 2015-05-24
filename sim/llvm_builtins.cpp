@@ -88,6 +88,13 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
           left,
           right);
       });
+  add_operator("!=", "bool", "int", "int", OP_LAMBDA {
+        return bld.CreateICmpEQ(left, right, "cmp_op_not_equal");
+      }, OP_C_LAMBDA {
+        return llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_NE,
+          left,
+          right);
+      });
   add_operator("+", "int", "int", "int", OP_LAMBDA {
         return bld.CreateAdd(left, right, "add");
       }, OP_C_LAMBDA {

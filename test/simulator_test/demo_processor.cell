@@ -17,20 +17,21 @@ socket mc: {
     <> dmem : ram_if
 }
 
+table Instruction -> int : {
+    NOP = 0,
+    ADD = 1,
+    LOAD = 2,
+    STORE = 3,
+    JMP = 4,
+    JMPZ = 5
+}
 
-
-const NOP = 0
-const ADD = 1
-const LOAD = 2
-const STORE = 3
-const JMP = 4
-const JMPZ = 5
 
 
 mod processor <> mc: {
 
     inst pc : seq::ffr<int>
-    inst op : seq::ffr<int>
+    inst op : seq::ffr<Instruction>
     inst a : seq::ff<int>
     inst b : seq::ff<int>
 
@@ -43,13 +44,13 @@ mod processor <> mc: {
         a.clk = port.clk;
         b.clk = port.clk;
         pc.reset_q = 0;
-        op.reset_q = NOP;
+        op.reset_q = Instruction::NOP;
     }
 
 
     // address generation
     process: {
-        pc.next = if( op.q == JMP ) a.q else (pc.q + 1)
+        pc.next = if( op.q == Instruction::JMP ) a.q else (pc.q + 1)
     }
 
     // instruction fetching
@@ -67,7 +68,7 @@ mod processor <> mc: {
         port.dmem.addr = a.q;
         port.dmem.data_in = b.q;
 
-        if( op.q == LOAD ) {
+        if( op.q == Instruction::LOAD ) {
             port.dmem.en = true;
         }
     }

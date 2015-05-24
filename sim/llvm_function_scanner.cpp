@@ -815,8 +815,9 @@
           rval = op->impl.insert_func(m_builder, rval, rval);
         } else {
           std::stringstream strm;
-          strm << "type mismatch in assignment: expected '"
-            << target_type
+          strm << node.location() << ": "
+            << "type mismatch in assignment: expected '"
+            << target_type->name
             << "' found '"
             << ty->name
             << "' and no conversion found";

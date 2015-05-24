@@ -5,6 +5,7 @@
 #include "sim/llvm_constexpr_scanner.h"
 #include "sim/socket_operator_codegen.h"
 #include "ir/path.h"
+#include "ir/builtins.h"
 #include "parse_driver.h"
 
 #include <iostream>
@@ -159,6 +160,83 @@ namespace sim {
       Llvm_constexpr_scanner scanner(cnst, m_ns);
       item.second->accept(scanner);
     }
+
+    // create operators
+    auto base_op_eq = ir::find_operator(m_ns, "==",
+        ir::Builtins<Llvm_impl>::types.at("bool"),
+        ty.first->array_base_type,
+        ty.first->array_base_type);
+    if( !base_op_eq ) {
+      std::stringstream strm;
+      strm << node.location() << ": base type '"
+        << ty.first->array_base_type->name
+        << "' does not have equality operator '=='";
+      throw std::runtime_error(strm.str());
+    }
+
+    auto base_op_neq = ir::find_operator(m_ns, "!=",
+        ir::Builtins<Llvm_impl>::types.at("bool"),
+        ty.first->array_base_type,
+        ty.first->array_base_type);
+    if( !base_op_neq ) {
+      std::stringstream strm;
+      strm << node.location() << ": base type '"
+        << ty.first->array_base_type->name
+        << "' does not have inequality operator '!='";
+      throw std::runtime_error(strm.str());
+    }
+
+    // equality comparison
+    auto op_eq = std::make_shared<Llvm_operator>();
+    op_eq->name = "==";
+    op_eq->return_type = ir::Builtins<Llvm_impl>::types.at("bool");
+    op_eq->left = op_eq->right = ty.first;
+    op_eq->impl.insert_func = base_op_eq->impl.insert_func;
+    op_eq->impl.const_insert_func = base_op_eq->impl.const_insert_func;
+    m_ns.operators.insert(std::make_pair(op_eq->name, op_eq));
+
+    // inequality operator
+    auto op_neq = std::make_shared<Llvm_operator>();
+    op_neq->name = "!=";
+    op_neq->return_type = ir::Builtins<Llvm_impl>::types.at("bool");
+    op_neq->left = op_neq->right = ty.first;
+    op_neq->impl.insert_func = base_op_neq->impl.insert_func;
+    op_neq->impl.const_insert_func = base_op_neq->impl.const_insert_func;
+    m_ns.operators.insert(std::make_pair(op_neq->name, op_neq));
+
+    // conversion to base type
+    auto op_conv = std::make_shared<Llvm_operator>();
+    op_conv->name = "convert";
+    op_conv->return_type = ty.first->array_base_type;
+    op_conv->left = ty.first;
+    op_conv->right = ty.first;
+    op_conv->impl.insert_func = [](llvm::IRBuilder<> bld,
+        llvm::Value* left,
+        llvm::Value* right) -> llvm::Value* {
+      return left;
+    };
+    op_conv->impl.const_insert_func = [](llvm::Constant* left,
+        llvm::Constant* right) -> llvm::Constant* {
+      return left;
+    };
+    m_ns.operators.insert(std::make_pair(op_conv->name, op_conv));
+
+    // conversion from base type
+    op_conv = std::make_shared<Llvm_operator>();
+    op_conv->name = "convert";
+    op_conv->return_type = ty.first;
+    op_conv->left = ty.first->array_base_type;
+    op_conv->right = ty.first->array_base_type;
+    op_conv->impl.insert_func = [](llvm::IRBuilder<> bld,
+        llvm::Value* left,
+        llvm::Value* right) -> llvm::Value* {
+      return left;
+    };
+    op_conv->impl.const_insert_func = [](llvm::Constant* left,
+        llvm::Constant* right) -> llvm::Constant* {
+      return left;
+    };
+    m_ns.operators.insert(std::make_pair(op_conv->name, op_conv));
 
     return false;
   }

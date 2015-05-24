@@ -149,13 +149,13 @@ def build(bld):
         #use = 'core',
     #)
 
-    bld.program(
-      source = 'sim/compiler.cpp',
-      target = 'compiler',
-      includes = '.',
-      use = 'core sim LLVM',
-      **flags
-    )
+    #bld.program(
+      #source = 'sim/compiler.cpp',
+      #target = 'compiler',
+      #includes = '.',
+      #use = 'core sim LLVM',
+      #**flags
+    #)
 
     #bld.program(
       #source = 'sim/simulator.cpp',
@@ -214,6 +214,7 @@ def build(bld):
         '.',
       ],
       use = 'core sim gtest LLVM',
+      install_path = None,
       **flags
     )
 
