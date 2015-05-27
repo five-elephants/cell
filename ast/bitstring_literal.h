@@ -9,8 +9,6 @@ namespace ast {
     public:
       Bitstring_literal(std::string const& str);
 
-      virtual void visit();
-
       std::string& bitstring() { return m_bitstring; }
 
     private:

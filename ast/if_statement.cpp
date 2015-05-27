@@ -1,5 +1,4 @@
 #include "ast/if_statement.h"
-#include "gen/generator_if.h"
 
 
 namespace ast {
@@ -9,12 +8,6 @@ namespace ast {
 			m_condition(condition),
 			m_body(body) {
     register_branches({&m_condition, &m_body});
-	}
-
-
-	void
-	If_statement::visit() {
-		get_generator().if_statement(*this);
 	}
 
 }

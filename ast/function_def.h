@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ast/tree_base.h"
-#include "gen/generator_if.h"
 #include <vector>
 
 namespace ast {
@@ -10,8 +9,6 @@ namespace ast {
     public:
       Function_def(Node_if& identifier);
       Function_def(Node_if& identifier, Node_if& return_type);
-
-      virtual void visit();
 
       void append_parameter(Node_if& node);
       void append_parameter(std::vector<Node_if*> const& nodes);

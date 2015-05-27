@@ -14,8 +14,6 @@ namespace ast {
         register_branches({&m_unit});
       }
 
-      virtual void visit() {};
-
       int value() const { return m_value; }
       Node_if const& unit() const { return m_unit; }
 

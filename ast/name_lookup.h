@@ -15,8 +15,6 @@ namespace ast {
         register_branch_lists({&m_qname});
       }
 
-      virtual void visit() {}
-
       std::vector<std::string> qname() const {
         std::vector<std::string> rv;
         for(auto const& i : m_qname) {

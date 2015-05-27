@@ -14,11 +14,9 @@ namespace ast {
         : Node_base() {
       }
 
-      virtual void visit(std::function<void(Node_if const&)> callback) const; 
+      virtual void visit(std::function<void(Node_if const&)> callback) const;
       virtual bool accept(Visitor_if& visitor) const;
 
-      virtual void set_generator(gen::Generator_if& gen); 
-      
     protected:
       std::vector<Node_if*> m_nodes;
       std::vector< std::vector<Node_if*>* > m_node_lists;

@@ -9,8 +9,6 @@ namespace ast {
     public:
       Connection_item(Node_if& port_name, Node_if& expression);
 
-      virtual void visit() {};
-
       Identifier const& port_name() const {
         return dynamic_cast<Identifier const&>(m_port_name);
       }

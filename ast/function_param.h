@@ -3,7 +3,7 @@
 #include "ast/variable_def.h"
 
 namespace ast {
-  
+
   class Function_param : public Variable_def {
     public:
       Function_param(Node_if& identifier);

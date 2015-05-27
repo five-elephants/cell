@@ -8,9 +8,4 @@ namespace ast {
     register_branches({&m_expression});
   }
 
-
-  void
-  Variable_ref::visit() {
-  }
-
 }

@@ -18,7 +18,7 @@ namespace ast {
 
   bool
   Tree_base::accept(Visitor_if& visitor) const {
-    if( visitor.enter(*this) ) { 
+    if( visitor.enter(*this) ) {
       bool terminate = false;
 
       for(auto i : m_nodes) {
@@ -35,7 +35,7 @@ namespace ast {
               terminate = true;
               break;
             }
-            
+
             if( terminate )
               break;
           }
@@ -46,21 +46,7 @@ namespace ast {
     return visitor.leave(*this);
   }
 
-  void
-  Tree_base::set_generator(gen::Generator_if& gen) {
-    Node_base::set_generator(gen);
 
-    for(auto i : m_nodes) {
-      i->set_generator(gen);
-    }
-
-    for(auto lst : m_node_lists) {
-      for(auto i : *lst) {
-        i->set_generator(gen);
-      }
-    }
-  }
-  
   void
   Tree_base::register_branches(std::initializer_list<Node_if*> nodes) {
     m_nodes = std::vector<Node_if*>(nodes);

@@ -12,8 +12,6 @@ namespace ast {
 			std::string const& identifier() const { return m_identifier; }
 			void identifier(std::string const& identifier) { m_identifier = identifier; }
 
-			virtual void visit();
-		 
 
 		private:
 			std::string m_identifier;

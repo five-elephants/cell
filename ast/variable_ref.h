@@ -8,8 +8,6 @@ namespace ast {
     public:
       Variable_ref(Node_if& expression);
 
-      virtual void visit();
-
       Node_if const& expression() const { return m_expression; }
 
     private:

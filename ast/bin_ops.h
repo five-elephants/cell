@@ -12,9 +12,6 @@ namespace ast {
 			Op_ ## name (Node_if& left, Node_if& right)  \
 				:	Binary(left, right) {  \
 			}  \
-	\
-			virtual void visit() {  \
-			}  \
 	}
 
 	BINOP(plus);

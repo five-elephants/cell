@@ -19,10 +19,6 @@ namespace ast {
         register_branch_lists({&m_objs});
 			}
 
-			virtual void visit() {
-				get_generator().generic_statement(m_macro_name, m_objs);
-			}
-
 
 			std::vector<Node_if*> const& objects() const { return m_objs; }
 

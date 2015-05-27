@@ -7,9 +7,5 @@ namespace ast {
       m_body(body) {
     register_branches({&m_body});
   }
-  
-  void
-  Process::visit() {
-  }
 
 }

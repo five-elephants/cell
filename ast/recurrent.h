@@ -13,8 +13,6 @@ namespace ast {
         register_branches({&m_time_id, &m_expression});
       }
 
-      virtual void visit() {};
-
       Node_if const& time_id() const { return m_time_id; }
       Node_if const& expression() const { return m_expression; }
 

@@ -11,8 +11,6 @@ namespace ast {
 		public:
 			If_statement(Node_if& condition, Node_if& body);
 
-			virtual void visit();
-
 			Node_if& condition() { return m_condition; }
 			Node_if const& condition() const { return m_condition; }
 			Node_if& body() { return m_body; }

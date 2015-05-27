@@ -4,11 +4,9 @@
 
 namespace ast {
 
-  class While_statement : public Tree_base {
+  class While_expression: public Tree_base {
     public:
-      While_statement(Node_if& expression, Node_if& body);
-
-      virtual void visit();
+      While_expression(Node_if& expression, Node_if& body);
 
       Node_if& expression() { return m_expression; }
       Node_if& body() { return m_body; }

@@ -1,8 +1,6 @@
 #include "ast/node_base.h"
 
 #include "ast/visitor.h"
-#include "gen/generator_if.h"
-#include "gen/gen_m4.h"
 #include <iostream>
 #include <sstream>
 
@@ -10,12 +8,9 @@ namespace ast {
 
   static std::stringstream nullstrm;
 
-	gen::M4_generator _default_generator(nullstrm);
-	gen::Generator_if& Node_base::default_generator = _default_generator;
 
 
-	Node_base::Node_base()
-		:	m_generator(&default_generator) {
+	Node_base::Node_base() {
 	}
 
   void
@@ -23,20 +18,10 @@ namespace ast {
     callback(*this);
   }
 
-  bool 
+  bool
   Node_base::accept(Visitor_if& visitor) const {
     return visitor.visit(*this);
   }
-
-	void
-	Node_base::set_generator(gen::Generator_if& generator) {
-		m_generator = &generator;
-	}
-
-	gen::Generator_if&
-	Node_base::get_generator() {
-		return *m_generator;
-	}
 
   void
   Node_base::location(yy::location loc) {

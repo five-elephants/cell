@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ast/tree_base.h"
-#include "gen/generator_if.h"
 
 namespace ast {
 
@@ -11,11 +10,6 @@ namespace ast {
 		 		:	Tree_base(),
 					m_operand(operand) {
 				register_branches({&m_operand});
-			}
-
-			virtual void set_generator(gen::Generator_if& g) {
-				Node_base::set_generator(g);
-				m_operand.set_generator(g);
 			}
 
 			Node_if& operand() { return m_operand; }

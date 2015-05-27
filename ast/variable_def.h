@@ -14,8 +14,6 @@ namespace ast {
           Node_if& expression);
       virtual ~Variable_def();
 
-      virtual void visit();
-
       Node_if& identifier() { return m_identifier; }
       Node_if const& identifier() const { return m_identifier; }
       bool has_type() const { return static_cast<bool>(m_type); }

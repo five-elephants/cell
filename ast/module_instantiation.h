@@ -12,8 +12,6 @@ namespace ast {
           Node_if& instance_name,
           std::vector<Node_if*>& connection_items);
 
-      virtual void visit() {}
-
       Identifier const& module_name() const {
         return dynamic_cast<Identifier const&>(m_module_name);
       }

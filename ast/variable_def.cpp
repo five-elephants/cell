@@ -1,6 +1,5 @@
 #include "ast/variable_def.h"
 
-#include "gen/generator_if.h"
 #include "ast/identifier.h"
 #include "ast/empty_expression.h"
 
@@ -30,11 +29,6 @@ namespace ast {
 	}
 
 	Variable_def::~Variable_def() {
-	}
-
-	void
-	Variable_def::visit() {
-		get_generator().variable_def(*this);
 	}
 
 }

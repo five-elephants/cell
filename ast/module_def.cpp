@@ -1,7 +1,5 @@
 #include "ast/module_def.h"
 
-#include "gen/generator_if.h"
-#include "gen/util.h"
 #include <algorithm>
 #include <iterator>
 
@@ -15,16 +13,6 @@ namespace ast {
     register_branches({&m_identifier});
     register_branch_lists({&m_elements});
   }
-
-	void
-	Module_def::visit() {
-		get_generator().module_begin(*this);
-		gen::join_nodes_line(begin(m_elements), end(m_elements), get_generator());
-		//for(auto i=begin(m_elements); i!=end(m_elements); ++i) {
-			//(*i)->visit();
-		//}
-		get_generator().module_end(*this);
-	}
 
 	void
 	Module_def::append(Node_if& node) {

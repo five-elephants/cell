@@ -38,12 +38,9 @@ def configure(conf):
     #print conf.env.INCLUDES_LLVM
 
 def build(bld):
-    #gen/gen_text.cpp
-    #gen/gen_cpp.cpp
     core_src = """
       scanner.l
       parser.yc
-      gen/gen_m4.cpp
       ast/node_base.cpp
       ast/tree_base.cpp
       ast/identifier.cpp
@@ -56,7 +53,7 @@ def build(bld):
       ast/function_param.cpp
       ast/compound.cpp
       ast/if_statement.cpp
-      ast/while_statement.cpp
+      ast/while_expression.cpp
       ast/bitstring_literal.cpp
       ast/unit.cpp
       ast/socket_item.cpp

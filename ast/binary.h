@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ast/tree_base.h"
-#include "gen/generator_if.h"
 
 namespace ast {
 
@@ -12,12 +11,6 @@ namespace ast {
 					m_left(left),
 					m_right(right) {
 				register_branches({&m_left, &m_right});
-			}
-
-			virtual void set_generator(gen::Generator_if& g) {
-				Node_base::set_generator(g);
-				m_left.set_generator(g);
-				m_right.set_generator(g);
 			}
 
 			Node_if& left() { return m_left; }

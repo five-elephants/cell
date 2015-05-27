@@ -18,8 +18,6 @@ namespace ast {
         std::copy(args->begin(), args->end(), m_args.begin());
       }
 
-      virtual void visit() {}
-
       std::vector<std::string> name() const {
         std::vector<std::string> rv;
         for(auto const& n : m_qname) {

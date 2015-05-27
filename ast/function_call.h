@@ -11,8 +11,6 @@ namespace ast {
 		public:
 			Function_call(std::vector<Node_if*> const& qualified_name);
 
-			virtual void visit();
-
 			std::vector<std::string> name() const {
 				std::vector<std::string> rv;
 				for(auto const& n : m_name)

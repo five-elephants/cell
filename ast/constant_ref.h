@@ -14,8 +14,6 @@ namespace ast {
         register_branches({&m_identifier});
       }
 
-      virtual void visit() {}
-
       Identifier const& identifier() const {
         return dynamic_cast<Identifier const&>(m_identifier);
       }

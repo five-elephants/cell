@@ -12,12 +12,6 @@ namespace ast {
   }
 
 
-  
-	void
-	Namespace_def::visit() {
-	}
-
-
 	void
 	Namespace_def::append(Node_if& node) {
 		m_elements.push_back(&node);

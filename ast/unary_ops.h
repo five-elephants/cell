@@ -11,9 +11,6 @@ namespace ast {
 			Op_ ## name (Node_if& operand)  \
 				:	Unary(operand) {  \
 			}  \
-	\
-			virtual void visit() {  \
-			}  \
 	}
 
 

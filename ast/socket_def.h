@@ -10,8 +10,6 @@ namespace ast {
       Socket_def(Node_if& identifier,
           std::vector<Node_if*> const& body);
 
-      virtual void visit() {}
-
 			Node_if& identifier() { return m_identifier; }
 			Node_if const& identifier() const { return m_identifier; }
 

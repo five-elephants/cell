@@ -8,8 +8,6 @@ namespace ast {
     public:
       Array_type(Node_if& base_type, int size);
 
-      virtual void visit() {}
-
       Node_if const& base_type() const { return m_base_type; }
       int size() const { return m_size; }
 

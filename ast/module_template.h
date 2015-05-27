@@ -10,8 +10,6 @@ namespace ast {
     public:
       Module_template(std::vector<Node_if*>* args, Node_if* module_def);
 
-      virtual void visit() {}
-
       Module_def const& module_def() const {
         return dynamic_cast<Module_def const&>(*m_def);
       }

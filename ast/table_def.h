@@ -27,8 +27,6 @@ namespace ast {
         register_branch_lists({&m_value_type, &m_items});
       }
 
-      virtual void visit() {}
-
       std::string name() const {
         return dynamic_cast<Identifier const&>(*m_identifier).identifier();
       }
