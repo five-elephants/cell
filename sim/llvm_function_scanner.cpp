@@ -126,6 +126,10 @@
       this->template on_leave_if_type<ast::Periodic>(&Llvm_function_scanner::leave_periodic);
       this->template on_leave_if_type<ast::Once>(&Llvm_function_scanner::leave_once);
       this->template on_leave_if_type<ast::Recurrent>(&Llvm_function_scanner::leave_recurrent);
+      this->template on_enter_if_type<ast::While_expression>(
+          &Llvm_function_scanner::enter_while);
+      this->template on_leave_if_type<ast::While_expression>(
+          &Llvm_function_scanner::leave_while);
     }
 
 
@@ -1019,6 +1023,39 @@
 
       m_values[&node] = m_builder.CreateRet(v);
       m_type_targets.pop_back();
+
+      return true;
+    }
+
+
+    bool
+    Llvm_function_scanner::enter_while(ast::While_expression const& node) {
+      using namespace llvm;
+
+      auto bb = BasicBlock::Create(getGlobalContext(),
+          "while",
+          m_function.impl.code);
+      m_builder.CreateBr(bb);
+      m_builder.SetInsertPoint(bb);
+
+      return true;
+    }
+
+
+    bool
+    Llvm_function_scanner::leave_while(ast::While_expression const& node) {
+      using namespace llvm;
+
+      m_values[&node] = m_values.at(&(node.body()));
+      m_types[&node] = m_types.at(&(node.body()));
+
+      auto bb = BasicBlock::Create(getGlobalContext(),
+          "while_resume",
+          m_function.impl.code);
+
+      auto cond_val = m_values.at(&(node.expression()));
+      m_builder.CreateCondBr(cond_val, m_builder.GetInsertBlock(), bb);
+      m_builder.SetInsertPoint(bb);
 
       return true;
     }

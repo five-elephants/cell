@@ -8,8 +8,8 @@ namespace ast {
     public:
       While_expression(Node_if& expression, Node_if& body);
 
-      Node_if& expression() { return m_expression; }
-      Node_if& body() { return m_body; }
+      Node_if const& expression() const { return m_expression; }
+      Node_if const& body() const { return m_body; }
 
     private:
       Node_if& m_expression;

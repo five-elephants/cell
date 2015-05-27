@@ -1,0 +1,18 @@
+mod m: {
+    var x : int[10]
+    var s : int
+
+    def __init__(): {
+        var i : int;
+
+        i = 0;
+        while( i < 10 ) {
+            i = i +1;
+            s = s + x[i];
+        }
+
+        /*for i in x {*/
+            /*s = s + i;*/
+        /*}*/
+    }
+}

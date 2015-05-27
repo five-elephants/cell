@@ -144,7 +144,7 @@
 %type <node> identifier
 %type <node> compound
 %type <node> if_statement
-%type <node> while_statement
+%type <node> while_expression
 %type <node> return_statement
 %type <node> assignment
 %type <node> var_ref
@@ -394,13 +394,6 @@ statements: statements statement ";" { $$ = $1; $1->push_back($2); }
 statement: var_def               { $$ = $1; }
   | exp                          { $$ = $1; };
 
-/*statement: if_statement          { $$ = $1; }*/
-  /*| while_statement              { $$ = $1; }*/
-  /*| var_def                      { $$ = $1; }*/
-  /*| compound                     { $$ = $1; }*/
-  /*| func_call                    { $$ = $1; }*/
-  /*| return_statement             { $$ = $1; }*/
-  /*| assignment                   { $$ = $1; };*/
 compound: CURL_OPEN statements CURL_CLOSE
                                  { auto v = new ast::Compound(); v->statements(*$2); $$ = v; }
   | CURL_OPEN statements exp CURL_CLOSE
@@ -417,8 +410,8 @@ if_statement: "if" PAREN_OPEN exp PAREN_CLOSE exp
                                  { $$ = new ast::If_statement(*$3, *$5); }
   | "if" PAREN_OPEN exp PAREN_CLOSE exp "else" exp
                                  { auto v = new ast::If_statement(*$3, *$5); v->else_body(*$7); $$ = v; };
-while_statement: "while" PAREN_OPEN exp PAREN_CLOSE statement
-                                 { $$ = new ast::While_statement(*$3, *$5); };
+while_expression: "while" PAREN_OPEN exp PAREN_CLOSE exp
+                                 { $$ = new ast::While_expression(*$3, *$5); };
 func_call: qualified_name PAREN_OPEN exp_list PAREN_CLOSE
                                  { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; }
   | qualified_name PAREN_OPEN PAREN_CLOSE
@@ -476,6 +469,7 @@ exp:
   una_exp                        { $$ = $1; }
   | bin_exp                      { $$ = $1; }
   | if_statement                 { $$ = $1; }
+  | while_expression             { $$ = $1; }
   | assignment                   { $$ = $1; }
   | compound                     { $$ = $1; }
   | var_ref                      { $$ = $1; }
