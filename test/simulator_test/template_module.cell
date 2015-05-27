@@ -5,6 +5,8 @@ namespace test: {
     => q : T
     <= clk : bool
   } : {
+    var d : T[5]
+
     process: {
       if( @port.clk && port.clk )
         port.q = port.next;

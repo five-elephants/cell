@@ -128,8 +128,6 @@
       this->template on_leave_if_type<ast::Recurrent>(&Llvm_function_scanner::leave_recurrent);
       this->template on_enter_if_type<ast::While_expression>(
           &Llvm_function_scanner::enter_while);
-      this->template on_leave_if_type<ast::While_expression>(
-          &Llvm_function_scanner::leave_while);
     }
 
 
@@ -254,8 +252,12 @@
           << type->name
           << "'");
 
-      auto ptr = m_builder.CreateGEP(obj_ptr,
-          index,
+      std::vector<llvm::Value*> indices;
+      indices.push_back(llvm::ConstantInt::get(llvm::getGlobalContext(),
+          llvm::APInt(64, 0, true)));
+      indices.push_back(index);
+      auto ptr = m_builder.CreateInBoundsGEP(obj_ptr,
+          indices,
           std::string("ptr_index"));
 
       m_values[&node] = ptr;
@@ -1032,32 +1034,35 @@
     Llvm_function_scanner::enter_while(ast::While_expression const& node) {
       using namespace llvm;
 
-      auto bb = BasicBlock::Create(getGlobalContext(),
-          "while",
+      auto bb_test = BasicBlock::Create(getGlobalContext(),
+          "while_test",
           m_function.impl.code);
-      m_builder.CreateBr(bb);
-      m_builder.SetInsertPoint(bb);
+      m_builder.CreateBr(bb_test);
+      m_builder.SetInsertPoint(bb_test);
 
-      return true;
-    }
+      // codegen for condition
+      node.expression().accept(*this);
+      auto cond_val = m_values.at(&(node.expression()));
 
+      auto bb_body = BasicBlock::Create(getGlobalContext(),
+          "while_body",
+          m_function.impl.code);
+      auto bb_resume = BasicBlock::Create(getGlobalContext(),
+          "while_resume",
+          m_function.impl.code);
+      m_builder.CreateCondBr(cond_val, bb_body, bb_resume);
+      m_builder.SetInsertPoint(bb_body);
 
-    bool
-    Llvm_function_scanner::leave_while(ast::While_expression const& node) {
-      using namespace llvm;
+      // codegen for body
+      node.body().accept(*this);
 
       m_values[&node] = m_values.at(&(node.body()));
       m_types[&node] = m_types.at(&(node.body()));
 
-      auto bb = BasicBlock::Create(getGlobalContext(),
-          "while_resume",
-          m_function.impl.code);
+      m_builder.CreateBr(bb_test);
+      m_builder.SetInsertPoint(bb_resume);
 
-      auto cond_val = m_values.at(&(node.expression()));
-      m_builder.CreateCondBr(cond_val, m_builder.GetInsertBlock(), bb);
-      m_builder.SetInsertPoint(bb);
-
-      return true;
+      return false;
     }
 
 }
