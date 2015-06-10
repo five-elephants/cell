@@ -296,8 +296,8 @@ TEST_F(Simulator_test, loops) {
   sim::Simulation_engine engine("test/simulator_test/for.cell", "m");
 
   engine.setup();
-  auto insp = engine.inspect_module("");
   engine.simulate(ir::Time(10, ir::Time::ns));
+  auto insp = engine.inspect_module("");
   EXPECT_EQ(10, insp.get<int64_t>("s"));
   engine.teardown();
 }

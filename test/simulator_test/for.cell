@@ -11,14 +11,24 @@ mod m: {
             i = i + 1;
         };
 
-        /*i = 0;*/
-        /*while( i < 10 ) {*/
-            /*i = i + 1;*/
-            /*s = s + x[i];*/
-        /*};*/
-
         /*for i in x {*/
             /*s = s + i;*/
         /*}*/
     }
+
+
+    process: {
+        var i : int;
+        var sum : int;
+
+        i = 0;
+        sum = 0;
+        while( i < 10 ) {
+            sum = sum + x[i];
+            i = i + 1;
+        };
+
+        s = sum;
+    }
+
 }
