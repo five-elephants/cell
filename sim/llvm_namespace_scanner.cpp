@@ -77,7 +77,7 @@ namespace sim {
   Llvm_namespace_scanner::insert_function(ast::Function_def const& node) {
     std::shared_ptr<Llvm_function> func = create_function(node);
 
-    m_ns.functions[func->name] = func;
+    m_ns.functions.insert(std::make_pair(func->name, func));
 
     // code generation
     Llvm_function_scanner scanner(m_ns, *func);

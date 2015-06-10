@@ -26,6 +26,28 @@ namespace ir {
   }
 
 
+  template<typename T, typename Impl>
+  std::pair<typename std::multimap<Label, std::shared_ptr<T>>::const_iterator,
+      typename std::multimap<Label, std::shared_ptr<T>>::const_iterator>
+  find_in_namespace(Namespace<Impl> const& ns,
+      std::multimap<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
+      Label const& name) {
+    // search in each namespace going up the hierarchy
+    for(Namespace<Impl> const* cur_ns = &ns;
+        cur_ns != nullptr;
+        cur_ns = cur_ns->enclosing_ns) {
+      auto m = cur_ns->*field;  // get the appropriate map to search in
+
+      if( m.count(name) > 0 ) {
+        auto rv = m.equal_range(name);
+        return rv;
+      }
+    }
+
+    return std::make_pair((ns.*field).end(), (ns.*field).end());
+  }
+
+
   template<typename Impl = No_impl>
   std::shared_ptr<Type<Impl>> find_socket(Namespace<Impl> const& ns,
       Label const& sock_name) {
@@ -57,13 +79,14 @@ namespace ir {
   template<typename Impl = No_impl>
   std::shared_ptr<Function<Impl>> find_function(Namespace<Impl> const& ns,
       Label const& func_name) {
-    auto rv = find_in_namespace<Function<Impl>>(ns, &Namespace<Impl>::functions, func_name);
-    if( !rv ) {
+    auto range = find_in_namespace<Function<Impl>>(ns, &Namespace<Impl>::functions, func_name);
+    if( range.first == range.second ) {
       auto it = Builtins<Impl>::functions.find(func_name);
       if( it != Builtins<Impl>::functions.end() )
         return it->second;
     }
-    return rv;
+
+    return range.first->second;
   }
 
 

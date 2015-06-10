@@ -923,9 +923,7 @@
       // find function
       std::shared_ptr<Llvm_function> func;
       if( qname.size() > 1 ) {
-        func = ir::find_by_path(m_ns,
-            &Llvm_namespace::functions,
-            qname);
+        func = ir::find_function_by_path(m_ns, qname);
       } else {
         func = ir::find_function(m_ns, qname.front());
       }

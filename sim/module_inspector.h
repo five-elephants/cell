@@ -301,7 +301,7 @@ namespace sim {
       /** get a pointer to a function in the module */
       template<typename Func>
       Func* get_function_ptr(ir::Label const& name) {
-        auto func = m_module->functions.at(name);
+        auto func = m_module->functions.find(name)->second;
         void* ptr = m_exe->getPointerToFunction(func->impl.code);
 
         return reinterpret_cast<Func*>(ptr);

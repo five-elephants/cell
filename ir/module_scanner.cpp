@@ -8,7 +8,7 @@
 
       // TODO generate code for function body
 
-      this->m_ns.functions[func->name] = func;
+      this->m_ns.functions.insert(std::make_pair(func->name, func));
 
       return false;
     }

@@ -45,7 +45,7 @@ namespace sim {
 
     std::shared_ptr<Llvm_function> func = create_function(node);
 
-    m_ns.functions[func->name] = func;
+    m_ns.functions.insert(std::make_pair(func->name, func));
 
     // code generation at leave of module node
     m_todo_functions.push_back(std::make_tuple(func, &node));

@@ -52,7 +52,7 @@ namespace ir {
   bool
   Namespace_scanner<Impl>::insert_function(ast::Function_def const& node) {
     auto func = create_function(node);
-    m_ns.functions[func->name] = func;
+    m_ns.functions.insert(std::make_pair(func->name, func));
 
     return false;
   }
@@ -148,7 +148,7 @@ namespace ir {
       func->parameters.push_back(p_ir);
     }
 
-    m_ns.functions[func->name] = func;
+    m_ns.functions.insert(std::make_pair(func->name, func));
 
     return func;
   }

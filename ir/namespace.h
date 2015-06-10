@@ -206,7 +206,7 @@ namespace ir {
     std::map<Label, std::shared_ptr<Namespace<Impl>>> namespaces;
     std::map<Label, std::shared_ptr<Type<Impl>>> sockets;
     std::map<Label, std::shared_ptr<Type<Impl>>> types;
-    std::map<Label, std::shared_ptr<Function<Impl>>> functions;
+    std::multimap<Label, std::shared_ptr<Function<Impl>>> functions;
     std::multimap<Label, std::shared_ptr<Operator<Impl>>> operators;
     std::map<Label, std::shared_ptr<Constant<Impl>>> constants;
 

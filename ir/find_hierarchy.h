@@ -82,12 +82,68 @@ namespace ir {
 
 
   template<typename T, typename Impl>
+  std::pair<typename std::multimap<Label, std::shared_ptr<T>>::const_iterator,
+      typename std::multimap<Label, std::shared_ptr<T>>::const_iterator>
+  find_by_path(Namespace<Impl> const& ns,
+      std::multimap<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
+      std::vector<Label> const& path_elems) {
+    //std::cout << "PATH: " << path << "\n";
+    Namespace<Impl> const* cur_ns = &ns;
+    auto rv_null = std::make_pair((ns.*field).end(), (ns.*field).end());
+
+    if( path_elems.size() > 1 ) {
+      auto tmp = find_namespace(ns, path_elems[0]);
+      if( !tmp )
+        return rv_null;
+      cur_ns = tmp.get();
+
+      for(auto it=++(path_elems.begin());
+          it != --(path_elems.end());
+          ++it) {
+        auto i = *it;
+        //std::cout << "   '" << i << "'\n";
+
+        if( cur_ns->namespaces.count(i) )
+          cur_ns = cur_ns->namespaces.at(i).get();
+        else if( cur_ns->modules.count(i) )
+          cur_ns = cur_ns->modules.at(i).get();
+        else
+          return rv_null;
+      }
+    }
+
+    auto m = cur_ns->*field;
+
+    if( m.count(path_elems.back()) )
+      return m.equal_range(path_elems.back());
+
+    return rv_null;
+  }
+
+
+  template<typename T, typename Impl>
   std::shared_ptr<T> find_by_path(Namespace<Impl> const& ns,
       std::map<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
       std::string const& path) {
     auto path_elems = parse_path(path, "::");
 
     return find_by_path<T, Impl>(ns, field, path_elems);
+  }
+
+
+  template<typename Impl>
+  std::shared_ptr<Function<Impl>>
+  find_function_by_path(Namespace<Impl> const& ns,
+      std::vector<Label> const& path_elems) {
+    auto range = find_by_path(ns,
+        &Namespace<Impl>::functions,
+        path_elems);
+
+    if( range.first == range.second )
+      return nullptr;
+
+    // overload resolution
+    return range.first->second;
   }
 
 
