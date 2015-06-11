@@ -159,10 +159,19 @@ namespace sim {
 
 
     // add mappings for runtime functions
-    m_exe->addGlobalMapping(ir::Builtins<Llvm_impl>::functions.at("print")->impl.code,
-        (void*)(&print));
-    m_exe->addGlobalMapping(ir::Builtins<Llvm_impl>::functions.at("rand")->impl.code,
-        (void*)(&rand));
+    if( ir::Builtins<Llvm_impl>::functions.count("print") != 1 )
+      throw std::runtime_error("There can only be one builtin print function!");
+    {
+      auto f = ir::Builtins<Llvm_impl>::functions.find("print")->second;
+      m_exe->addGlobalMapping(f->impl.code, (void*)(&print));
+    }
+
+    if( ir::Builtins<Llvm_impl>::functions.count("rand") != 1 )
+      throw std::runtime_error("There can only be one builtin rand function!");
+    {
+      auto f = ir::Builtins<Llvm_impl>::functions.find("rand")->second;
+      m_exe->addGlobalMapping(f->impl.code, (void*)(&rand));
+    }
 
 /*
     // generate wrapper function to setup simulation
