@@ -79,41 +79,6 @@ namespace ir {
   }
 
 
-  template<typename Impl = No_impl>
-  std::shared_ptr<Function<Impl>> find_function(Namespace<Impl> const& ns,
-      Label const& func_name) {
-    auto range = find_in_namespace<Function<Impl>>(ns, &Namespace<Impl>::functions, func_name);
-    auto num = std::distance(range.first, range.second);
-    if( num > 1 ) {
-      std::stringstream strm;
-      strm << "More than one function with name '"
-        << func_name
-        << "' found. ("
-        << __func__
-        << ")";
-      strm << "\nhere are the found functions:\n";
-      for(auto it=range.first; it != range.second; ++it) {
-        std::shared_ptr<Function<Impl>> func = it->second;
-        strm << "    "
-          << "'" << func->name << "' (";
-        for(auto para : func->parameters) {
-          strm << para->name << " : " << para->type->name << ", ";
-        }
-        strm << ") -> "
-          << func->return_type->name
-          << '\n';
-      }
-      throw std::runtime_error(strm.str());
-    } else if( num != 1 ) {
-      range = Builtins<Impl>::functions.equal_range(func_name);
-      if( std::distance(range.first, range.second) != 1 )
-        return nullptr;
-    }
-
-    return range.first->second;
-  }
-
-
   template<typename It, typename Impl = No_impl>
   std::shared_ptr<Function<Impl>> find_function(Namespace<Impl> const& ns,
       Label const& func_name,

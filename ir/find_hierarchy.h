@@ -150,22 +150,6 @@ namespace ir {
 
 
   template<typename Impl>
-  std::shared_ptr<Function<Impl>>
-  find_function_by_path(Namespace<Impl> const& ns,
-      std::vector<Label> const& path_elems) {
-    auto range = find_by_path(ns,
-        &Namespace<Impl>::functions,
-        path_elems);
-
-    if( range.first == range.second )
-      return nullptr;
-
-    // overload resolution
-    return range.first->second;
-  }
-
-
-  template<typename Impl>
   std::shared_ptr<Module<Impl>> find_instance(std::shared_ptr<Module<Impl>> mod,
       std::string const& path) {
     auto path_elems = parse_path(path, ".");
