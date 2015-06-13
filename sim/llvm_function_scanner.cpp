@@ -64,16 +64,23 @@
         m_named_values["this_prev"] = arg_i;
         (++arg_i)->setName("read_mask");
         m_named_values["read_mask"] = arg_i;
+        ++arg_i;
       }
 
       // allocate other arguments on stack
       for(auto arg_name : m_function.parameters) {
-        (++arg_i)->setName(arg_name->name);
+        LOG4CXX_TRACE(m_logger, "parameter '"
+            << arg_name->name << "' : "
+            << arg_name->type->name);
+
+        arg_i->setName(arg_name->name);
         auto ptr = m_builder.CreateAlloca(arg_i->getType(), 0, arg_i->getName());
         auto v = m_builder.CreateStore(arg_i, ptr);
 
         m_named_values[arg_i->getName().str()] = ptr;
         m_named_types[arg_name->name] = arg_name->type;
+
+        ++arg_i;
       }
 
       // create function body
@@ -146,7 +153,9 @@
         args.push_back(PointerType::getUnqual(read_mask_type()));
       }
 
+      LOG4CXX_TRACE(m_logger, "creating function type with arguments:");
       for(auto p : function.parameters) {
+        LOG4CXX_TRACE(m_logger, "  " << p->type->name);
         args.push_back(p->type->impl.type);
       }
 
@@ -929,8 +938,10 @@
       // find function
       std::shared_ptr<Llvm_function> func;
       if( qname.size() > 1 ) {
-        // TODO use version with signature
-        func = ir::find_function_by_path(m_ns, qname);
+        func = ir::find_function_by_path(m_ns,
+            qname,
+            std::begin(signature),
+            std::end(signature));
       } else {
         func = ir::find_function(m_ns,
             qname.front(),

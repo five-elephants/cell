@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ir/namespace.h"
+#include "ir/resolve_function_overload.h"
 
 #include <vector>
 #include <string>
@@ -128,6 +129,23 @@ namespace ir {
     auto path_elems = parse_path(path, "::");
 
     return find_by_path<T, Impl>(ns, field, path_elems);
+  }
+
+
+  template<typename Impl, typename It>
+  std::shared_ptr<Function<Impl>>
+  find_function_by_path(Namespace<Impl> const& ns,
+      std::vector<Label> const& path_elems,
+      It param_type_a,
+      It param_type_b) {
+    auto range = find_by_path(ns,
+        &Namespace<Impl>::functions,
+        path_elems);
+
+    return resolve_function_overload<Impl>(range.first,
+        range.second,
+        param_type_a,
+        param_type_b);
   }
 
 

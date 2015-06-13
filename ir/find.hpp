@@ -2,6 +2,7 @@
 
 #include "namespace.h"
 #include "builtins.h"
+#include "resolve_function_overload.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -118,60 +119,23 @@ namespace ir {
       Label const& func_name,
       It param_type_a,
       It param_type_b) {
-    size_t num_params = std::distance(param_type_a, param_type_b);
     auto range = find_in_namespace<Function<Impl>>(ns, &Namespace<Impl>::functions, func_name);
-    std::vector<std::shared_ptr<Function<Impl>>> candidates;
-
-    // find candidate functions with matching signature
-    for(auto func_it = range.first; func_it != range.second; ++func_it) {
-      std::shared_ptr<Function<Impl>> f = func_it->second;
-
-      bool match = true;
-      auto param_a = std::begin(f->parameters);
-      auto param_b = std::end(f->parameters);
-
-      if( num_params != f->parameters.size() )
-        continue;
-
-      for(auto pty_it=param_type_a; pty_it != param_type_b; ++pty_it) {
-        if( (param_a == param_b) || (*pty_it != (*param_a)->type) ) {
-          match = false;
-          break;
-        }
-
-        ++param_a;
-      }
-
-      if( match )
-        candidates.push_back(f);
-    }
-
-
-    if( candidates.size() > 1 ) {
-      std::stringstream strm;
-      strm << "Can not resolve overloaded function '"
-        << func_name
-        << "', because multiple candidates remain:\n";
-      for(auto it=candidates.begin(); it != candidates.end(); ++it) {
-        std::shared_ptr<Function<Impl>> func = *it;
-        strm << "    "
-          << "'" << func->name << "' (";
-        for(auto para : func->parameters) {
-          strm << para->name << " : " << para->type->name << ", ";
-        }
-        strm << ") -> "
-          << func->return_type->name
-          << '\n';
-      }
-      throw std::runtime_error(strm.str());
-    } else if( candidates.empty() ) {
-      // TODO parameter matching
+    auto func = resolve_function_overload<Impl>(range.first,
+        range.second,
+        param_type_a,
+        param_type_b);
+    if( !func ) {
+      // check builtins
       range = Builtins<Impl>::functions.equal_range(func_name);
-      if( std::distance(range.first, range.second) == 0 )
+      func = resolve_function_overload<Impl>(range.first,
+          range.second,
+          param_type_a,
+          param_type_b);
+      if( !func )
         return nullptr;
     }
 
-    return candidates[0];
+    return func;
   }
 
 

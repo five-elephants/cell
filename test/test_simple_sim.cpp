@@ -310,6 +310,7 @@ TEST_F(Simulator_test, overloaded_functions) {
   engine.simulate(ir::Time(10, ir::Time::ns));
   auto insp = engine.inspect_module("");
   EXPECT_EQ(1, insp.get<int64_t>("res"));
+  EXPECT_EQ(2, insp.get<int64_t>("res2"));
   engine.teardown();
 }
 

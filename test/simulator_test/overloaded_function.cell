@@ -1,11 +1,19 @@
+namespace nn: {
+	def f() -> int: 1
+	def f(x : int) -> int: x * 2
+}
+
+
 mod m: {
 	var res : int
+	var res2 : int
 
 	def f() -> int: 0
 	def f(x : int) -> int: x + 1
 
 	def __init__(): {
 		res = f(f());
+		res2 = nn::f(nn::f());
 	}
 
 }
