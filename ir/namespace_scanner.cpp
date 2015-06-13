@@ -102,8 +102,6 @@ namespace ir {
 
     // get name
     func->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
-    if( m_ns.functions.count(func->name) > 0 )
-      throw std::runtime_error(std::string("Function with name ")+ func->name +std::string(" already exists"));
 
     // get return type
     auto type_name = dynamic_cast<ast::Identifier const*>(&(node.return_type()))->identifier();

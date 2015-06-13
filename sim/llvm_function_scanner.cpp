@@ -919,13 +919,23 @@
     Llvm_function_scanner::leave_function_call(ast::Function_call const& node) {
       std::vector<ir::Label> qname = node.name();
       std::vector<llvm::Value*> args;
+      std::vector<std::shared_ptr<Llvm_type>> signature;
+
+      // get parameter types for signature
+      for(auto i : node.expressions()) {
+        signature.push_back(m_types.at(i));
+      }
 
       // find function
       std::shared_ptr<Llvm_function> func;
       if( qname.size() > 1 ) {
+        // TODO use version with signature
         func = ir::find_function_by_path(m_ns, qname);
       } else {
-        func = ir::find_function(m_ns, qname.front());
+        func = ir::find_function(m_ns,
+            qname.front(),
+            std::begin(signature),
+            std::end(signature));
       }
 
       if( !func ) {

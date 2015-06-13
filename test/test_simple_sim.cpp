@@ -302,3 +302,14 @@ TEST_F(Simulator_test, loops) {
   engine.teardown();
 }
 
+
+TEST_F(Simulator_test, overloaded_functions) {
+  sim::Simulation_engine engine("test/simulator_test/overloaded_function.cell", "m");
+
+  engine.setup();
+  engine.simulate(ir::Time(10, ir::Time::ns));
+  auto insp = engine.inspect_module("");
+  EXPECT_EQ(1, insp.get<int64_t>("res"));
+  engine.teardown();
+}
+
