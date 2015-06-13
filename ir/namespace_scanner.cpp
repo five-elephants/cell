@@ -148,8 +148,6 @@ namespace ir {
       func->parameters.push_back(p_ir);
     }
 
-    m_ns.functions.insert(std::make_pair(func->name, func));
-
     return func;
   }
 
