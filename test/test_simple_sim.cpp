@@ -299,6 +299,7 @@ TEST_F(Simulator_test, loops) {
   engine.simulate(ir::Time(10, ir::Time::ns));
   auto insp = engine.inspect_module("");
   EXPECT_EQ(10, insp.get<int64_t>("s"));
+  EXPECT_EQ(10, insp.get<int64_t>("s2"));
   engine.teardown();
 }
 

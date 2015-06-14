@@ -88,6 +88,7 @@ namespace sim {
       virtual bool leave_once(ast::Once const& node);
       virtual bool leave_recurrent(ast::Recurrent const& node);
       virtual bool enter_while(ast::While_expression const& node);
+      virtual bool enter_for(ast::For_expression const& node);
 
 
       template<typename Node>

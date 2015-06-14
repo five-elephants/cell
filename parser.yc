@@ -417,7 +417,7 @@ while_expression: "while" PAREN_OPEN exp PAREN_CLOSE exp
                                     $$ = new ast::While_expression(*$3, *$5);
                                     $$->location(@$);
                                  };
-for_expression: "for" identifier "in" var_ref exp
+for_expression: "for" identifier "in" elem_access exp
                                  {
                                     $$ = new ast::For_expression(*$2, *$4, *$5);
                                     $$->location(@$);

@@ -135,6 +135,8 @@
       this->template on_leave_if_type<ast::Recurrent>(&Llvm_function_scanner::leave_recurrent);
       this->template on_enter_if_type<ast::While_expression>(
           &Llvm_function_scanner::enter_while);
+      this->template on_enter_if_type<ast::For_expression>(
+          &Llvm_function_scanner::enter_for);
     }
 
 
@@ -1074,6 +1076,90 @@
 
       // codegen for body
       node.body().accept(*this);
+
+      m_values[&node] = m_values.at(&(node.body()));
+      m_types[&node] = m_types.at(&(node.body()));
+
+      m_builder.CreateBr(bb_test);
+      m_builder.SetInsertPoint(bb_resume);
+
+      return false;
+    }
+
+
+    bool
+    Llvm_function_scanner::enter_for(ast::For_expression const& node) {
+      using namespace llvm;
+
+      // create index variable
+      auto index_ty = ir::Builtins<Llvm_impl>::types.at("int");
+      auto index_ptr = m_builder.CreateAlloca(index_ty->impl.type,
+          nullptr,
+          "for_index_ptr");
+      m_builder.CreateStore(Constant::getNullValue(index_ty->impl.type),
+            index_ptr);
+
+      // find type of iterand
+      m_lookups.push_back(Lookup_source::in);
+      node.iterand().accept(*this);
+      m_lookups.pop_back();
+      auto iterand_ptr = m_values.at(&(node.iterand()));
+      auto iterand_ty = m_types.at(&(node.iterand()));
+
+      Value* size_val = nullptr;
+      if( iterand_ty->array_size > 1 ) {
+        size_val = Constant::getIntegerValue(index_ty->impl.type,
+            APInt(sizeof(iterand_ty->array_size)*8,
+              iterand_ty->array_size,
+              false));
+      } else {
+        std::stringstream strm;
+        strm << node.location() << ": Can not iterate: iterand is not an array";
+        throw std::runtime_error(strm.str());
+      }
+
+      // basic block for condition testing
+      auto bb_test = BasicBlock::Create(getGlobalContext(),
+          "for_test",
+          m_function.impl.code);
+      m_builder.CreateBr(bb_test);
+      m_builder.SetInsertPoint(bb_test);
+
+      // codegen for condition
+      auto index_val = m_builder.CreateLoad(index_ptr, "for_index");
+      auto cond_val = m_builder.CreateICmpSLT(index_val, size_val);
+
+      auto bb_body = BasicBlock::Create(getGlobalContext(),
+          "for_body",
+          m_function.impl.code);
+      auto bb_resume = BasicBlock::Create(getGlobalContext(),
+          "for_resume",
+          m_function.impl.code);
+      m_builder.CreateCondBr(cond_val, bb_body, bb_resume);
+      m_builder.SetInsertPoint(bb_body);
+
+      // codegen for body
+      std::vector<llvm::Value*> indices;
+      indices.push_back(llvm::ConstantInt::get(llvm::getGlobalContext(),
+          llvm::APInt(64, 0, true)));
+      indices.push_back(index_val);
+      auto iter_ptr = m_builder.CreateInBoundsGEP(iterand_ptr,
+          indices,
+          std::string("for_iter_ptr"));
+      auto iter_var_name = node.loop_var_id();
+      m_named_values[iter_var_name] = iter_ptr;
+      m_named_types[iter_var_name] = iterand_ty->array_base_type;
+      node.body().accept(*this);
+      m_named_values.erase(m_named_values.find(iter_var_name));
+      m_named_types.erase(m_named_types.find(iter_var_name));
+
+      // increment index
+      auto next_index_val = m_builder.CreateAdd(index_val,
+          Constant::getIntegerValue(index_ty->impl.type,
+            APInt(sizeof(iterand_ty->array_size)*8,
+              1,
+              false)));
+      m_builder.CreateStore(next_index_val, index_ptr);
 
       m_values[&node] = m_values.at(&(node.body()));
       m_types[&node] = m_types.at(&(node.body()));
