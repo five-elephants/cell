@@ -1,6 +1,7 @@
 mod m: {
     var x : int[10]
     var s : int
+    var s2 : int
 
     def __init__(): {
         var i : int;
@@ -29,6 +30,18 @@ mod m: {
         };
 
         s = sum;
+    }
+
+
+    process: {
+        var sum : int;
+
+        sum = 0;
+        for i in x {
+            sum = sum + i;
+        };
+
+        s2 = sum;
     }
 
 }

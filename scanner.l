@@ -106,6 +106,7 @@ blank      [ \t]
 "false"     return token::FALSE;
 "template"  return token::TEMPLATE;
 "table"     return token::TABLE;
+"for"       return token::FOR;
 {int}       {
 	std::stringstream strm(yytext);
 	strm >> yylval->ival;

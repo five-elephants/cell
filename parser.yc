@@ -99,6 +99,7 @@
 %token        FALSE                   "false"
 %token        TEMPLATE                "template"
 %token        TABLE                   "table"
+%token        FOR                     "for"
 
 %type <unit> unit
 %type <node> namespace
@@ -157,6 +158,7 @@
 %type <list> table_def_list
 %type <list> table_def_list_
 %type <node> table_def_item
+%type <node> for_expression
 
 
 %printer { debug_stream() << *$$; } "identifier"
@@ -411,7 +413,15 @@ if_statement: "if" PAREN_OPEN exp PAREN_CLOSE exp
   | "if" PAREN_OPEN exp PAREN_CLOSE exp "else" exp
                                  { auto v = new ast::If_statement(*$3, *$5); v->else_body(*$7); $$ = v; };
 while_expression: "while" PAREN_OPEN exp PAREN_CLOSE exp
-                                 { $$ = new ast::While_expression(*$3, *$5); };
+                                 {
+                                    $$ = new ast::While_expression(*$3, *$5);
+                                    $$->location(@$);
+                                 };
+for_expression: "for" identifier "in" var_ref exp
+                                 {
+                                    $$ = new ast::For_expression(*$2, *$4, *$5);
+                                    $$->location(@$);
+                                 };
 func_call: qualified_name PAREN_OPEN exp_list PAREN_CLOSE
                                  { auto v = new ast::Function_call(*$1); v->expressions(*$3); $$ = v; }
   | qualified_name PAREN_OPEN PAREN_CLOSE
@@ -470,6 +480,7 @@ exp:
   | bin_exp                      { $$ = $1; }
   | if_statement                 { $$ = $1; }
   | while_expression             { $$ = $1; }
+  | for_expression               { $$ = $1; }
   | assignment                   { $$ = $1; }
   | compound                     { $$ = $1; }
   | var_ref                      { $$ = $1; }

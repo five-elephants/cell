@@ -54,6 +54,7 @@ def build(bld):
       ast/compound.cpp
       ast/if_statement.cpp
       ast/while_expression.cpp
+      ast/for_expression.cpp
       ast/bitstring_literal.cpp
       ast/unit.cpp
       ast/socket_item.cpp

@@ -20,6 +20,7 @@
 #include "ast/compound.h"
 #include "ast/if_statement.h"
 #include "ast/while_expression.h"
+#include "ast/for_expression.h"
 #include "ast/statement.h"
 #include "ast/unit.h"
 #include "ast/socket_def.h"
