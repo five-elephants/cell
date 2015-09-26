@@ -6,19 +6,11 @@ def options(opt):
     opt.load('flex')
     opt.load('bison')
     opt.load('boost')
-    opt.load('swig')
-    #opt.load('python')
 
 def configure(conf):
-    conf.load('compiler_cxx compiler_c boost bison flex swig')
-    #conf.load('python')
-    #conf.check_tool('bison flex')
+    conf.load('compiler_cxx compiler_c boost bison flex')
     conf.check_boost(lib='program_options serialization system filesystem')
-    #conf.check_python_headers()
     conf.check(lib='pthread', uselib_store='PTHREAD')
-    #conf.check(lib='gtest', uselib_store='GTEST')
-    #conf.check(lib='gtest_main', uselib_store='GTEST_MAIN')
-    #conf.check(header_name='gtest/gtest.h')
     conf.check(lib='log4cxx', uselib_store='LOG4CXX')
     conf.check(header_name='log4cxx/log4cxx.h', uselib_store='LOG4CXX')
     for llvm_config in [ 'llvm-config', 'llvm-config-3.4' ]:
@@ -34,8 +26,6 @@ def configure(conf):
 
     if res == None:
       conf.fatal('Can not find llvm-config program')
-    #print conf.env.LIB_LLVM
-    #print conf.env.INCLUDES_LLVM
 
 def build(bld):
     core_src = """
@@ -84,11 +74,6 @@ def build(bld):
       src/sim/runtime.cpp
     """
 
-    bindings_src = """
-      bindings/ir.swig
-      bindings/api.cpp
-    """
-
     gtest_src = """
       gtest/gtest-1.7.0/src/gtest-all.cc
     """
@@ -128,29 +113,6 @@ def build(bld):
       use = 'core sim LLVM',
       **flags
     )
-
-    if False:
-      bindings_lib = bld(
-        source = bindings_src,
-        target = 'ir',
-        swig_flags = '-lua -c++',
-        includes = 'src',
-        cxxflags = '-std=c++11',
-        features = 'swig cxx cxxshlib',
-        use = 'core'
-      )
-      bindings_lib.env.cxxshlib_PATTERN = '%s.so'
-
-      bindings_lib = bld(
-        source = bindings_src,
-        target = '_ir',
-        swig_flags = '-python -c++',
-        includes = 'src',
-        cxxflags = '-std=c++11',
-        features = 'swig pyext cxx cxxshlib',
-        use = 'core'
-      )
-      #bindings_lib.env.cxxshlib_PATTERN = '%s.so'
 
     bld.objects(
       source = gtest_src,
