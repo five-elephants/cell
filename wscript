@@ -3,13 +3,16 @@
 
 def options(opt):
     opt.load('compiler_cxx compiler_c')
+    #opt.load('clang clangxx')
     opt.load('flex')
     opt.load('bison')
     opt.load('boost')
     opt.load('doxygen')
+    opt.load('waf_unit_test')
 
 def configure(conf):
     conf.load('compiler_cxx compiler_c boost bison flex')
+    #conf.load('clang clangxx boost bison flex')
     conf.check_boost(lib='program_options serialization system filesystem')
     conf.check(lib='pthread', uselib_store='PTHREAD')
     conf.check(lib='log4cxx', uselib_store='LOG4CXX')
@@ -29,6 +32,7 @@ def configure(conf):
       conf.fatal('Can not find llvm-config program')
 
     conf.load('doxygen')
+    conf.load('waf_unit_test')
 
 def build(bld):
     core_src = """
@@ -128,6 +132,7 @@ def build(bld):
     )
 
     bld.program(
+      features = 'test',
       source = test_src,
       target = 'test-main',
       includes = [
