@@ -17,7 +17,7 @@ TEST(Codegen_test, empty_module) {
   using namespace std;
 
   Parse_driver driver;
-  if( driver.parse("test/simulator_test/empty_module.mini") )
+  if( driver.parse("lib/test/empty_module.mini") )
     throw std::runtime_error("parse failed");
 
   auto lib = std::make_shared<ir::Library<sim::Llvm_impl>>();
@@ -51,7 +51,7 @@ TEST(Codegen_test, function_in_module) {
   using namespace std;
 
   Parse_driver driver;
-  if( driver.parse("test/simulator_test/function_in_module.mini") )
+  if( driver.parse("lib/test/function_in_module.mini") )
     throw std::runtime_error("parse failed");
 
   auto lib = std::make_shared<ir::Library<sim::Llvm_impl>>();
@@ -88,7 +88,7 @@ TEST(Codegen_test, functions) {
   using namespace std;
 
   Parse_driver driver;
-  if( driver.parse("test/simulator_test/functions.cell") )
+  if( driver.parse("lib/test/functions.cell") )
     throw std::runtime_error("parse failed");
 
   auto lib = std::make_shared<ir::Library<sim::Llvm_impl>>();

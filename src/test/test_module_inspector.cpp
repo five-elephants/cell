@@ -18,7 +18,7 @@ class Test_module_inspector : public ::testing::Test {
 
 
 TEST_F(Test_module_inspector, get_members) {
-  sim::Simulation_engine engine("test/simulator_test/basic_fsm.cell",
+  sim::Simulation_engine engine("lib/test/basic_fsm.cell",
       "test");
 
   engine.setup();
@@ -45,7 +45,7 @@ TEST_F(Test_module_inspector, get_members) {
 
 
 TEST_F(Test_module_inspector, get_bits) {
-  sim::Simulation_engine engine("test/simulator_test/basic_fsm.cell",
+  sim::Simulation_engine engine("lib/test/basic_fsm.cell",
       "test");
 
   engine.setup();
@@ -72,7 +72,7 @@ TEST_F(Test_module_inspector, get_bits) {
 
 
 TEST_F(Test_module_inspector, get_element_bits) {
-  sim::Simulation_engine engine("test/simulator_test/demo_fsm.cell",
+  sim::Simulation_engine engine("lib/test/demo_fsm.cell",
       "demo::Fsm");
 
   engine.setup();

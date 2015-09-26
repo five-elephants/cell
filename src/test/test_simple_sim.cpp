@@ -16,7 +16,7 @@ class Simulator_test : public ::testing::Test {
 
 
 TEST_F(Simulator_test, basic_process) {
-  sim::Simulation_engine engine("test/simulator_test/basic_process.mini",
+  sim::Simulation_engine engine("lib/test/basic_process.mini",
       "test::basic_process");
 
   engine.setup();
@@ -39,7 +39,7 @@ TEST_F(Simulator_test, basic_process) {
 
 
 TEST_F(Simulator_test, basic_periodic) {
-  sim::Simulation_engine engine("test/simulator_test/basic_periodic.mini", "test::basic_periodic");
+  sim::Simulation_engine engine("lib/test/basic_periodic.mini", "test::basic_periodic");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
@@ -55,7 +55,7 @@ TEST_F(Simulator_test, basic_periodic) {
 
 
 TEST_F(Simulator_test, basic_fsm) {
-  sim::Simulation_engine engine("test/simulator_test/basic_fsm.cell", "test");
+  sim::Simulation_engine engine("lib/test/basic_fsm.cell", "test");
 
   engine.setup();
   auto intro = engine.inspect_module("");
@@ -95,7 +95,7 @@ TEST_F(Simulator_test, basic_fsm) {
 
 
 TEST_F(Simulator_test, empty_module) {
-  sim::Simulation_engine engine("test/simulator_test/empty_module.mini", "test::empty_module");
+  sim::Simulation_engine engine("lib/test/empty_module.mini", "test::empty_module");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
@@ -106,7 +106,7 @@ TEST_F(Simulator_test, empty_module) {
 TEST_F(Simulator_test, functions) {
   using namespace std::placeholders;
 
-  sim::Simulation_engine engine("test/simulator_test/functions.cell", "m");
+  sim::Simulation_engine engine("lib/test/functions.cell", "m");
 
   engine.setup();
 
@@ -201,7 +201,7 @@ TEST_F(Simulator_test, functions) {
 TEST_F(Simulator_test, module_access) {
   using namespace std::placeholders;
 
-  sim::Simulation_engine engine("test/simulator_test/function_in_module.mini",
+  sim::Simulation_engine engine("lib/test/function_in_module.mini",
     "m");
 
   engine.setup();
@@ -216,7 +216,7 @@ TEST_F(Simulator_test, module_access) {
 }
 
 TEST_F(Simulator_test, basic_logging) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test::basic_periodic");
+  sim::Instrumented_simulation_engine engine("lib/test/basic_periodic.mini", "test::basic_periodic");
 
   std::stringstream strm;
   sim::Stream_instrumenter instr(strm);
@@ -231,7 +231,7 @@ TEST_F(Simulator_test, basic_logging) {
 }
 
 TEST_F(Simulator_test, vcd_logging) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_periodic.mini", "test::basic_periodic");
+  sim::Instrumented_simulation_engine engine("lib/test/basic_periodic.mini", "test::basic_periodic");
 
   sim::Vcd_instrumenter instr("simulator_test__vcd_logging.vcd");
   engine.instrument(instr);
@@ -243,7 +243,7 @@ TEST_F(Simulator_test, vcd_logging) {
 
 
 TEST_F(Simulator_test, vcd_logging_fsm) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/basic_fsm.cell",
+  sim::Instrumented_simulation_engine engine("lib/test/basic_fsm.cell",
       "test");
 
   sim::Vcd_instrumenter instr("simulator_test__vcd_logging_fsm.vcd");
@@ -255,7 +255,7 @@ TEST_F(Simulator_test, vcd_logging_fsm) {
 }
 
 TEST_F(Simulator_test, constants) {
-  sim::Simulation_engine engine("test/simulator_test/constants.cell", "test::m");
+  sim::Simulation_engine engine("lib/test/constants.cell", "test::m");
 
   engine.setup();
   auto insp = engine.inspect_module("");
@@ -272,7 +272,7 @@ TEST_F(Simulator_test, constants) {
 
 
 //TEST_F(Simulator_test, basic_array) {
-  //sim::Simulation_engine engine("test/simulator_test/basic_array.mini", "test.basic_array");
+  //sim::Simulation_engine engine("lib/test/basic_array.mini", "test.basic_array");
 
   //engine.setup();
   //engine.simulate(ir::Time(10, ir::Time::ns));
@@ -281,7 +281,7 @@ TEST_F(Simulator_test, constants) {
 
 
 TEST_F(Simulator_test, tables) {
-  sim::Simulation_engine engine("test/simulator_test/table.cell", "n::m");
+  sim::Simulation_engine engine("lib/test/table.cell", "n::m");
 
   engine.setup();
   auto insp = engine.inspect_module("");
@@ -293,7 +293,7 @@ TEST_F(Simulator_test, tables) {
 
 
 TEST_F(Simulator_test, loops) {
-  sim::Simulation_engine engine("test/simulator_test/for.cell", "m");
+  sim::Simulation_engine engine("lib/test/for.cell", "m");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
@@ -305,7 +305,7 @@ TEST_F(Simulator_test, loops) {
 
 
 TEST_F(Simulator_test, overloaded_functions) {
-  sim::Simulation_engine engine("test/simulator_test/overloaded_function.cell", "m");
+  sim::Simulation_engine engine("lib/test/overloaded_function.cell", "m");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));

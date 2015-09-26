@@ -20,7 +20,7 @@ class Demos : public ::testing::Test {
 
 
 TEST_F(Demos, lif_neuron) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/demo_lif.cell",
+  sim::Instrumented_simulation_engine engine("lib/test/demo_lif.cell",
       "demo::lif_neuron");
   sim::Vcd_instrumenter instr("demos__lif_neuron.vcd");
 
@@ -32,7 +32,7 @@ TEST_F(Demos, lif_neuron) {
 
 
 TEST_F(Demos, dataflow) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/dataflow.cell",
+  sim::Instrumented_simulation_engine engine("lib/test/dataflow.cell",
       "demo::dataflow");
   sim::Vcd_instrumenter instr("dataflow.vcd");
 
@@ -59,7 +59,7 @@ TEST_F(Demos, dataflow) {
 
 
 TEST_F(Demos, fsm) {
-  sim::Instrumented_simulation_engine engine("test/simulator_test/demo_fsm.cell",
+  sim::Instrumented_simulation_engine engine("lib/test/demo_fsm.cell",
       "demo::Fsm");
   sim::Vcd_instrumenter instr("demo_fsm.vcd");
 
