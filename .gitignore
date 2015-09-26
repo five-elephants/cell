@@ -1,5 +1,7 @@
 .*.swp
 .*.swo
+.*.pyc
+*.pyc
 .waf-*
 *~
 .lock-waf_linux2_build
