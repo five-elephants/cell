@@ -6,6 +6,7 @@ def options(opt):
     opt.load('flex')
     opt.load('bison')
     opt.load('boost')
+    opt.load('doxygen')
 
 def configure(conf):
     conf.load('compiler_cxx compiler_c boost bison flex')
@@ -26,6 +27,8 @@ def configure(conf):
 
     if res == None:
       conf.fatal('Can not find llvm-config program')
+
+    conf.load('doxygen')
 
 def build(bld):
     core_src = """
@@ -133,6 +136,11 @@ def build(bld):
       use = 'core sim gtest LLVM',
       install_path = None,
       cxxflags = flags['cxxflags']
+    )
+
+    bld(
+        features = 'doxygen',
+        doxyfile = 'doc/doxygen/Doxyfile',
     )
 
 
