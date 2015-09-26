@@ -9,6 +9,7 @@
 #include "ast/module_def.h"
 #include "time.h"
 
+/** Internal represenation namespace */
 namespace ir {
 
   struct No_impl {

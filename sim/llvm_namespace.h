@@ -13,6 +13,7 @@
 #include <stdexcept>
 
 
+/** Simulation related namespace */
 namespace sim {
 
   struct Socket_operator_codegen;

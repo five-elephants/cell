@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 
+/** Abstract syntax tree namespace */
 namespace ast {
   class Visitor_if;
 
