@@ -39,65 +39,50 @@ def configure(conf):
 
 def build(bld):
     core_src = """
-      scanner.l
-      parser.yc
-      ast/node_base.cpp
-      ast/tree_base.cpp
-      ast/identifier.cpp
-      ast/variable_def.cpp
-      ast/module_def.cpp
-      ast/module_template.cpp
-      ast/namespace_def.cpp
-      ast/function_def.cpp
-      ast/function_call.cpp
-      ast/function_param.cpp
-      ast/compound.cpp
-      ast/if_statement.cpp
-      ast/while_expression.cpp
-      ast/for_expression.cpp
-      ast/bitstring_literal.cpp
-      ast/unit.cpp
-      ast/socket_item.cpp
-      ast/socket_def.cpp
-      ast/connection_item.cpp
-      ast/module_instantiation.cpp
-      ast/process.cpp
-      ast/assignment.cpp
-      ast/variable_ref.cpp
-      ast/array_type.cpp
-      parse_driver.cpp
+      src/parsing/scanner.l
+      src/parsing/parser.yc
+      src/ast/node_base.cpp
+      src/ast/tree_base.cpp
+      src/ast/identifier.cpp
+      src/ast/variable_def.cpp
+      src/ast/module_def.cpp
+      src/ast/module_template.cpp
+      src/ast/namespace_def.cpp
+      src/ast/function_def.cpp
+      src/ast/function_call.cpp
+      src/ast/function_param.cpp
+      src/ast/compound.cpp
+      src/ast/if_statement.cpp
+      src/ast/while_expression.cpp
+      src/ast/for_expression.cpp
+      src/ast/bitstring_literal.cpp
+      src/ast/unit.cpp
+      src/ast/socket_item.cpp
+      src/ast/socket_def.cpp
+      src/ast/connection_item.cpp
+      src/ast/module_instantiation.cpp
+      src/ast/process.cpp
+      src/ast/assignment.cpp
+      src/ast/variable_ref.cpp
+      src/ast/array_type.cpp
+      src/parsing/parse_driver.cpp
     """
 
     sim_src = """
-      sim/llvm_namespace_scanner.cpp
-      sim/llvm_module_scanner.cpp
-      sim/llvm_function_scanner.cpp
-      sim/llvm_constexpr_scanner.cpp
-      sim/llvm_namespace.cpp
-      sim/llvm_builtins.cpp
-      sim/runset.cpp
-      sim/module_inspector.cpp
-      sim/stream_instrumenter.cpp
-      sim/vcd_instrumenter.cpp
-      sim/simulation_engine.cpp
-      sim/compile.cpp
-      sim/runtime.cpp
+      src/sim/llvm_namespace_scanner.cpp
+      src/sim/llvm_module_scanner.cpp
+      src/sim/llvm_function_scanner.cpp
+      src/sim/llvm_constexpr_scanner.cpp
+      src/sim/llvm_namespace.cpp
+      src/sim/llvm_builtins.cpp
+      src/sim/runset.cpp
+      src/sim/module_inspector.cpp
+      src/sim/stream_instrumenter.cpp
+      src/sim/vcd_instrumenter.cpp
+      src/sim/simulation_engine.cpp
+      src/sim/compile.cpp
+      src/sim/runtime.cpp
     """
-
-    #sim_src = """
-      #sim/llvm_namespace_scanner.cpp
-      #sim/llvm_function_scanner.cpp
-      #sim/llvm_codegen.cpp
-      #sim/llvm_codeblock.cpp
-      #sim/codegen_visitor.cpp
-      #sim/module_codegen_visitor.cpp
-      #sim/scan_ast.cpp
-      #sim/compile.cpp
-      #sim/runtime.cpp
-      #sim/simulation_engine.cpp
-      #sim/module_inspector.cpp
-      #sim/stream_instrumenter.cpp
-    #"""
 
     bindings_src = """
       bindings/ir.swig
@@ -110,23 +95,22 @@ def build(bld):
 
     test_src = """
       gtest/gtest-1.7.0/src/gtest_main.cc
-      test/test_find_hierarchy.cpp
-      test/test_scanner_base.cpp
-      test/test_simple_sim.cpp
-      test/test_codegen.cpp
-      test/test_demos.cpp
-      test/test_module_inspector.cpp
+      src/test/test_find_hierarchy.cpp
+      src/test/test_scanner_base.cpp
+      src/test/test_simple_sim.cpp
+      src/test/test_codegen.cpp
+      src/test/test_demos.cpp
+      src/test/test_module_inspector.cpp
     """
-    #test/test_simple_sim.cpp
 
     flags = {
       'cxxflags': '-fPIC -std=c++11 -ggdb -DBOOST_FILESYSTEM_NO_DEPRECATED',
+      'includes': [ 'src', 'src/parsing' ],
     }
 
     bld.objects(
       source = core_src,
       target = 'core',
-      includes = '.',
       use = 'BOOST',
       **flags
     )
@@ -134,39 +118,13 @@ def build(bld):
     bld.objects(
       source = sim_src,
       target = 'sim',
-      includes = '.',
       use = 'BOOST LLVM LOG4CXX',
       **flags
     )
 
-    #bld.program(
-        #source = 'frontend.cpp ',
-        #target = 'frontend',
-        #includes = '.',
-        #cxxflags = '-std=c++11 -ggdb',
-        #use = 'core',
-    #)
-
-    #bld.program(
-      #source = 'sim/compiler.cpp',
-      #target = 'compiler',
-      #includes = '.',
-      #use = 'core sim LLVM',
-      #**flags
-    #)
-
-    #bld.program(
-      #source = 'sim/simulator.cpp',
-      #target = 'simulator',
-      #includes = '.',
-      #cxxflags = '-std=c++11 -ggdb -fPIC',
-      #use = 'core sim LLVM'
-    #)
-
     bld.program(
-      source = 'sim/cellsim.cpp',
+      source = 'src/sim/cellsim.cpp',
       target = 'cellsim',
-      includes = '.',
       use = 'core sim LLVM',
       **flags
     )
@@ -176,7 +134,7 @@ def build(bld):
         source = bindings_src,
         target = 'ir',
         swig_flags = '-lua -c++',
-        includes = '.',
+        includes = 'src',
         cxxflags = '-std=c++11',
         features = 'swig cxx cxxshlib',
         use = 'core'
@@ -187,7 +145,7 @@ def build(bld):
         source = bindings_src,
         target = '_ir',
         swig_flags = '-python -c++',
-        includes = '.',
+        includes = 'src',
         cxxflags = '-std=c++11',
         features = 'swig pyext cxx cxxshlib',
         use = 'core'
@@ -209,11 +167,10 @@ def build(bld):
       target = 'test-main',
       includes = [
         'gtest/gtest-1.7.0/include',
-        '.',
-      ],
+      ] + flags['includes'],
       use = 'core sim gtest LLVM',
       install_path = None,
-      **flags
+      cxxflags = flags['cxxflags']
     )
 
 
