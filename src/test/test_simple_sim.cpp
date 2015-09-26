@@ -16,7 +16,7 @@ class Simulator_test : public ::testing::Test {
 
 
 TEST_F(Simulator_test, basic_process) {
-  sim::Simulation_engine engine("lib/test/basic_process.mini",
+  sim::Simulation_engine engine("lib/test/basic_process.cell",
       "test::basic_process");
 
   engine.setup();
@@ -39,7 +39,7 @@ TEST_F(Simulator_test, basic_process) {
 
 
 TEST_F(Simulator_test, basic_periodic) {
-  sim::Simulation_engine engine("lib/test/basic_periodic.mini", "test::basic_periodic");
+  sim::Simulation_engine engine("lib/test/basic_periodic.cell", "test::basic_periodic");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
@@ -95,7 +95,7 @@ TEST_F(Simulator_test, basic_fsm) {
 
 
 TEST_F(Simulator_test, empty_module) {
-  sim::Simulation_engine engine("lib/test/empty_module.mini", "test::empty_module");
+  sim::Simulation_engine engine("lib/test/empty_module.cell", "test::empty_module");
 
   engine.setup();
   engine.simulate(ir::Time(10, ir::Time::ns));
@@ -201,7 +201,7 @@ TEST_F(Simulator_test, functions) {
 TEST_F(Simulator_test, module_access) {
   using namespace std::placeholders;
 
-  sim::Simulation_engine engine("lib/test/function_in_module.mini",
+  sim::Simulation_engine engine("lib/test/function_in_module.cell",
     "m");
 
   engine.setup();
@@ -216,7 +216,7 @@ TEST_F(Simulator_test, module_access) {
 }
 
 TEST_F(Simulator_test, basic_logging) {
-  sim::Instrumented_simulation_engine engine("lib/test/basic_periodic.mini", "test::basic_periodic");
+  sim::Instrumented_simulation_engine engine("lib/test/basic_periodic.cell", "test::basic_periodic");
 
   std::stringstream strm;
   sim::Stream_instrumenter instr(strm);
@@ -231,7 +231,7 @@ TEST_F(Simulator_test, basic_logging) {
 }
 
 TEST_F(Simulator_test, vcd_logging) {
-  sim::Instrumented_simulation_engine engine("lib/test/basic_periodic.mini", "test::basic_periodic");
+  sim::Instrumented_simulation_engine engine("lib/test/basic_periodic.cell", "test::basic_periodic");
 
   sim::Vcd_instrumenter instr("simulator_test__vcd_logging.vcd");
   engine.instrument(instr);
@@ -272,7 +272,7 @@ TEST_F(Simulator_test, constants) {
 
 
 //TEST_F(Simulator_test, basic_array) {
-  //sim::Simulation_engine engine("lib/test/basic_array.mini", "test.basic_array");
+  //sim::Simulation_engine engine("lib/test/basic_array.cell", "test.basic_array");
 
   //engine.setup();
   //engine.simulate(ir::Time(10, ir::Time::ns));

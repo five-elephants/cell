@@ -128,7 +128,7 @@ TEST(ast, ast_printer) {
   Parse_driver parser;
   ast::Ast_printer printer(std::cout);
 
-  EXPECT_EQ(parser.parse("lib/test/basic_process.mini"), 0);
+  EXPECT_EQ(parser.parse("lib/test/basic_process.cell"), 0);
   parser.ast_root().accept(printer);
 }
 
