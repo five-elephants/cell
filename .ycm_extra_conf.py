@@ -39,7 +39,7 @@ flags = [
     '-ggdb',
     '-DBOOST_FILESYSTEM_NO_DEPRECATED',
     '-I/home/simon/Projects/cell/build',
-    '-I/home/simon/Projects/cell',
+    '-I/home/simon/Projects/cell/src',
     '-I/usr/include',
     '-I/usr/lib/llvm-3.5/include',
     '-DHAVE_LOG4CXX_LOG4CXX_H=1',
