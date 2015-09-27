@@ -1,5 +1,0 @@
-mod func_test = {
-	def f(u : int) : int = {
-		var rv = u : int
-	}
-}

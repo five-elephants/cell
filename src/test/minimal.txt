@@ -1,5 +1,0 @@
-mod test = {
-  def f() = {
-    var v = 5 : int
-  }
-}
