@@ -84,6 +84,7 @@ namespace sim {
       }
 
       void setup();
+      void setup_module(std::shared_ptr<Llvm_module> mod);
       void simulate(ir::Time const& duration);
 
       void instrument(Instrumenter_if& instr) { m_instrumenter = &instr; }

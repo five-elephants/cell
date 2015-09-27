@@ -508,21 +508,34 @@ namespace sim {
     Simulation_engine::setup();
 
     if( m_instrumenter ) {
-      for(auto const& mod : m_runset.modules) {
-        auto num_elements = mod.mod->impl.mod_type->getNumElements();
-        auto layout = m_layout->getStructLayout(mod.mod->impl.mod_type);
-        auto insp = std::make_shared<Module_inspector>(mod.mod,
-            layout,
-            num_elements,
-            m_exe,
-            m_runset);
-        m_instrumenter->push_hierarchy();
-        m_instrumenter->register_module(insp);
-        m_instrumenter->pop_hierarchy();
-      }
+      setup_module(m_top_mod);
 
       m_instrumenter->initial(ir::Time(0, ir::Time::ps));
     }
+  }
+
+
+  void
+  Instrumented_simulation_engine::setup_module(std::shared_ptr<Llvm_module> mod) {
+    auto num_elements = mod->impl.mod_type->getNumElements();
+    auto layout = m_layout->getStructLayout(mod->impl.mod_type);
+    auto insp = std::make_shared<Module_inspector>(mod,
+        layout,
+        num_elements,
+        m_exe,
+        m_runset);
+    m_instrumenter->push_hierarchy();
+    m_instrumenter->register_module(insp);
+
+    for(auto i : mod->instantiations) {
+      ir::Label inst_name;
+      std::shared_ptr<Llvm_instantiation> inst;
+
+      std::tie(inst_name, inst) = i;
+
+      setup_module(inst->module);
+    }
+    m_instrumenter->pop_hierarchy();
   }
 
 
