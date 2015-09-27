@@ -96,7 +96,7 @@ def build(bld):
     """
 
     flags = {
-      'cxxflags': '-fPIC -std=c++11 -ggdb -DBOOST_FILESYSTEM_NO_DEPRECATED',
+      'cxxflags': '-fPIC -std=c++11 -O0 -ggdb -DBOOST_FILESYSTEM_NO_DEPRECATED',
       'includes': [ 'src', 'src/parsing' ],
     }
 
