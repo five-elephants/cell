@@ -119,9 +119,7 @@ namespace sim {
 
     for(std::size_t i=0; i<insp->num_elements(); ++i) {
       auto obj = insp->get_object(i);
-      if( obj->name == "port" )
-        continue;
-
+      // Don't include pointers to instantiated modules
       if( mod->instantiations.count(obj->name) != 0 )
         continue;
 
@@ -228,8 +226,6 @@ namespace sim {
       std::size_t ref) {
     auto mod = insp->module();
     auto obj = insp->get_object(index);
-    if( obj->name == "port" )
-      return ref;
 
     if( mod->instantiations.count(obj->name) != 0 )
       return ref;
