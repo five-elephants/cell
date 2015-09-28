@@ -173,6 +173,16 @@ void init_builtins(std::shared_ptr<sim::Llvm_library> lib) {
       }, OP_C_LAMBDA {
         return llvm::ConstantExpr::getICmp(llvm::CmpInst::ICMP_SGT, left, right);
       });
+  add_operator(">=", "bool", "int", "int", OP_LAMBDA {
+        return bld.CreateICmpSGE(left, right, "cmp_ge");
+      }, OP_C_LAMBDA {
+        return llvm::ConstantExpr::getICmp(llvm::CmpInst::ICMP_SGE, left, right);
+      });
+  add_operator("<=", "bool", "int", "int", OP_LAMBDA {
+        return bld.CreateICmpSLE(left, right, "cmp_le");
+      }, OP_C_LAMBDA {
+        return llvm::ConstantExpr::getICmp(llvm::CmpInst::ICMP_SLE, left, right);
+      });
   add_operator("<", "bool", "float", "float", OP_LAMBDA {
         return bld.CreateFCmpULT(left, right, "fcmp_lt");
       }, OP_C_LAMBDA {
