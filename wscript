@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from waflib.Tools import waf_unit_test
+
 def options(opt):
     opt.load('compiler_cxx compiler_c')
     #opt.load('clang clangxx')
@@ -142,6 +144,7 @@ def build(bld):
       install_path = None,
       cxxflags = flags['cxxflags']
     )
+    bld.add_post_fun(waf_unit_test.summary)
 
     bld(
         features = 'doxygen',
