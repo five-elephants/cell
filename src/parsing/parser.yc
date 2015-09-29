@@ -498,8 +498,8 @@ template_identifier: qualified_name '<' template_args '>'
                                    $$ = new ast::Template_identifier($1, $3);
                                  };
 type_identifier: identifier      { $$ = $1; }
-  | type_identifier "[" "number" "]"
-                                 { $$ = new ast::Array_type(*$1, $3); };
+  | type_identifier "[" const_ref "]"
+                                 { $$ = new ast::Array_type(*$1, *$3); };
 qualified_name: identifier       {
                                     $$ = new ast::Node_list();
                                     $$->push_back($1);

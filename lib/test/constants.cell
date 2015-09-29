@@ -24,6 +24,8 @@ namespace test: {
 
 		const auto_int = 15
 
+		var arr : int[c]
+
 		def __init__(): {
 			x = c + nc;
 			x_ref = c_ref;

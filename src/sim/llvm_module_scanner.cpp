@@ -241,6 +241,14 @@ namespace sim {
     Llvm_constexpr_scanner scanner(c, m_ns);
     node.accept(scanner);
 
+    //auto cnst_int = dynamic_cast<llvm::ConstantInt*>(c->impl.expr);
+    //if( cnst_int )
+      //LOG4CXX_TRACE(m_logger, "constant evaluates to "
+          //<< cnst_int->getSExtValue());
+    if( c->type == ir::Builtins<Llvm_impl>::types["int"] )
+      LOG4CXX_TRACE(m_logger, "constant integer: "
+          << c->impl.expr->getUniqueInteger().getLimitedValue());
+
     return false;
   }
 
@@ -315,15 +323,27 @@ namespace sim {
 
   std::shared_ptr<Llvm_type>
   Llvm_module_scanner::create_array_type(ast::Array_type const& node) {
+    // get size from constant expression
+    auto sz_cnst = m_mod.constants.at(node.size_constant().identifier().identifier());
+    if( sz_cnst->type != ir::Builtins<Llvm_impl>::types["int"] ) {
+      std::stringstream strm;
+      strm << node.location()
+        << ": Constant for array size is not of type 'int'";
+      throw std::runtime_error(strm.str());
+    }
+
+    auto sz = sz_cnst->impl.expr->getUniqueInteger().getLimitedValue();
+
+
     if( typeid(node.base_type()) == typeid(ast::Array_type) ) {
       auto& base_type = dynamic_cast<ast::Array_type const&>(node.base_type());
       auto bt = this->create_array_type(base_type);
 
       std::stringstream strm;
-      strm << bt->name << "[" << node.size() << "]";
+      strm << bt->name << "[" << sz << "]";
       auto new_type = std::make_shared<Llvm_type>();
       new_type->name = strm.str();
-      new_type->array_size = node.size();
+      new_type->array_size = sz;
       new_type->array_base_type = bt;
       new_type->impl.type = llvm::ArrayType::get(bt->impl.type,
           new_type->array_size);
@@ -342,11 +362,11 @@ namespace sim {
       }
 
       std::stringstream strm;
-      strm << ir_type->name << "[" << node.size() << "]";
+      strm << ir_type->name << "[" << sz << "]";
       auto new_type = std::make_shared<Llvm_type>();
       new_type->name = strm.str();
       new_type->array_base_type = ir_type;
-      new_type->array_size = node.size();
+      new_type->array_size = sz;
       new_type->impl.type = llvm::ArrayType::get(ir_type->impl.type,
           new_type->array_size);
 
