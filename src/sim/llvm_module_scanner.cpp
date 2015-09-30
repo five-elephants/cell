@@ -323,12 +323,28 @@ namespace sim {
 
   std::shared_ptr<Llvm_type>
   Llvm_module_scanner::create_array_type(ast::Array_type const& node) {
+    // process constant expression to determine size
+    auto sz_cnst = std::make_shared<Llvm_constant>();
+    Llvm_constexpr_scanner scanner(sz_cnst, m_ns);
+    node.size_expr().accept(scanner);
+
+    sz_cnst = scanner.constant_of_node(node.size_expr());
+
+    if( !sz_cnst->type ) {
+      std::stringstream strm;
+      strm << node.location()
+        << ": No inferred type for array size expression.";
+      throw std::runtime_error(strm.str());
+    }
+
     // get size from constant expression
-    auto sz_cnst = m_mod.constants.at(node.size_constant().identifier().identifier());
     if( sz_cnst->type != ir::Builtins<Llvm_impl>::types["int"] ) {
       std::stringstream strm;
       strm << node.location()
-        << ": Constant for array size is not of type 'int'";
+        << ": Constant for array size is not of type 'int'"
+        << " (is of type '"
+        << sz_cnst->type->name
+        << "')";
       throw std::runtime_error(strm.str());
     }
 

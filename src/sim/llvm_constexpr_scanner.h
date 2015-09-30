@@ -17,6 +17,12 @@ namespace sim {
       Llvm_constexpr_scanner(std::shared_ptr<Llvm_constant> constant,
           Llvm_namespace& ns);
 
+      std::shared_ptr<Llvm_constant> constant_of_node(ast::Node_if const& node) {
+        auto rv = std::make_shared<Llvm_constant>();
+        rv->impl.expr = m_values.at(&node);
+        rv->type = m_types.at(&node);
+        return rv;
+      }
 
     private:
       typedef std::unordered_map<ast::Node_if const*,

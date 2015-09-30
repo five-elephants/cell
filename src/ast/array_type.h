@@ -7,17 +7,15 @@ namespace ast {
 
   class Array_type : public Tree_base {
     public:
-      Array_type(Node_if& base_type, Node_if& size_constant);
+      Array_type(Node_if& base_type, Node_if& size_expr);
 
       Node_if const& base_type() const { return m_base_type; }
-      Constant_ref const& size_constant() const {
-        return dynamic_cast<Constant_ref const&>(m_size_constant);
-      }
+      Node_if const& size_expr() const { return m_size_expr; }
 
 
     private:
       Node_if& m_base_type;
-      Node_if& m_size_constant;
+      Node_if& m_size_expr;
   };
 
 }

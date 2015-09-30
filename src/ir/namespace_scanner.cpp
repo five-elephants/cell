@@ -278,51 +278,7 @@ namespace ir {
   template<typename Impl>
   std::shared_ptr<ir::Type<Impl>>
   Namespace_scanner<Impl>::create_array_type(ast::Array_type const& node) {
-    // get size from constant expression
-    auto sz_cnst = m_ns.constants.at(node.size_constant().identifier().identifier());
-    if( sz_cnst->type != ir::Builtins<Impl>::types["int"] ) {
-      std::stringstream strm;
-      strm << node.location()
-        << ": Constant for array size is not of type 'int'";
-      throw std::runtime_error(strm.str());
-    }
-
-    auto sz = sz_cnst->impl.expr->getUniqueInteger().getLimitedValue();
-
-
-    if( typeid(node.base_type()) == typeid(ast::Array_type) ) {
-      auto& base_type = dynamic_cast<ast::Array_type const&>(node.base_type());
-      auto bt = this->create_array_type(base_type);
-
-      std::stringstream strm;
-      strm << bt->name << "[" << sz << "]";
-      auto new_type = std::make_shared<Type<Impl>>();
-      new_type->name = strm.str();
-      new_type->array_size = sz;
-
-      return new_type;
-    } else if( typeid(node.base_type()) == typeid(ast::Identifier) ) {
-      auto& base_type = dynamic_cast<ast::Identifier const&>(node.base_type());
-      auto type_name = base_type.identifier();
-      auto ir_type = find_type(m_ns, type_name);
-
-      if( !ir_type ) {
-        std::stringstream strm;
-        strm << node.location()
-          << ": typename '" << type_name << "' not found.";
-        throw std::runtime_error(strm.str());
-      }
-
-      std::stringstream strm;
-      strm << ir_type->name << "[" << sz << "]";
-      auto new_type = std::make_shared<Type<Impl>>();
-      new_type->name = strm.str();
-      new_type->array_size = sz;
-
-      return new_type;
-    } else {
-      throw std::runtime_error("Array base type is neither array nor identifier.");
-    }
+    throw std::runtime_error("not implemented");
   }
 
 

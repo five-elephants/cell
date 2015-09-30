@@ -19,6 +19,8 @@ namespace sim {
       virtual bool insert_socket(ast::Socket_def const& node);
       virtual bool insert_constant(ast::Constant_def const& node);
       virtual bool insert_table(ast::Table_def const& node);
+
+      virtual std::shared_ptr<Llvm_type> create_array_type(ast::Array_type const& node);
   };
 
 }
