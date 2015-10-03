@@ -24,7 +24,7 @@ namespace test: {
 
 		const auto_int = 15
 
-		var arr : int[c]
+		var arr : int[2*c]
 
 		def __init__(): {
 			x = c + nc;
