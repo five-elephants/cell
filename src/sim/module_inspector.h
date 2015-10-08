@@ -13,6 +13,11 @@
 
 namespace sim {
 
+  /** Inspect module instances in the design
+   *
+   * Use Simulation_engine::inspect_module() to create an instance of this
+   * class for a specfic module.
+   * */
   class Module_inspector {
     public:
       //Module_inspector();

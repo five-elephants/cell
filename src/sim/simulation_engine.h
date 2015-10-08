@@ -42,6 +42,13 @@ namespace sim {
       void simulate(ir::Time const& duration);
       void teardown();
 
+      /** Create a Module_inspector object
+       *
+       * @param name Path to a module instance within the design
+       *
+       * Allows for inspection and modification of values of a module instance
+       * in the design. The path is searched using ir::find_instance().
+       * */
       Module_inspector inspect_module(ir::Label const& name);
 
     protected:

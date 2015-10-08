@@ -435,6 +435,9 @@ namespace sim {
       if( mod_modified )
         copy(ptr_out, ptr_out + size, ptr_in);
 
+      // TODO call observer/checker code to observe ptr_out
+      // TODO call driver code to modify ptr_in before next iteration
+
       if( !mod.run_list.empty() )
         rerun = true;
 

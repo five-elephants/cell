@@ -149,6 +149,16 @@ namespace ir {
   }
 
 
+  /** Find module instances within the design
+   *
+   * @param mod Pointer to parent module
+   * @param path Path to instance beneath mod
+   * @return Pointer to module representation or nullpointer if not found
+   *
+   * Elements on the path are separated by dots '.'. The first element names an
+   * instance within mod. The second element is within this named instance and
+   * so on.
+   * */
   template<typename Impl>
   std::shared_ptr<Module<Impl>> find_instance(std::shared_ptr<Module<Impl>> mod,
       std::string const& path) {
