@@ -95,6 +95,7 @@ def build(bld):
       src/test/test_codegen.cpp
       src/test/test_demos.cpp
       src/test/test_module_inspector.cpp
+      src/test/test_driver.cpp
     """
 
     flags = {

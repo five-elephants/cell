@@ -270,6 +270,12 @@ namespace sim {
 
     // add timed processes to the run list
     for(auto& mod : m_runset.modules) {
+      // call observer/checker code to observe ptr_out
+      for(auto& drv : mod.drivers) {
+        if( drv )
+          drv(t, mod.this_in, mod.this_out, mod.this_prev);
+      }
+
       std::list<Runset::Process_schedule::value_type> new_schedules;
       std::list<Runset::Time_process_map::value_type> new_schedules_recurrent;
 
@@ -435,8 +441,6 @@ namespace sim {
       if( mod_modified )
         copy(ptr_out, ptr_out + size, ptr_in);
 
-      // TODO call observer/checker code to observe ptr_out
-      // TODO call driver code to modify ptr_in before next iteration
 
       if( !mod.run_list.empty() )
         rerun = true;

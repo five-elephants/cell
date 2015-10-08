@@ -1,0 +1,10 @@
+mod m: {
+	var clk : bool
+	var a : int
+	var b : int
+	var y : int
+
+	process: y = a + b
+
+	periodic(10 ns): clk = !clk
+}

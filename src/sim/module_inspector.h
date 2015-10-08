@@ -48,6 +48,25 @@ namespace sim {
         return rv;
       }
 
+      /** set value of a member variable */
+      template<typename T>
+      void set(ir::Label const& var_name, T val) {
+        auto it = m_module->objects.find(var_name);
+        if( it == m_module->objects.end() ) {
+          std::stringstream strm;
+          strm << "object '" << var_name << "' requested for introspection"
+            " not found in module '"
+            << m_module->name << "'";
+          throw std::runtime_error(strm.str());
+        }
+
+        char* this_ptr = this_out->data();
+        auto idx = it->second->impl.struct_index;
+        auto ofs = m_layout->getElementOffset(idx);
+
+        std::copy_n(reinterpret_cast<char*>(&val), sizeof(val), this_ptr + ofs);
+      }
+
       /** get value of member variable by index */
       template<typename T>
       T get(std::size_t idx) {

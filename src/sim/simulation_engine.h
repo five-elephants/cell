@@ -6,6 +6,7 @@
 #include <functional>
 #include <unordered_set>
 #include <map>
+#include <stdexcept>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/PassManager.h>
@@ -15,6 +16,7 @@
 #include "sim/module_inspector.h"
 #include "sim/instrumenter_if.h"
 #include "sim/llvm_namespace.h"
+#include "ir/find_hierarchy.h"
 #include "ir/time.h"
 
 
@@ -50,6 +52,33 @@ namespace sim {
        * in the design. The path is searched using ir::find_instance().
        * */
       Module_inspector inspect_module(ir::Label const& name);
+
+
+      template<typename Callable>
+      Runset::Driver_list::iterator
+      add_driver(Callable& driver, ir::Label const& path) {
+        if( !m_setup_complete )
+          throw std::runtime_error("Call Simulation_engine::setup() before "
+              "Simulation_engine::add_driver()");
+
+        // find module in hierarchy
+        auto mod = ir::find_instance(m_top_mod, path);
+        if( !mod )
+          throw std::runtime_error("Could not find requested module");
+
+        // find module in runset
+        auto it = std::find_if(std::begin(m_runset.modules),
+            std::end(m_runset.modules),
+            [&mod](Runset::Module m) -> bool { return m.mod == mod; });
+        if( it == std::end(m_runset.modules) ) {
+          throw std::runtime_error("Module not available in runset");
+        }
+
+        // register driver callback
+        it->drivers.push_back(std::ref(driver));
+        return --std::end(it->drivers);
+      }
+
 
     protected:
       static unsigned const max_cycles = 20;

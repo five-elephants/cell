@@ -44,8 +44,14 @@ namespace sim {
       typedef std::multimap<ir::Time, std::tuple<ir::Time,Process>> Process_schedule;
       typedef std::shared_ptr<std::vector<char>> Module_frame;
       typedef std::shared_ptr<std::vector<char>> Read_mask;
+      typedef std::function<void(ir::Time const& t,
+          Module_frame this_in,
+          Module_frame this_out,
+          Module_frame this_prev)> Driver_function;
+      typedef std::vector<Driver_function> Driver_list;
 
 
+      /** Internal data structure for module runtime data */
       struct Module {
         std::shared_ptr<Llvm_module> mod;
         Module_frame this_in;
@@ -59,6 +65,7 @@ namespace sim {
         Process_set run_list;
         Process_schedule schedule;
         Time_process_map recurrent_schedule;
+        Driver_list drivers;  /**< List of driver/observer callbacks */
       };
 
       typedef std::vector<Module> Module_list;
