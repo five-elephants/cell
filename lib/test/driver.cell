@@ -1,4 +1,10 @@
-mod m: {
+socket s: {
+	<= a : int
+	<= b : int
+	=> y : int
+}
+
+mod m <> s: {
 	var clk : bool
 	var a : int
 	var b : int

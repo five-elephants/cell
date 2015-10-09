@@ -35,6 +35,19 @@ TEST_F(Test_driver, add_driver_function) {
 
 
 struct Test_driver_struct {
+  struct Socket {
+    int64_t a;
+    int64_t b;
+    int64_t y;
+  };
+  struct Frame {
+    Socket port;
+    bool clk;
+    int64_t a;
+    int64_t b;
+    int64_t y;
+  };
+
   sim::Module_inspector insp;
   log4cxx::LoggerPtr logger;
   int64_t a = 0;
@@ -54,6 +67,14 @@ struct Test_driver_struct {
     insp.set<int64_t>("b", 1);
     LOG4CXX_INFO(logger, "driver called: y = " << insp.get<int64_t>("y"));
     LOG4CXX_DEBUG(logger, "driver.a = " << a);
+
+    Frame frame_in;
+    std::copy_n(this_in->data(), sizeof(Frame), reinterpret_cast<uint8_t*>(&frame_in));
+
+    EXPECT_EQ(insp.get<int64_t>("clk"), frame_in.clk);
+    EXPECT_EQ(insp.get<int64_t>("a"), frame_in.a);
+    EXPECT_EQ(insp.get<int64_t>("b"), frame_in.b);
+    EXPECT_EQ(insp.get<int64_t>("y"), frame_in.y);
   }
 };
 
