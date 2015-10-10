@@ -3,14 +3,38 @@
 #include "driver.h"
 
 
+namespace std {  // necessary for log4cxx
+  ostream& operator << (ostream& os, cell::s const& x) {
+    return os << "s(a:" << x.a
+      << ", b:" << x.b
+      << ", y:" << x.y
+      << ")";
+  }
+}
+
 struct Driver {
   bool hit = false;
+  log4cxx::LoggerPtr logger;
+
+  Driver()
+    : logger(log4cxx::Logger::getLogger("tb.Driver")) {
+  }
 
   void operator () (ir::Time const& t,
       sim::Runset::Module_frame this_in,
       sim::Runset::Module_frame this_out,
       sim::Runset::Module_frame this_prev) {
     hit = true;
+
+    cell::s s;
+    std::copy_n(this_in->data(), sizeof(cell::s), reinterpret_cast<uint8_t*>(&s));
+    LOG4CXX_INFO(logger, "in : " << s);
+
+    s.a = 1;
+    s.b = 2;
+
+    LOG4CXX_INFO(logger, "out: " << s);
+    std::copy_n(reinterpret_cast<uint8_t*>(&s), sizeof(cell::s), this_out->data());
   }
 };
 
@@ -47,6 +71,7 @@ class Tb_driver {
 int main(int argc, char* argv[]) {
   init_logging();
   Tb_driver tb("../lib/test/driver.cell", "m");
+  tb.run();
 
   if( tb.passed() )
     return 0;

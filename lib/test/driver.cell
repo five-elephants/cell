@@ -13,4 +13,10 @@ mod m <> s: {
 	process: y = a + b
 
 	periodic(10 ns): clk = !clk
+
+	process: {
+		a = port.a;
+		b = port.b;
+		port.y = y;
+	}
 }

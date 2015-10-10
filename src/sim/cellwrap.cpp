@@ -20,6 +20,7 @@ void wrap(std::string const& sourcefile,
     throw std::runtime_error("Failed to open file '" + cpp_header + "'");
 
   ofs << "#pragma once\n\n";
+  ofs << "namespace cell {\n";
 
   sim::Simulation_engine engine(sourcefile, lookup_path);
   auto lib = engine.library();
@@ -30,6 +31,8 @@ void wrap(std::string const& sourcefile,
     sim::write_cpp(ofs, insp.module()->socket);
     engine.teardown();
   }
+
+  ofs << "\n}\n";  // end namespace
 }
 
 
