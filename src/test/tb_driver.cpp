@@ -12,30 +12,51 @@ namespace std {  // necessary for log4cxx
   }
 }
 
-struct Driver {
-  bool hit = false;
-  log4cxx::LoggerPtr logger;
+template<typename Base, typename Socket>
+class Driver {
+  public:
+    Driver()
+      : m_logger(log4cxx::Logger::getLogger("tb.Driver")) {
+    }
 
-  Driver()
-    : logger(log4cxx::Logger::getLogger("tb.Driver")) {
-  }
+    void operator () (ir::Time const& t,
+        sim::Runset::Module_frame this_in,
+        sim::Runset::Module_frame this_out,
+        sim::Runset::Module_frame this_prev) {
 
-  void operator () (ir::Time const& t,
-      sim::Runset::Module_frame this_in,
-      sim::Runset::Module_frame this_out,
-      sim::Runset::Module_frame this_prev) {
-    hit = true;
+      Socket s;
+      std::copy_n(this_in->data(), sizeof(Socket), reinterpret_cast<uint8_t*>(&s));
+      LOG4CXX_INFO(m_logger, "in : " << s);
 
-    cell::s s;
-    std::copy_n(this_in->data(), sizeof(cell::s), reinterpret_cast<uint8_t*>(&s));
-    LOG4CXX_INFO(logger, "in : " << s);
+      static_cast<Base*>(this)->observe(s);
+      s = static_cast<Base*>(this)->drive(s);
 
-    s.a = 1;
-    s.b = 2;
+      LOG4CXX_INFO(m_logger, "out: " << s);
+      std::copy_n(reinterpret_cast<uint8_t*>(&s), sizeof(Socket), this_out->data());
+    }
 
-    LOG4CXX_INFO(logger, "out: " << s);
-    std::copy_n(reinterpret_cast<uint8_t*>(&s), sizeof(cell::s), this_out->data());
-  }
+  private:
+    log4cxx::LoggerPtr m_logger;
+};
+
+
+class My_driver : public Driver<My_driver, cell::s> {
+  public:
+    My_driver()
+      : Driver() {
+    }
+
+    cell::s drive(cell::s port) {
+      port.a = 1;
+      port.b = 2;
+      return port;
+    }
+
+    void observe(cell::s port) {
+      m_hit = true;
+    }
+
+    bool m_hit = false;
 };
 
 
@@ -51,7 +72,7 @@ class Tb_driver {
     void run() {
       m_engine.simulate(ir::Time(100, ir::Time::ns));
 
-      if( !m_driver.hit )
+      if( !m_driver.m_hit )
         m_pass = false;
     }
 
@@ -64,7 +85,7 @@ class Tb_driver {
   private:
     bool m_pass;
     sim::Simulation_engine m_engine;
-    Driver m_driver;
+    My_driver m_driver;
 };
 
 
