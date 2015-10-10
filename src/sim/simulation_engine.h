@@ -62,6 +62,24 @@ namespace sim {
       Module_inspector inspect_module(ir::Label const& name);
 
 
+      /** Add a driver/observer callback
+       *
+       * @tparam Callable Type of callback
+       * @param driver Callback to be used as driver/observer
+       * @param path Path to the module to drive/observe
+       * @return Iterator to the callback
+       *
+       * This method registers a callback that gets called in every simulation
+       * cycle. The callback takes four arguments:
+       *
+       *  - Current simulation time as ir::Time object.
+       *  - Runset::Module_frame object for this_in.
+       *  - Runset::Module_frame object for this_out.
+       *  - Runset::Module_frame object for this_prev.
+       *
+       * The this_in, this_out, and this_prev pointers can be manipulated
+       * freely by the callback. This allows to implement monitors or drivers.
+       * */
       template<typename Callable>
       Runset::Driver_list::iterator
       add_driver(Callable& driver, ir::Label const& path) {

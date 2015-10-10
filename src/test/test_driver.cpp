@@ -63,8 +63,11 @@ struct Test_driver_struct {
       sim::Runset::Module_frame this_in,
       sim::Runset::Module_frame this_out,
       sim::Runset::Module_frame this_prev) {
-    insp.set<int64_t>("a", a++);
-    insp.set<int64_t>("b", 1);
+    Frame frame_out;
+    std::copy_n(this_in->data(), sizeof(Frame), reinterpret_cast<uint8_t*>(&frame_out));
+    frame_out.port.a = a++;
+    frame_out.port.b = 1;
+    std::copy_n(reinterpret_cast<uint8_t*>(&frame_out), sizeof(Frame), this_out->data());
     LOG4CXX_INFO(logger, "driver called: y = " << insp.get<int64_t>("y"));
     LOG4CXX_DEBUG(logger, "driver.a = " << a);
 

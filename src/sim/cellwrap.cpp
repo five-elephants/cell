@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
     else if( vm.count("veryverbose") )
       logger->setLevel(log4cxx::Level::getTrace());
     else
-      logger->setLevel(log4cxx::Level::getInfo());
+      logger->setLevel(log4cxx::Level::getWarn());
 
 
     std::vector<std::string> lookup_path;
