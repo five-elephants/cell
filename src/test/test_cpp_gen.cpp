@@ -39,7 +39,10 @@ TEST_F(Test_cpp_gen, write_ir) {
   elem_a->type = int_ty;
   ty->elements["a"] = elem_a;
 
-  sim::write_cpp(std::cout, ty);
+  std::stringstream strm;
+  sim::write_cpp(strm, ty);
+
+  EXPECT_EQ("struct foo {\n\tint64_t a;\n};\n", strm.str());
 }
 
 
@@ -74,7 +77,19 @@ TEST_F(Test_cpp_gen, write_ir_nested) {
   foo->elements["a"] = elem_a;
   foo->elements["b"] = elem_bar;
 
-  sim::write_cpp(std::cout, foo);
+  std::stringstream strm;
+  sim::write_cpp(strm, foo);
+
+  EXPECT_EQ(
+      "struct bar {"
+      "\n\tbool clk;"
+      "\n};\n"
+      "struct foo {"
+      "\n\tint64_t a;"
+      "\n\tbar b;"
+      "\n};\n",
+      strm.str()
+  );
 }
 
 
@@ -86,11 +101,15 @@ TEST_F(Test_cpp_gen, cpp_name) {
 
 TEST_F(Test_cpp_gen, from_code) {
   sim::Simulation_engine engine("../lib/test/driver.cell", "m");
+  std::stringstream strm;
 
   engine.setup();
   auto insp = engine.inspect_module("");
-  sim::write_cpp(std::cout, insp.module()->socket);
+  sim::write_cpp(strm, insp.module()->socket);
   engine.teardown();
+
+  EXPECT_EQ("struct s {\n\tint64_t a;\n\tint64_t b;\n\tint64_t y;\n};\n",
+      strm.str());
 }
 
 
