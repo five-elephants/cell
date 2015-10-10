@@ -125,6 +125,13 @@ def build(bld):
       **flags
     )
 
+    bld.program(
+      source = 'src/sim/cellwrap.cpp',
+      target = 'cellwrap',
+      use = 'core sim LLVM',
+      **flags
+    )
+
     bld.objects(
       source = gtest_src,
       target = "gtest",
@@ -152,5 +159,32 @@ def build(bld):
         features = 'doxygen',
         doxyfile = 'doc/doxygen/Doxyfile',
     )
+
+    bld.add_group()
+
+    bld.program(
+      features = 'test',
+      source = 'src/test/tb_driver.cpp lib/test/driver.cell',
+      target = 'tb_driver',
+      use = 'core sim LLVM',
+      **flags
+    )
+
+
+from waflib.Task import Task
+class cell2h(Task):
+  run_str = '${SRC[0].abspath()} ${SRC[1].abspath()} -o ${TGT}'
+  color = 'PINK'
+
+
+from waflib.TaskGen import extension
+
+@extension('.cell')
+def process_cell(self, node):
+  tg = self.bld.get_tgen_by_name('cellwrap')
+  cellwrap = tg.link_task.outputs[0]
+  tsk = self.create_task('cell2h', [cellwrap, node], node.change_ext('.h'))
+  # self.source.extend(tsk.outputs)
+  self.includes.append(tsk.outputs[0].bld_dir())
 
 

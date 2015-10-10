@@ -33,6 +33,9 @@ namespace sim {
       Simulation_engine(std::string const& filename,
           std::string const& toplevel,
           std::vector<std::string> const& lookup_path);
+      Simulation_engine(std::string const& filename);
+      Simulation_engine(std::string const& filename,
+          std::vector<std::string> const& lookup_path);
       ~Simulation_engine();
 
 
@@ -41,8 +44,13 @@ namespace sim {
       //
 
       void setup();
+      void setup(std::string const& toplevel) {
+        set_toplevel(toplevel);
+        setup();
+      }
       void simulate(ir::Time const& duration);
       void teardown();
+
 
       /** Create a Module_inspector object
        *
@@ -80,6 +88,9 @@ namespace sim {
       }
 
 
+      std::shared_ptr<sim::Llvm_library> library() { return m_lib; }
+
+
     protected:
       static unsigned const max_cycles = 20;
 
@@ -97,9 +108,9 @@ namespace sim {
 
 
       void init(std::string const& filename,
-          std::string const& toplevel,
           std::vector<std::string> const& lookup_path);
       void optimize();
+      void set_toplevel(std::string const& toplevel);
       ir::Time simulate_step(ir::Time const& t, ir::Time const& duration);
       bool simulate_cycle();
   };

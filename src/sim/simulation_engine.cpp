@@ -27,14 +27,47 @@ namespace sim {
 
   Simulation_engine::Simulation_engine(std::string const& filename,
       std::string const& toplevel) {
-    init(filename, toplevel, std::vector<std::string>());
+    init(filename, std::vector<std::string>());
+    set_toplevel(toplevel);
+
+    LOG4CXX_INFO(m_logger, "initialized simulation using file '"
+        << filename
+        << "' with top module '"
+        << toplevel
+        << "'");
   }
 
 
   Simulation_engine::Simulation_engine(std::string const& filename,
       std::string const& toplevel,
       std::vector<std::string> const& lookup_path) {
-    init(filename, toplevel, lookup_path);
+    init(filename, lookup_path);
+    set_toplevel(toplevel);
+
+    LOG4CXX_INFO(m_logger, "initialized simulation using file '"
+        << filename
+        << "' with top module '"
+        << toplevel
+        << "'");
+  }
+
+
+  Simulation_engine::Simulation_engine(std::string const& filename) {
+    init(filename, std::vector<std::string>());
+
+    LOG4CXX_INFO(m_logger, "initialized simulation using file '"
+        << filename
+        << "'");
+  }
+
+
+  Simulation_engine::Simulation_engine(std::string const& filename,
+      std::vector<std::string> const& lookup_path) {
+    init(filename, lookup_path);
+
+    LOG4CXX_INFO(m_logger, "initialized simulation using file '"
+        << filename
+        << "'");
   }
 
 
@@ -45,7 +78,6 @@ namespace sim {
 
   void
   Simulation_engine::init(std::string const& filename,
-      std::string const& toplevel,
       std::vector<std::string> const& lookup_path) {
     using namespace llvm;
     using namespace std;
@@ -122,32 +154,9 @@ namespace sim {
     //cout << "\n====="
       //<< endl;
 
-    m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
-    if( !m_top_mod ) {
-      std::stringstream strm;
-      strm << "Can not find top level module '"
-        << toplevel
-        << "'\n";
-      strm << "The following modules were found in toplevel namespace '"
-        << m_lib->ns->name
-        << "':\n";
-      for(auto m : m_lib->ns->modules) {
-        strm << "    " << m.first << '\n';
-      }
-
-      throw std::runtime_error(strm.str());
-
-      return;
-    }
-
     m_time.v = 0;
     m_time.magnitude = ir::Time::ps;
 
-    LOG4CXX_INFO(m_logger, "initialized simulation using file '"
-        << filename
-        << "' with top module '"
-        << toplevel
-        << "'");
   }
 
 
@@ -237,6 +246,28 @@ namespace sim {
           //new llvm::raw_os_ostream(std::cout)));
 
     m_mpm->run(*m_lib->impl.module.get());
+  }
+
+
+  void
+  Simulation_engine::set_toplevel(std::string const& toplevel) {
+    m_top_mod = find_by_path(*(m_lib->ns), &ir::Namespace<Llvm_impl>::modules, toplevel);
+    if( !m_top_mod ) {
+      std::stringstream strm;
+      strm << "Can not find top level module '"
+        << toplevel
+        << "'\n";
+      strm << "The following modules were found in toplevel namespace '"
+        << m_lib->ns->name
+        << "':\n";
+      for(auto m : m_lib->ns->modules) {
+        strm << "    " << m.first << '\n';
+      }
+
+      throw std::runtime_error(strm.str());
+
+      return;
+    }
   }
 
 
