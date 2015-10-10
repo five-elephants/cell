@@ -1,5 +1,6 @@
 #include "sim/simulation_engine.h"
 #include "sim/vcd_instrumenter.h"
+#include "sim/cpp_gen.h"
 #include "logging/logger.h"
 #include "ir/time.h"
 
@@ -9,13 +10,27 @@
 #include <boost/filesystem.hpp>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 namespace po = boost::program_options;
+
+
+void wrap_cpp(std::string const& cpp_header, sim::Simulation_engine& engine) {
+  std::ofstream ofs(cpp_header);
+  if( !ofs )
+    throw std::runtime_error("Failed to open file '" + cpp_header + "'");
+
+  ofs << "#pragma once\n\n";
+
+  auto insp = engine.inspect_module("");
+  sim::write_cpp(ofs, insp.module()->socket);
+}
 
 
 void simulate(std::string const& sourcefile,
     std::string const& top_module,
     std::string const& vcd_dump,
+    std::string const& cpp_header,
     std::string const& time,
     std::vector<std::string> const& lookup_path) {
   ir::Time t;
@@ -31,12 +46,20 @@ void simulate(std::string const& sourcefile,
     sim::Vcd_instrumenter instr(vcd_dump);
     engine.instrument(instr);
     engine.setup();
+
+    if( !cpp_header.empty() )
+      wrap_cpp(cpp_header, engine);
+
     if( t != ir::Time(0, ir::Time::ns) )
       engine.simulate(t);
     engine.teardown();
   } else {
     sim::Simulation_engine engine(sourcefile, top_module, lookup_path);
     engine.setup();
+
+    if( !cpp_header.empty() )
+      wrap_cpp(cpp_header, engine);
+
     if( t != ir::Time(0, ir::Time::ns) )
       engine.simulate(t);
     engine.teardown();
@@ -56,6 +79,8 @@ int main(int argc, char* argv[]) {
       ("veryverbose,V", "even more output")
       ("vcd", po::value<std::string>()->default_value(""),
        "write VCD output to file")
+      ("wrap-cpp", po::value<std::string>()->default_value(""),
+       "write C++ header to file")
       ("file,f", po::value<std::string>(),
        "input source file")
       ("top_module,m", po::value<std::string>(),
@@ -109,6 +134,7 @@ int main(int argc, char* argv[]) {
     simulate(vm["file"].as<std::string>(),
         vm["top_module"].as<std::string>(),
         vm["vcd"].as<std::string>(),
+        vm["wrap-cpp"].as<std::string>(),
         vm["time"].as<std::string>(),
         lookup_path);
 
