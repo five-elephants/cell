@@ -130,7 +130,7 @@ namespace sim {
       void optimize();
       void set_toplevel(std::string const& toplevel);
       ir::Time simulate_step(ir::Time const& t, ir::Time const& duration);
-      bool simulate_cycle();
+      bool simulate_cycle(ir::Time const& t);
   };
 
 

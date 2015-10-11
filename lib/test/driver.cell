@@ -1,4 +1,5 @@
 socket s: {
+	<= clk : bool
 	<= a : int
 	<= b : int
 	=> y : int
@@ -18,5 +19,6 @@ mod m <> s: {
 		a = port.a;
 		b = port.b;
 		port.y = y;
+		port.clk = clk;
 	}
 }

@@ -301,12 +301,6 @@ namespace sim {
 
     // add timed processes to the run list
     for(auto& mod : m_runset.modules) {
-      // call observer/checker code to observe ptr_out
-      for(auto& drv : mod.drivers) {
-        if( drv )
-          drv(t, mod.this_in, mod.this_out, mod.this_prev);
-      }
-
       std::list<Runset::Process_schedule::value_type> new_schedules;
       std::list<Runset::Time_process_map::value_type> new_schedules_recurrent;
 
@@ -368,7 +362,7 @@ namespace sim {
     bool rerun;
 
     do {
-      rerun = simulate_cycle();
+      rerun = simulate_cycle(t);
     } while( (cycle++ < max_cycles) && rerun );
 
     if( cycle >= max_cycles )
@@ -378,7 +372,7 @@ namespace sim {
   }
 
   bool
-  Simulation_engine::simulate_cycle() {
+  Simulation_engine::simulate_cycle(ir::Time const& t) {
     using namespace std;
 
     LOG4CXX_DEBUG(m_logger, "----- simulate cycle -----");
@@ -388,6 +382,12 @@ namespace sim {
           << mod.run_list.size()
           << " processes in module "
           << mod.mod->name);
+
+      // call observer/checker code to observe ptr_out
+      for(auto& drv : mod.drivers) {
+        if( drv )
+          drv(t, mod.this_in, mod.this_out, mod.this_prev);
+      }
 
       for(auto const& proc : mod.run_list) {
         LOG4CXX_TRACE(m_logger, "calling process...");

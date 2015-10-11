@@ -108,7 +108,7 @@ TEST_F(Test_cpp_gen, from_code) {
   sim::write_cpp(strm, insp.module()->socket);
   engine.teardown();
 
-  EXPECT_EQ("struct s {\n\tint64_t a;\n\tint64_t b;\n\tint64_t y;\n};\n",
+  EXPECT_EQ("struct s {\n\tint64_t a;\n\tint64_t b;\n\tbool clk;\n\tint64_t y;\n};\n",
       strm.str());
 }
 
