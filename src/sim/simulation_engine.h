@@ -148,6 +148,15 @@ namespace sim {
         : Simulation_engine(filename, toplevel, lookup_path) {
       }
 
+      Instrumented_simulation_engine(std::string const& filename)
+        : Simulation_engine(filename) {
+      }
+
+      Instrumented_simulation_engine(std::string const& filename,
+          std::vector<std::string> const& lookup_path)
+        : Simulation_engine(filename, lookup_path) {
+      }
+
       void setup();
       void setup_module(std::shared_ptr<Llvm_module> mod);
       void simulate(ir::Time const& duration);
