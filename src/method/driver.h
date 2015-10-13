@@ -18,12 +18,12 @@ namespace method {
           sim::Runset::Module_frame this_prev) {
 
         Socket s = from_frame(this_in);
-        LOG4CXX_TRACE(m_logger, "in : " << s);
+        LOG4CXX_TRACE(m_logger, "@" << t << " in : " << s);
 
-        static_cast<Base*>(this)->observe(s);
-        s = static_cast<Base*>(this)->drive(s);
+        static_cast<Base*>(this)->observe(t, s);
+        s = static_cast<Base*>(this)->drive(t, s);
 
-        LOG4CXX_TRACE(m_logger, "out: " << s);
+        LOG4CXX_TRACE(m_logger, "@" << t << " out: " << s);
         to_frame(s, this_out);
       }
 
