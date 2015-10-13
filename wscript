@@ -5,16 +5,18 @@ from waflib.Tools import waf_unit_test
 
 def options(opt):
     opt.load('compiler_cxx compiler_c')
-    #opt.load('clang clangxx')
     opt.load('flex')
     opt.load('bison')
     opt.load('boost')
     opt.load('doxygen')
     opt.load('waf_unit_test')
 
+    opt.add_option('--release', action='store_true', default=False,
+        help='Enable build options intended for release (optimization)')
+
+
 def configure(conf):
     conf.load('compiler_cxx compiler_c boost bison flex')
-    #conf.load('clang clangxx boost bison flex')
     conf.check_boost(lib='program_options serialization system filesystem')
     conf.check(lib='pthread', uselib_store='PTHREAD')
     conf.check(lib='log4cxx', uselib_store='LOG4CXX')
@@ -35,6 +37,17 @@ def configure(conf):
 
     conf.load('doxygen')
     conf.load('waf_unit_test')
+
+    conf.env.FLAGS = {
+      'cxxflags': '-fPIC -std=c++11 -DBOOST_FILESYSTEM_NO_DEPRECATED',
+      'includes': [ 'src', 'src/parsing' ],
+    }
+
+    if conf.options.release:
+      conf.env.FLAGS['cxxflags'] += ' -O2'
+    else:
+      conf.env.FLAGS['cxxflags'] += ' -O0 -ggdb'
+
 
 def build(bld):
     core_src = """
@@ -99,37 +112,32 @@ def build(bld):
       src/test/test_cpp_gen.cpp
     """
 
-    flags = {
-      'cxxflags': '-fPIC -std=c++11 -O0 -ggdb -DBOOST_FILESYSTEM_NO_DEPRECATED',
-      'includes': [ 'src', 'src/parsing' ],
-    }
-
     bld.objects(
       source = core_src,
       target = 'core',
       use = 'BOOST',
-      **flags
+      **bld.env.FLAGS
     )
 
     bld.objects(
       source = sim_src,
       target = 'sim',
       use = 'BOOST LLVM LOG4CXX',
-      **flags
+      **bld.env.FLAGS
     )
 
     bld.program(
       source = 'src/sim/cellsim.cpp',
       target = 'cellsim',
       use = 'core sim LLVM',
-      **flags
+      **bld.env.FLAGS
     )
 
     bld.program(
       source = 'src/sim/cellwrap.cpp',
       target = 'cellwrap',
       use = 'core sim LLVM',
-      **flags
+      **bld.env.FLAGS
     )
 
     bld.objects(
@@ -148,10 +156,10 @@ def build(bld):
       target = 'test-main',
       includes = [
         'gtest/gtest-1.7.0/include',
-      ] + flags['includes'],
+      ] + bld.env.FLAGS['includes'],
       use = 'core sim gtest LLVM',
       install_path = None,
-      cxxflags = flags['cxxflags']
+      cxxflags = bld.env.FLAGS['cxxflags']
     )
     bld.add_post_fun(waf_unit_test.summary)
 
@@ -167,7 +175,7 @@ def build(bld):
       source = 'src/test/tb_driver.cpp lib/test/driver.cell',
       target = 'tb_driver',
       use = 'core sim LLVM',
-      **flags
+      **bld.env.FLAGS
     )
 
 
