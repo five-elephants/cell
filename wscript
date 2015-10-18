@@ -21,7 +21,11 @@ def configure(conf):
     conf.check(lib='pthread', uselib_store='PTHREAD')
     conf.check(lib='log4cxx', uselib_store='LOG4CXX')
     conf.check(header_name='log4cxx/log4cxx.h', uselib_store='LOG4CXX')
-    for llvm_config in [ 'llvm-config', 'llvm-config-3.4' ]:
+    for llvm_config in [
+        'llvm-config',
+        'llvm-config-3.4',
+        'llvm-config-3.5',
+        'llvm-config-3.6' ]:
       res = conf.check_cfg(
         path=llvm_config,
         args='--cppflags --includedir --ldflags --system-libs --libs core jit native',
