@@ -7,7 +7,7 @@ before_install:
     - sudo apt-get update -q
 
 install:
-    - sudo apt-get install -y flex bison doxygen graphviz libboost-all-dev liblog4cxx10-dev
+    - sudo apt-get install -y flex bison doxygen graphviz libboost-all-dev liblog4cxx10-dev libedit-dev
     - sudo apt-get install -y gcc-4.9 g++-4.9
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
     - sudo update-alternatives --set gcc /usr/bin/gcc-4.9
