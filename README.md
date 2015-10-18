@@ -43,6 +43,7 @@ Prerequisites
 - pthreads
 - log4cxx
 - LLVM (3.5)
+- GCC (>4.9)
 - doxygen
 
 
