@@ -15,13 +15,33 @@ queues are realized as libraries. Also, the language is focused on modeling, or,
 in case of hardware, designing the system. Other aspects, for example
 verification, are left to other languages, for which APIs are provided.
 
+The implementation provided here is a just-in-time (JIT) compiler for CELL using
+LLVM to generate code. CELL models can either be simulated using the cellsim
+binary or by constructing a C++ testbench and using the cellwrap tool to extract
+type definitions.
+
 The goal of CELL is to provide a useful and modern language that can be used for
 hardware description. We feel, that the established hardware description
-languages are old and not moving into the right direction. This is an effort to
-establish a community-driven language with open source implementation that
-learns from modern "software" languages and boldly goes new ways.
+languages are outdated and not moving into the right direction. This is an
+effort to establish a community-driven language with an open source
+implementation that learns from modern "software" languages and boldly goes new
+ways.
 
 Take the [tour](doc/tour.md) to get a feeling for the language.
+Simple demos of the language are available in lib/test/demo_*.cell.
+There demo_lif.cell demonstrates continuous-time simulation of a Leaky-integrate
+and fire neuron.
+
+
+Prerequisites
+-------------
+
+- flex and bison
+- boost (program_options serialization system filesystem)
+- pthreads
+- log4cxx
+- LLVM (3.5)
+- doxygen
 
 
 Compiling & Installation
@@ -62,6 +82,28 @@ via its return code.
 All tests are automatically run after building by waf.
 
 
+Usage
+-----
+
+Two executables are built:
+
+- cellsim
+- cellwrap
+
+cellsim is used for direct simulation and supports output of VCD files. To get
+usage information run
+
+    $ cellsim -h
+
+cellwrap generates a C++ header with type definitions for inclusion in a C++
+testbench. Use
+
+    $ cellwrap -h
+
+for usage information. An example testbench is available in
+src/test/tb_driver.cpp.
+
+
 Documentation
 -------------
 
@@ -73,3 +115,4 @@ Syntax highlighting
 -------------------
 
 Syntax highlighting is available for Vim from [cell.vim](github.com/five-elephants/cell.vim).
+

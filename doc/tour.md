@@ -1,6 +1,9 @@
 A Tour of CELL
 ==============
 
+(This tour is currently not complete.)
+
+
 Functions
 ---------
 
@@ -11,7 +14,7 @@ Functionality in CELL is described as functions, e.g.:
 The body of the function is an expression, of which the result is returned when
 calling the function. When nothing should be returned a semicolon ';' can be
 used to absorb the result turning the expression into a statement. A compound
-expression using curly braces '{' and '}' can be used to from more complex
+expression using curly braces '{' and '}' can be used to form more complex
 expressions from a sequence of statements, e.g.:
 
     def mult_add(a : int, b : int, c : int) -> int: {
@@ -90,13 +93,21 @@ Modules are instantiated within other modules using the 'inst' keyword:
 This creates an instance 'plus' of module 'adder'. The elements of the socket of
 'plus' are available as 'plus.a' etc. within 'm'.
 
+The motivation behind this syntax for module instantiation and definition is,
+that modules should be cheap to define and use. This encourages modularization
+of designs helping re-usability.
+To achieve this, connectivity is abstracted into sockets. Modules implementing
+the same socket can be exchanged without modification on the instantiating side.
+The syntax also eliminates explicit port connection lists which are cumbersome
+to type and redundant.
+
+
 
 Discrete Event Simulation
 -------------------------
 
-For simulation, parallel functionality is executed through processes. A process
-is declared by putting the 'process' keyword in front of a statement within a
-module:
+Parallel functionality is executed through processes. A process is declared by
+putting the 'process' keyword in front of a statement within a module:
 
     mod adder <> binop: {
         process: port.y = port.a + port.b;
@@ -106,16 +117,17 @@ This defines a nameless function without arguments or return values. Processes
 have non-blocking assignment semantics for members of the module frame, i.e.
 port and member variables. This means, that all assignments to these variables
 have effect only after the process has executed. Variables defined within a
-compound expression or functions called from the process have blocking
-assignment semantics, since they only represent intermediate values that are not
-visible to other processes.
+process or functions called from the process have blocking assignment semantics,
+since they only represent intermediate values that are not visible to other
+processes.
 
 Every time a process is executed, the simulator tracks which variables are read
 to create a dynamic sensitivity list. All processes are executed once at the
 start of simulation to initialize this list. Now, in every simulation cycle,
 after all processes have run, assignments to module frames take effect and
 modified members are detected. Processes which are sensitive to changed members
-are re-run. This is repeated until a stable state is reached.
+are re-run. This is repeated until a stable state or a maximum number of
+iterations is reached.
 
 The key points here are, that sensitivity lists are created automatically and
 dynamically. The former makes it harder to forget signals from the list compared
