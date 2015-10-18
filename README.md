@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/five-elephants/cell.svg?branch=master)](https://travis-ci.org/five-elephants/cell)
+
 Continuous and Event-based Logic Language (CELL)
 ================================================
 
