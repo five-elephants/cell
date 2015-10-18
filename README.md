@@ -50,17 +50,17 @@ Compiling & Installation
 CELL uses waf as build tool. You can select a compiler using the CC and CXX
 environment variables.  For example to use clang:
 
-  $ export CC=clang
-  $ export CXX=clang++
-  $ ./waf configure
+    $ export CC=clang
+    $ export CXX=clang++
+    $ ./waf configure
 
 Compile using
 
-  $ ./waf build
+    $ ./waf build
 
 If you want you can install using
 
-  $ ./waf install
+    $ ./waf install
 
 Specifiy a --prefix option to ./waf configure to select where the installation
 should go.
@@ -72,8 +72,8 @@ Tests
 CELL uses the Google Test framework. The main executable is called test-main.
 After ./waf build you can execute it
 
-  $ cd build
-  $ ./test-main
+    $ cd build
+    $ ./test-main
 
 There is also an experimental mock-up of the planned verification methodology
 using C++: tb_driver.  The binary is available in build/ and reports pass/fail
