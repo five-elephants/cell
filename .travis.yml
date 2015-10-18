@@ -1,0 +1,8 @@
+language: cpp
+before_install: sudo apt-get update -q
+install: sudo apt-get install -y flex bison doxygen llvm-dev libboost-all-dev liblog4cxx10-dev
+script: ./waf configure build
+
+compiler:
+    - clang
+    - gcc
