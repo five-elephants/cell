@@ -179,6 +179,7 @@ def build(bld):
       source = 'src/test/tb_driver.cpp lib/test/driver.cell',
       target = 'tb_driver',
       use = 'core sim LLVM',
+      install_path = None,
       **bld.env.FLAGS
     )
 
