@@ -315,3 +315,17 @@ TEST_F(Simulator_test, overloaded_functions) {
   engine.teardown();
 }
 
+
+TEST_F(Simulator_test, imports) {
+  sim::Simulation_engine engine("../lib/test/imports.cell", "m");
+
+  engine.setup();
+  engine.simulate(ir::Time(10, ir::Time::ns));
+  auto insp = engine.inspect_module("");
+  EXPECT_EQ(12, insp.get<int64_t>("a"));
+  EXPECT_EQ(6, insp.get<int64_t>("b"));
+  EXPECT_EQ(30, insp.get<int64_t>("c"));
+  EXPECT_EQ(15, insp.get<int64_t>("d"));
+  engine.teardown();
+}
+

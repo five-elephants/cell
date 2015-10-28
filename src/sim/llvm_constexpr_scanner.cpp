@@ -2,8 +2,10 @@
 
 #include "ir/builtins.h"
 #include "ir/find.hpp"
+#include "ir/find_hierarchy.h"
 #include <sstream>
 #include <stdexcept>
+#include <boost/algorithm/string.hpp>
 
 
 namespace sim {
@@ -166,11 +168,21 @@ namespace sim {
 
   bool
   Llvm_constexpr_scanner::enter_constant_ref(ast::Constant_ref const& node) {
-    auto p = ir::find_constant(m_ns, node.identifier().identifier());
+    std::shared_ptr<Llvm_constant> p;
+
+    auto const& qn = node.name();
+    if( qn.size() > 1 ) {
+      p = ir::find_by_path(m_ns,
+          &Llvm_namespace::constants,
+          qn);
+    } else {
+      p = ir::find_constant(m_ns, qn[0]);
+    }
+
     if( !p ) {
       std::stringstream strm;
       strm << node.location() << ": No constant with name '"
-        << node.identifier().identifier()
+        << boost::algorithm::join(qn, "::")
         << "' was previously declared and is visible.";
       throw std::runtime_error(strm.str());
     }

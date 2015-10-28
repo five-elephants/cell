@@ -1,12 +1,14 @@
 #include "ast/function_def.h"
 
-#include "ast/identifier.h"
+#include "ast/qualified_name.h"
 #include <iterator>
 #include <algorithm>
 
 namespace ast {
 
-	static Identifier default_return_type = Identifier("unit");
+	static Qualified_name default_return_type = Qualified_name(
+            new Identifier("unit")
+        );
 
 	Function_def::Function_def(Node_if& identifier)
 		:	Tree_base(),

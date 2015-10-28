@@ -365,15 +365,23 @@ namespace sim {
           new_type->array_size);
 
       return new_type;
-    } else if( typeid(node.base_type()) == typeid(ast::Identifier) ) {
-      auto& base_type = dynamic_cast<ast::Identifier const&>(node.base_type());
-      auto type_name = base_type.identifier();
-      auto ir_type = find_type(m_ns, type_name);
+    } else if( typeid(node.base_type()) == typeid(ast::Qualified_name) ) {
+      auto const& base_type = dynamic_cast<ast::Qualified_name const&>(node.base_type());
+      auto type_name = base_type.name();
+      std::shared_ptr<Llvm_type> ir_type;
+      if( type_name.size() > 1 ) {
+        ir_type = find_by_path(m_ns,
+            &Llvm_namespace::types,
+            type_name);
+      } else {
+        ir_type = find_type(m_ns, type_name[0]);
+      }
 
       if( !ir_type ) {
         std::stringstream strm;
+        auto type_name_join = boost::algorithm::join(type_name, "::");
         strm << node.location()
-          << ": typename '" << type_name << "' not found.";
+          << ": typename '" << type_name_join << "' not found.";
         throw std::runtime_error(strm.str());
       }
 

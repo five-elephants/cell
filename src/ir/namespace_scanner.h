@@ -104,14 +104,20 @@ namespace ir {
 
           auto& mod = dynamic_cast<ast::Module_def const&>(node);
           if( mod.has_socket() ) {
-            if( typeid(mod.socket()) == typeid(ast::Identifier) ) {
-              auto& socket_name = dynamic_cast<ast::Identifier const&>(mod.socket()).identifier();
-              m_mod.socket = find_socket(m_mod, socket_name);
+            if( typeid(mod.socket()) == typeid(ast::Qualified_name) ) {
+              auto const& socket_name = dynamic_cast<ast::Qualified_name const&>(mod.socket()).name();
+              if( socket_name.size() > 1 ) {
+                m_mod.socket = find_by_path(m_mod,
+                    &Module<Impl>::sockets,
+                    socket_name);
+              } else {
+                m_mod.socket = find_socket(m_mod, socket_name[0]);
+              }
               if( !m_mod.socket ) {
                 std::stringstream strm;
                 strm << node.location()
                   << ": failed to find socket of name "
-                  << socket_name
+                  << boost::algorithm::join(socket_name, "::")
                   << " in module "
                   << m_mod.name;
                 throw std::runtime_error(strm.str());

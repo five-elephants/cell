@@ -104,12 +104,20 @@ namespace ir {
     func->name = dynamic_cast<ast::Identifier const*>(&(node.identifier()))->identifier();
 
     // get return type
-    auto type_name = dynamic_cast<ast::Identifier const*>(&(node.return_type()))->identifier();
-    func->return_type = find_type(m_ns, type_name);
+    auto type_name = dynamic_cast<ast::Qualified_name const&>(node.return_type()).name();
+    if( type_name.size() > 1 ) {
+      func->return_type = find_by_path(m_ns,
+          &Namespace<Impl>::types,
+          type_name);
+    } else {
+      func->return_type = find_type(m_ns, type_name[0]);
+    }
     if( !func->return_type ) {
       std::stringstream strm;
       strm << node.return_type().location();
-      strm << ": return type '" << type_name << "' not found.";
+      strm << ": return type '"
+        << boost::algorithm::join(type_name, "::")
+        << "' not found.";
       throw std::runtime_error(strm.str());
     }
 
@@ -133,12 +141,20 @@ namespace ir {
             + std::string(" already defined"));
       }
 
-      auto type_name = dynamic_cast<ast::Identifier const&>(p->type()).identifier();
-      p_ir->type = find_type(m_ns, type_name);
+      auto type_name = dynamic_cast<ast::Qualified_name const&>(p->type()).name();
+      if( type_name.size() > 1 ) {
+        p_ir->type = find_by_path(m_ns,
+            &Namespace<Impl>::types,
+            type_name);
+      } else {
+        p_ir->type = find_type(m_ns, type_name[0]);
+      }
       if( !p_ir->type ) {
         std::stringstream strm;
         strm << p->type().location();
-        strm << ": typename '" << type_name << "' not found.";
+        strm << ": typename '"
+          << boost::algorithm::join(type_name, "::")
+          << "' not found.";
         throw std::runtime_error(strm.str());
       }
 

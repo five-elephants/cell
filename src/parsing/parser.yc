@@ -152,7 +152,7 @@
 %type <node> type_identifier
 %type <node> phys_literal
 %type <node> recurrent
-%type <list> qualified_name
+%type <node> qualified_name
 %type <node> type_def
 %type <node> table_def
 %type <list> table_def_list
@@ -210,7 +210,7 @@ module: "mod" identifier ":" CURL_OPEN module_body CURL_CLOSE
                                   $$ = new ast::Module_def(*$2);
                                   $$->append(*$5);
                                  }
-    | "mod" identifier "<>" identifier ":" CURL_OPEN module_body CURL_CLOSE
+    | "mod" identifier "<>" qualified_name ":" CURL_OPEN module_body CURL_CLOSE
                                  {
                                   $$ = new ast::Module_def(*$2);
                                   $$->socket(*$4);
@@ -256,7 +256,7 @@ socket: SOCKET identifier ":" CURL_OPEN socket_body CURL_CLOSE
 socket_body: socket_body socket_item
                                  { $$ = $1; $1->push_back($2); }
   |                              { $$ = new ast::Node_list; };
-socket_item: socket_direction identifier ":" identifier
+socket_item: socket_direction identifier ":" type_identifier
                                 {
                                   $$ = new ast::Socket_item(static_cast<ast::Socket_direction>($1),*$2, *$4);
                                   /*$$ = new ast::Socket_item(ast::Socket_input,*$1, *$3);*/
@@ -266,7 +266,7 @@ socket_direction: CMP_LT_EQ     { $$ = ast::Socket_input; }
     | BIDIR                     { $$ = ast::Socket_bidirectional; };
 
 
-func: "def" identifier "(" func_params ")" "->" identifier ":" exp
+func: "def" identifier "(" func_params ")" "->" type_identifier ":" exp
                                  { $$ = new ast::Function_def(*$2, *$7);
                                    $$->append_body(*$9);
                                    $$->append_parameter(*$4);
@@ -282,9 +282,9 @@ func_params_:                    { $$ = new ast::Node_list; }
   | func_params_ COMMA func_param
                                  { $$ = $1; $1->push_back($3); }
   | func_param                   { $$ = new ast::Node_list; $$->push_back($1); };
-func_param: identifier "=" exp ":" identifier
+func_param: identifier "=" exp ":" type_identifier
                                  { $$ = new ast::Function_param(*$1, *$5, *$3); }
-  | identifier ":" identifier    { auto v = new ast::Function_param(*$1); v->type(*$3); $$ = v; }
+  | identifier ":" type_identifier { auto v = new ast::Function_param(*$1); v->type(*$3); $$ = v; }
   | identifier "=" exp           { auto v = new ast::Function_param(*$1); v->expression(*$3); $$ = v; };
 
 
@@ -311,7 +311,7 @@ table_def_item: identifier "=" constexp
                                    $$ = new ast::Table_def_item($1, $3); $$->location(@$);
                                  };
 
-mod_inst: "inst" identifier ":" identifier
+mod_inst: "inst" identifier ":" type_identifier
                                  {
                                   auto empty = new ast::Node_list;
                                   $$ = new ast::Module_instantiation(*$4, *$2, *empty); $$->location(@$);
@@ -379,7 +379,7 @@ constexp:
   | constexp "||" constexp       { $$ = new ast::Op_or(*$1, *$3); $$->location(@$); }
   | PAREN_OPEN constexp PAREN_CLOSE { $$ = $2; };
 
-const_ref: identifier            { $$ = new ast::Constant_ref(*$1); $$->location(@$); };
+const_ref: qualified_name        { $$ = new ast::Constant_ref(*$1); $$->location(@$); };
 
 process: "process" ":" statement { $$ = new ast::Process(*$3); $$->location(@$); };
 periodic: "periodic" "(" phys_literal ")" ":" statement
@@ -490,7 +490,7 @@ exp:
   | PAREN_OPEN exp PAREN_CLOSE   { $$ = $2; };
 
 var_ref: elem_access             { $$ = new ast::Variable_ref(*$1); $$->location(@$); };
-elem_access: qualified_name      { $$ = new ast::Name_lookup(*$1); $$->location(@$); }
+elem_access: qualified_name      { $$ = new ast::Name_lookup($1); $$->location(@$); }
   | elem_access "." identifier   { $$ = new ast::Op_element(*$1, *$3); $$->location(@$); }
   | elem_access "[" exp "]"      { $$ = new ast::Op_index(*$1, *$3); $$->location(@$); };
 identifier: "identifier"         { $$ = new ast::Identifier(*$1); delete $1; $$->location(@$); };
@@ -499,14 +499,17 @@ template_identifier: qualified_name '<' template_args '>'
                                    $$ = new ast::Template_identifier($1, $3);
                                    $$->location(@$);
                                  };
-type_identifier: identifier      { $$ = $1; $$->location(@$); }
+type_identifier: qualified_name  { $$ = $1; $$->location(@$); }
   | type_identifier "[" constexp "]"
                                  { $$ = new ast::Array_type(*$1, *$3); $$->location(@$); };
-qualified_name: identifier       {
-                                    $$ = new ast::Node_list();
-                                    $$->push_back($1);
-                                 }
-  | qualified_name "::" identifier { $1->push_back($3); $$ = $1; };
+qualified_name:
+  qualified_name "::" identifier {
+                                   auto& qn = dynamic_cast<ast::Qualified_name&>(*$1);
+                                   qn.append($3);
+                                   $$ = $1; }
+  | identifier       {
+                                   $$ = new ast::Qualified_name($1);
+                     };
 
 
 %%

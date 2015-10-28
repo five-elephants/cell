@@ -6,10 +6,11 @@
 
 namespace ast {
 
-	Function_call::Function_call(std::vector<Node_if*> const& name)
+	Function_call::Function_call(Node_if& name)
 		:	Tree_base(),
 			m_name(name) {
-		register_branch_lists({&m_name, &m_expressions});
+		register_branches({&m_name});
+		register_branch_lists({&m_expressions});
 	}
 
 

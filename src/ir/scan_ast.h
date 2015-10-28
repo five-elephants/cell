@@ -5,6 +5,7 @@
 #include "ast/ast_find.h"
 
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 
 namespace ir {
 
@@ -40,12 +41,21 @@ namespace ir {
           throw std::runtime_error("Invalid data direction in AST");
       }
 
-      auto type_name = dynamic_cast<ast::Identifier const&>(i->type()).identifier();
-      port->type = find_type(*(socket.enclosing_ns), type_name);
+      auto type_name = dynamic_cast<ast::Qualified_name const&>(i->type()).name();
+      if( type_name.size() > 1 ) {
+        port->type = find_by_path(*(socket.enclosing_ns),
+            &Namespace<Impl>::types,
+            type_name);
+      } else {
+        port->type = find_type(*(socket.enclosing_ns), type_name[0]);
+      }
+
       if( !port->type ) {
         std::stringstream strm;
         strm << i->type().location();
-        strm << ": typename '" << type_name << "' not found.";
+        strm << ": typename '"
+          << boost::algorithm::join(type_name, "::")
+          << "' not found.";
         throw std::runtime_error(strm.str());
       }
 

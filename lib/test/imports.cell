@@ -1,6 +1,8 @@
 namespace functions
 
 namespace a: {
+    const number = 15 : int
+
     def test() -> int : 3
 }
 
@@ -12,12 +14,29 @@ namespace imported: {
     def test() -> int : 5
 }
 
+namespace c: {
+    socket Sock: {
+        <> foo : int
+        <> bar : int
+    }
+}
+
 mod m: {
     var a : int
     var b : int
+    var c : int
+    var d : int
+    var test_sock : c::Sock
 
     def __init__(): {
         a = imported::test() + a::test() + b::test();
         b = functions::m::fac(3);
+
+        test_sock.foo = 10;
+        test_sock.bar = 20;
+
+        d = a::number;
     }
+
+    process: c = test_sock.foo + test_sock.bar
 }

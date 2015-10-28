@@ -12,8 +12,8 @@ namespace ast {
           Node_if& instance_name,
           std::vector<Node_if*>& connection_items);
 
-      Identifier const& module_name() const {
-        return dynamic_cast<Identifier const&>(m_module_name);
+      Node_if const& module_name() const {
+        return m_module_name;
       }
 
       Identifier const& instance_name() const {

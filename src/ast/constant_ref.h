@@ -1,25 +1,27 @@
 #pragma once
 
 #include "ast/tree_base.h"
-#include "ast/identifier.h"
+#include "ast/qualified_name.h"
+#include <string>
+#include <vector>
 
 
 namespace ast {
 
   class Constant_ref : public Tree_base {
     public:
-      Constant_ref(Node_if& identifier)
+      Constant_ref(Node_if& name)
         : Tree_base(),
-          m_identifier(identifier) {
-        register_branches({&m_identifier});
+          m_name(name) {
+        register_branches({&m_name});
       }
 
-      Identifier const& identifier() const {
-        return dynamic_cast<Identifier const&>(m_identifier);
+      std::vector<std::string> name() const {
+        return dynamic_cast<Qualified_name const&>(m_name).name();
       }
 
     private:
-      Node_if& m_identifier;
+      Node_if& m_name;
   };
 
 }

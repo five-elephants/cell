@@ -2,6 +2,7 @@
 
 #include "ast/tree_base.h"
 #include "ast/node_if.h"
+#include "ast/qualified_name.h"
 #include <vector>
 #include <string>
 
@@ -9,22 +10,19 @@ namespace ast {
 
   class Template_identifier : public Tree_base {
     public:
-      Template_identifier(std::vector<Node_if*>* qname,
+      Template_identifier(Node_if* qname,
           std::vector<Node_if*>* args)
-        : Tree_base() {
-        m_qname.resize(qname->size());
-        std::copy(qname->begin(), qname->end(), m_qname.begin());
+        : Tree_base(),
+          m_qname(qname) {
         m_args.resize(args->size());
         std::copy(args->begin(), args->end(), m_args.begin());
+
+        register_branches({m_qname});
+        register_branch_lists({&m_args});
       }
 
       std::vector<std::string> name() const {
-        std::vector<std::string> rv;
-        for(auto const& n : m_qname) {
-          auto tmp = dynamic_cast<ast::Identifier const&>(*n);
-          rv.push_back(tmp.identifier());
-        }
-        return rv;
+        return dynamic_cast<Qualified_name const&>(*m_qname).name();
       }
 
       std::vector<Node_if*> const& args() const {
@@ -44,7 +42,7 @@ namespace ast {
       }
 
     private:
-      std::vector<Node_if*> m_qname;
+      Node_if* m_qname;
       std::vector<Node_if*> m_args;
   };
 

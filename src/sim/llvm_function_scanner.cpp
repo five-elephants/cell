@@ -380,13 +380,20 @@
 
       // get type
       if( !node.without_type() ) {
-        if( typeid(node.type()) == typeid(ast::Identifier) ) {
-          auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
-          type = find_type(m_ns, type_name);
+        if( typeid(node.type()) == typeid(ast::Qualified_name) ) {
+          auto const& type_name = dynamic_cast<ast::Qualified_name const&>(node.type()).name();
+          if( type_name.size() > 1 ) {
+            type = find_by_path(m_ns,
+                &Llvm_namespace::types,
+                type_name);
+          } else {
+            type = find_type(m_ns, type_name[0]);
+          }
           if( !type ) {
             std::stringstream strm;
+            auto type_name_join = boost::algorithm::join(type_name, "::");
             strm << node.type().location();
-            strm << ": typename '" << type_name << "' not found.";
+            strm << ": typename '" << type_name_join << "' not found.";
             throw std::runtime_error(strm.str());
           }
         } else
@@ -751,10 +758,18 @@
       auto ty_left = m_types.at(&(node.left()));
       auto ty_right = m_types.at(&(node.right()));
 
-      auto op_left = ir::find_operator(m_ns,
+      // try namespace of argument first
+      auto op_left = ir::find_operator(*(ty_left->enclosing_ns),
           "<<",
           ty_left,
           ty_right);
+      if( !op_left ) {
+        // then try from this namespace
+        auto op_left = ir::find_operator(m_ns,
+            "<<",
+            ty_left,
+            ty_right);
+      }
       if( !op_left ) {
         std::stringstream strm;
         strm << node.location() << ": failed to find operator '"
@@ -769,10 +784,17 @@
         throw std::runtime_error(strm.str());
       }
 
-      auto op_right = ir::find_operator(m_ns,
+      // try namespace of argument first
+      auto op_right = ir::find_operator(*(ty_right->enclosing_ns),
           ">>",
           ty_left,
           ty_right);
+      if( !op_right ) {
+        auto op_right = ir::find_operator(m_ns,
+            ">>",
+            ty_left,
+            ty_right);
+      }
       if( !op_right ) {
         std::stringstream strm;
         strm << node.location() << ": failed to find operator '"

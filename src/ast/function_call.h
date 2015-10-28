@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ast/node_if.h"
-#include "ast/identifier.h"
+#include "ast/qualified_name.h"
 #include "ast/tree_base.h"
 #include <vector>
 
@@ -9,13 +9,11 @@ namespace ast {
 
 	class Function_call : public Tree_base {
 		public:
-			Function_call(std::vector<Node_if*> const& qualified_name);
+			Function_call(Node_if& qualified_name);
 
 			std::vector<std::string> name() const {
-				std::vector<std::string> rv;
-				for(auto const& n : m_name)
-					rv.push_back(dynamic_cast<Identifier const&>(*n).identifier());
-				return rv;
+				auto qn = dynamic_cast<Qualified_name const&>(m_name);
+				return qn.name();
 			}
 
 			void expressions(std::vector<Node_if*>& nodes);
@@ -23,7 +21,7 @@ namespace ast {
 			std::vector<Node_if*> const& expressions() const { return m_expressions; }
 
 		private:
-			std::vector<Node_if*> m_name;
+			Node_if& m_name;
 			std::vector<Node_if*> m_expressions;
 	};
 

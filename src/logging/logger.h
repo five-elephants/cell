@@ -13,6 +13,7 @@ static void init_logging() {
   logger->addAppender(appender);
   logger->setLevel(Level::getInfo());
   //logger->setLevel(Level::getDebug());
+  //logger->setLevel(Level::getTrace());
 }
 
 

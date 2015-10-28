@@ -96,13 +96,24 @@
             + std::string(" already exists"));
 
       // get type
-      if( typeid(node.type()) == typeid(ast::Identifier) ) {
-        auto& type_name = dynamic_cast<ast::Identifier const&>(node.type()).identifier();
-        obj->type = find_type(m_mod, type_name);
+      if( typeid(node.type()) == typeid(ast::Qualified_name) ) {
+        auto const& type_name = dynamic_cast<ast::Qualified_name const&>(node.type()).name();
+
+        LOG4CXX_TRACE(this->m_logger, "qualified name of type: "
+            << boost::algorithm::join(type_name, "::"));
+
+        if( type_name.size() > 1 ) {
+          obj->type = find_by_path(m_mod,
+              &Module<Impl>::types,
+              type_name);
+        } else {
+          obj->type = find_type(m_mod, type_name[0]);
+        }
         if( !obj->type ) {
           std::stringstream strm;
           strm << node.type().location();
-          strm << ": typename '" << type_name << "' not found.";
+          std::string type_name_join = boost::algorithm::join(type_name, "::");
+          strm << ": typename '" << type_name_join << "' not found.";
           throw std::runtime_error(strm.str());
         }
       } else if( typeid(node.type()) == typeid(ast::Array_type) ) {
@@ -110,6 +121,8 @@
 
         obj->type = this->create_array_type(ar_type);
         m_mod.types[obj->type->name] = obj->type;
+      } else {
+        throw std::runtime_error("Unexpected type of type specification for variable definition.");
       }
 
       return obj;
@@ -187,8 +200,23 @@
             tmpl->module_node,
           types);
     } else {
-      module_name = dynamic_cast<ast::Identifier const&>(node.module_name()).identifier();
-      inst->module = find_module(m_mod, module_name);
+      if( typeid(node.module_name()) == typeid(ast::Qualified_name) ) {
+        auto const& qn = dynamic_cast<ast::Qualified_name const&>(node.module_name()).name();
+        if( qn.size() > 1 ) {
+          inst->module = find_by_path(m_mod,
+              &Module<Impl>::modules,
+              qn);
+        } else {
+          inst->module = find_module(m_mod, qn[0]);
+        }
+      } else {
+        std::stringstream strm;
+        strm << node.location()
+          << "Expecting a qualified name as module for now ("
+          << __func__
+          << ")";
+        throw std::runtime_error(strm.str());
+      }
     }
 
     if( !inst->module ) {
