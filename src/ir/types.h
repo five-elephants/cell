@@ -9,4 +9,4 @@ namespace ir {
   } // XXX questionable!
 }
 
-/* vim: set et fenc= ff=unix sts=2 sw=2 ts=2 : */
+/* vim: set et ff=unix sts=2 sw=2 ts=2 : */

@@ -46,4 +46,4 @@ namespace ir {
 
 }
 
-/* vim: set et fenc= ff=unix sts=0 sw=2 ts=2 : */
+/* vim: set et ff=unix sts=0 sw=2 ts=2 : */
