@@ -10,8 +10,8 @@ namespace ir {
 
 
   template<typename Impl, typename FuncIt, typename ParamIt>
-  std::shared_ptr<Function<Impl>> resolve_function_overload(FuncIt func_a,
-      FuncIt func_b,
+  std::shared_ptr<Function<Impl>> resolve_function_overload(FuncIt const& func_a,
+      FuncIt const& func_b,
       ParamIt param_type_a,
       ParamIt param_type_b) {
     std::vector<std::shared_ptr<Function<Impl>>> candidates;

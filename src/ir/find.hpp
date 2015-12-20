@@ -30,11 +30,12 @@ namespace ir {
 
 
   template<typename T, typename Impl>
-  std::pair<typename std::multimap<Label, std::shared_ptr<T>>::const_iterator,
-      typename std::multimap<Label, std::shared_ptr<T>>::const_iterator>
+  std::vector<typename std::multimap<Label, std::shared_ptr<T>>::value_type>
   find_in_namespace(Namespace<Impl> const& ns,
       std::multimap<Label, std::shared_ptr<T>> Namespace<Impl>::*field,
       Label const& name) {
+    std::vector<typename std::multimap<Label, std::shared_ptr<T>>::value_type> rv;
+
     // search in each namespace going up the hierarchy
     for(Namespace<Impl> const* cur_ns = &ns;
         cur_ns != nullptr;
@@ -42,12 +43,21 @@ namespace ir {
       auto m = cur_ns->*field;  // get the appropriate map to search in
 
       if( m.count(name) > 0 ) {
-        auto rv = m.equal_range(name);
+        /* Bug in stdlib?
+         * m.end() contains an uninitialized shared_ptr as second member. This
+         * seems to be converted into a null-pointer when assigning. But then
+         * it does no longer compare equal to m.end(). So copying the
+         * equal_range pair makes it unusable as iterator range.
+         * -> Fix: copy to std::vector and return that instead of the
+         *  iterators. */
+        auto range = m.equal_range(name);
+        for(auto i=range.first; i != range.second; ++i)
+          rv.push_back(*i);
         return rv;
       }
     }
 
-    return std::make_pair((ns.*field).end(), (ns.*field).end());
+    return rv;
   }
 
 
@@ -84,16 +94,29 @@ namespace ir {
       Label const& func_name,
       It param_type_a,
       It param_type_b) {
-    auto range = find_in_namespace<Function<Impl>>(ns, &Namespace<Impl>::functions, func_name);
-    auto func = resolve_function_overload<Impl>(range.first,
-        range.second,
+    auto const candidates = find_in_namespace<Function<Impl>>(ns,
+        &Namespace<Impl>::functions,
+        func_name);
+    // It is probably not necessary to check this
+    //if( (range.first == ns.functions.end())
+        //|| (range.second == ns.functions.end()) ) {
+      //std::stringstream strm;
+      //strm << "Can not find function '"
+        //<< func_name
+        //<< "' starting at namespace '"
+        //<< ns.name
+        //<< "' (" << __func__ << ")";
+      //throw std::runtime_error(strm.str());
+    //}
+    auto func = resolve_function_overload<Impl>(std::begin(candidates),
+        std::end(candidates),
         param_type_a,
         param_type_b);
     if( !func ) {
       // check builtins
-      range = Builtins<Impl>::functions.equal_range(func_name);
-      func = resolve_function_overload<Impl>(range.first,
-          range.second,
+      auto const range2 = Builtins<Impl>::functions.equal_range(func_name);
+      func = resolve_function_overload<Impl>(range2.first,
+          range2.second,
           param_type_a,
           param_type_b);
       if( !func )
